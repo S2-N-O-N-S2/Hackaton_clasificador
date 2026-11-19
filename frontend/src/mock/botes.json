@@ -1,0 +1,66 @@
+{
+  "botes": [
+    {
+      "id": 0,
+      "nombre": "Orgánica",
+      "color": "verde",
+      "categoria_id": 0,
+      "capacidad_piezas": 12,
+      "piezas_actuales": 10,
+      "no_confirmadas": 1,
+      "nivel": 0.833,
+      "estado": "casi_lleno",
+      "bloqueado": false,
+      "umbral_aviso": 0.8,
+      "ultimo_vaciado": "2026-11-19T09:10:00",
+      "capacidad_calibrada": false,
+      "estimado": true
+    },
+    {
+      "id": 1,
+      "nombre": "Inorgánica",
+      "color": "azul",
+      "categoria_id": 1,
+      "capacidad_piezas": 12,
+      "piezas_actuales": 4,
+      "no_confirmadas": 0,
+      "nivel": 0.333,
+      "estado": "normal",
+      "bloqueado": false,
+      "umbral_aviso": 0.8,
+      "ultimo_vaciado": "2026-11-19T09:10:00",
+      "capacidad_calibrada": false,
+      "estimado": true
+    },
+    {
+      "id": 2,
+      "nombre": "Peligroso",
+      "color": "gris",
+      "categoria_id": 2,
+      "capacidad_piezas": 12,
+      "piezas_actuales": 2,
+      "no_confirmadas": 0,
+      "nivel": 0.167,
+      "estado": "normal",
+      "bloqueado": false,
+      "umbral_aviso": 0.8,
+      "ultimo_vaciado": "2026-11-19T09:10:00",
+      "capacidad_calibrada": false,
+      "estimado": true
+    }
+  ],
+  "vaciados": [
+    {
+      "id": 1,
+      "bote_id": 0,
+      "fecha_hora": "2026-11-19T09:10:00",
+      "piezas_al_vaciar": 12,
+      "origen": "panel"
+    }
+  ],
+  "desviados_por_categoria": {
+    "0": 34,
+    "1": 51,
+    "2": 12
+  }
+}

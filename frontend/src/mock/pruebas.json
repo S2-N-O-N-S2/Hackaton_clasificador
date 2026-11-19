@@ -1,0 +1,12 @@
+{
+  "residuos": [
+    {"id": 1, "nombre": "Cáscara de plátano (ejemplo)", "categoria_real": 0, "simulado": true, "usado_en_entrenamiento": false},
+    {"id": 2, "nombre": "Botella PET (ejemplo)", "categoria_real": 1, "simulado": true, "usado_en_entrenamiento": false},
+    {"id": 3, "nombre": "Pila descargada (ejemplo)", "categoria_real": 2, "simulado": true, "usado_en_entrenamiento": false},
+    {"id": 4, "nombre": "Servilleta con comida (ejemplo)", "categoria_real": 0, "simulado": true, "usado_en_entrenamiento": false},
+    {"id": 5, "nombre": "Lata (ejemplo)", "categoria_real": 1, "simulado": true, "usado_en_entrenamiento": false},
+    {"id": 6, "nombre": "Blíster vacío (ejemplo)", "categoria_real": 2, "simulado": true, "usado_en_entrenamiento": false}
+  ],
+  "registros": [],
+  "comparativa": null
+}
