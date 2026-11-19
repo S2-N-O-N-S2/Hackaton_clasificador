@@ -192,6 +192,8 @@ Si la resuelve el panel, es una decisión del operador: la foto va directo a `da
   "tasa_acierto": 0.897,
   "matriz_confusion": {"etiquetas": [0, 1, 2], "filas": "real", "columnas": "predicha", "valores": [[18, 1, 1], [2, 22, 1], [0, 1, 12]]},
   "dudosos": 6,
+  "no_reconocidos": 2,
+  "fotos_no_validas": 1,
   "corregidos": 6,
   "tiempo_promedio_ms": 3240,
   "desviados_por_categoria": {"0": 20, "1": 25, "2": 13},

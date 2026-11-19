@@ -22,7 +22,8 @@
     "tiempo_revision_s": 30,
     "tiempo_retro_firme_s": 5,
     "tiempo_retro_media_s": 8,
-    "umbral_aviso_bote": 0.8
+    "umbral_aviso_bote": 0.8,
+    "umbral_desconocido": 0.85
   },
   "categorias": [
     {

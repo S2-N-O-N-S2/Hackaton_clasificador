@@ -199,6 +199,8 @@ def get_estadisticas(request: Request, simulado: str = "incluir") -> dict[str, A
     aciertos = sum(matriz[c][c] for c in IDS_CATEGORIA)
     resumen = ctx.db.uno(
         f"SELECT SUM(dudoso) AS dudosos, SUM(corregido) AS corregidos, "
+        f"SUM(CASE WHEN motivo_dudoso = 'desconocido' THEN 1 ELSE 0 END) AS no_reconocidos, "
+        f"SUM(CASE WHEN motivo_dudoso = 'foto_no_valida' THEN 1 ELSE 0 END) AS fotos_no_validas, "
         f"AVG(CASE WHEN estado = 'registrado' THEN tiempo_ciclo_ms END) AS tiempo "
         f"FROM clasificaciones WHERE 1 = 1{filtro}"
     )
@@ -215,6 +217,8 @@ def get_estadisticas(request: Request, simulado: str = "incluir") -> dict[str, A
         "matriz_confusion": {"etiquetas": [0, 1, 2], "filas": "real", "columnas": "predicha", "valores": matriz},
         "dudosos": resumen["dudosos"] or 0,
         "corregidos": resumen["corregidos"] or 0,
+        "no_reconocidos": resumen["no_reconocidos"] or 0,
+        "fotos_no_validas": resumen["fotos_no_validas"] or 0,
         "tiempo_promedio_ms": round(resumen["tiempo"]) if resumen["tiempo"] is not None else None,
         "desviados_por_categoria": desviados,
         "incluye_simulados": simulado != "excluir",

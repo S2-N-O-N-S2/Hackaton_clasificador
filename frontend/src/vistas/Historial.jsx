@@ -5,7 +5,8 @@ import { useEnVivo } from '../estado.jsx';
 import { NOMBRE_ORIGEN, categoria } from '../categorias.js';
 import { HISTORIAL_POR_PAGINA } from '../config.js';
 import {
-  BotonCategoria, Cargando, Categoria, ChipRevision, MensajeError, Simulado, TEXTO_ESTADO_CLASIFICACION, fechaHora, pct,
+  BotonCategoria, Cargando, Categoria, ChipRevision, MensajeError, RotuloMotivo, Simulado, TEXTO_ESTADO_CLASIFICACION,
+  fechaHora, pct,
   useAccion, useDatos,
 } from '../componentes/Comun.jsx';
 
@@ -17,11 +18,12 @@ function Fila({ c, alCorregir }) {
     if (r) { setAbierto(false); alCorregir(); }
   }
   return (
-    <tr className={c.dudoso ? 'fila-dudosa' : ''}>
+    <tr className={`${c.dudoso ? 'fila-dudosa' : ''} ${c.motivo_dudoso === 'desconocido' || c.motivo_dudoso === 'foto_no_valida' ? 'fila-no-reconocida' : ''}`}>
       <td data-etiqueta="Caso">#{c.id}</td>
       <td data-etiqueta="Hora">{fechaHora(c.fecha_hora)}</td>
       <td className="celda-foto">{c.foto && <img className="miniatura" src={urlFoto(c.foto)} alt={`Foto #${c.id}`} loading="lazy" />}</td>
-      <td data-etiqueta="Predicción">{c.oculto ? '(oculto)' : <Categoria id={c.pred_id} />} {c.dudoso && <ChipRevision />}</td>
+      <td data-etiqueta="Predicción">{c.oculto ? '(oculto)' : <Categoria id={c.pred_id} vacio="Sin clasificar" />} {c.dudoso && <ChipRevision />}
+        <RotuloMotivo motivo={c.motivo_dudoso} /></td>
       <td data-etiqueta="Confianza">{pct(c.confianza)}</td>
       <td data-etiqueta="Final">
         <Categoria id={c.final_id} vacio="Pendiente" />

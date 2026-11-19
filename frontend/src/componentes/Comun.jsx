@@ -392,7 +392,39 @@ export const TEXTO_MOTIVO = {
   riesgo_peligroso: 'Podría ser peligroso: no se arriesga',
   conflicto_voz: 'La voz y la cámara no coinciden',
   sin_modelo: 'No hay modelo cargado: el sistema no adivina',
+  desconocido: 'La foto no se parece a nada de lo que la IA conoce',
+  foto_no_valida: 'La foto salió mal (sin señal, oscura, quemada o borrosa): no se clasificó',
 };
+
+// Casos que deben verse MUY claros en el panel: la IA no reconoce el objeto o la foto salió mal.
+export const AVISO_MOTIVO = {
+  desconocido: { titulo: 'Objeto no reconocido', icono: '?' },
+  foto_no_valida: { titulo: 'Foto no válida', icono: '!' },
+  confianza_baja: { titulo: 'La IA no está segura', icono: '?' },
+  riesgo_peligroso: { titulo: 'Podría ser peligroso', icono: '!' },
+  sin_modelo: { titulo: 'IA no disponible', icono: '!' },
+  conflicto_voz: { titulo: 'La voz y la cámara no coinciden', icono: '?' },
+};
+
+export function AvisoMotivo({ motivo, grande = false }) {
+  const a = AVISO_MOTIVO[motivo];
+  if (!a) return null;
+  return (
+    <div className={`aviso-motivo motivo-${motivo} ${grande ? 'grande' : ''}`} role="status">
+      <span className="aviso-motivo-icono" aria-hidden="true">{a.icono}</span>
+      <span className="aviso-motivo-textos">
+        <strong>{a.titulo}</strong>
+        <span>{TEXTO_MOTIVO[motivo]}</span>
+      </span>
+    </div>
+  );
+}
+
+// Rótulo corto para tablas (Historial).
+export function RotuloMotivo({ motivo }) {
+  if (motivo !== 'desconocido' && motivo !== 'foto_no_valida') return null;
+  return <span className={`rotulo rotulo-motivo motivo-${motivo}`}>{AVISO_MOTIVO[motivo].titulo}</span>;
+}
 
 // Estado de una clasificación (contrato v1.1). "registrado" no se rotula.
 export const TEXTO_ESTADO_CLASIFICACION = {

@@ -699,6 +699,40 @@ legend { font-weight: 600; padding: 0 0.3rem; }
   .tabla-tarjetas .fila-dudosa:hover { background: #FBEFC4; }
 }
 
+/* ---------- Objeto no reconocido / foto no válida: deben verse de lejos ---------- */
+.aviso-motivo {
+  display: flex; align-items: center; gap: 0.75rem; padding: 0.65rem 0.85rem; border-radius: 10px;
+  background: var(--tinte-aviso); color: var(--texto-aviso); border: 2px solid #C99A00;
+}
+.aviso-motivo-icono {
+  flex: none; width: 2.4rem; height: 2.4rem; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  background: var(--amarillo); color: var(--texto-aviso); font-family: var(--f-letrero); font-size: 1.6rem; font-weight: 800;
+}
+.aviso-motivo-textos { display: flex; flex-direction: column; gap: 0.1rem; }
+.aviso-motivo-textos strong { font-family: var(--f-letrero); font-stretch: 87.5%; font-size: 1.25rem; line-height: 1.1; }
+.aviso-motivo-textos span { font-size: 0.92rem; font-weight: 600; }
+.aviso-motivo.grande { padding: 0.9rem 1rem; animation: llamar 0.6s ease-out 2; }
+.aviso-motivo.grande .aviso-motivo-icono { width: 3.2rem; height: 3.2rem; font-size: 2.1rem; }
+.aviso-motivo.grande .aviso-motivo-textos strong { font-size: 1.7rem; }
+/* Desconocido y foto no válida: borde con franjas, para que no se confundan con un caso dudoso normal. */
+.aviso-motivo.motivo-desconocido, .aviso-motivo.motivo-foto_no_valida {
+  position: relative; overflow: hidden; padding-left: 1.5rem; border-color: var(--oscuro);
+}
+.aviso-motivo.motivo-desconocido::before, .aviso-motivo.motivo-foto_no_valida::before {
+  content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 0.6rem; background: var(--franjas);
+}
+.aviso-motivo.motivo-foto_no_valida { background: var(--tinte-error); color: var(--texto-error); }
+.aviso-motivo.motivo-foto_no_valida .aviso-motivo-icono { background: var(--rojo-osc); color: #fff; }
+@keyframes llamar { 30% { transform: scale(1.025); } 60% { transform: scale(0.995); } }
+.rotulo-motivo { margin-left: 0.3rem; }
+.rotulo-motivo.motivo-desconocido { background: var(--oscuro); color: var(--amarillo); }
+.rotulo-motivo.motivo-foto_no_valida { background: var(--rojo-osc); color: #fff; }
+.fila-no-reconocida td:first-child { box-shadow: inset 5px 0 0 var(--oscuro); }
+@media (max-width: 760px) {
+  .aviso-motivo.grande .aviso-motivo-textos strong { font-size: 1.35rem; }
+  .tabla-tarjetas .fila-no-reconocida { border-color: var(--oscuro); border-width: 2px; }
+}
+
 /* Sin animaciones para quien las desactiva en su sistema. */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }

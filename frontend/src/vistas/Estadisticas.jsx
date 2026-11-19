@@ -33,6 +33,8 @@ export default function Estadisticas() {
             <Cifra etiqueta="Tiempo promedio por residuo" valor={datos.tiempo_promedio_ms ? `${(datos.tiempo_promedio_ms / 1000).toFixed(1)} s` : '—'} detalle="tiempo de máquina" />
             <Cifra etiqueta="Dudosos" valor={datos.dudosos} />
             <Cifra etiqueta="Corregidos" valor={datos.corregidos} />
+            <Cifra etiqueta="Objetos no reconocidos" valor={datos.no_reconocidos ?? 0} detalle="fueron a revisión" />
+            <Cifra etiqueta="Fotos no válidas" valor={datos.fotos_no_validas ?? 0} detalle="no se clasificaron" />
           </div>
           <div className="rejilla-2">
             <Tarjeta titulo="Conteo y precisión por categoría">
