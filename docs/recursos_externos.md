@@ -49,9 +49,18 @@ La convocatoria permite bibliotecas, tutoriales e IA generativa **con atribució
 | Claude Code (Anthropic) | Fase 4: `training/` (captura, entrenamiento por objeto, evaluación), `ModeloReal` y `GestorReentrenamiento` en `app/model.py`, `tests/test_entrenamiento.py`, sección IA de `memoria_tecnica.md` | Código, pruebas y documentación | [COMPLETAR: el equipo debe capturar el dataset real y revisar los umbrales con `evaluate.py`] |
 | Claude Code (Anthropic) | Fase 5 (preparación): `tools/calibrar_angulos.py`, tiempos por etapa y sincronización de ángulos en `orchestrator.py`, migración en `db.py`, `tests/test_fase5.py`, `docs/integracion_fase5.md`, `docs/resultados/ciclos_reales.md` | Código, pruebas y documentación | [COMPLETAR] |
 | Claude Code (Anthropic) | Fase 2: `firmware/clasificador_uno/clasificador_uno.ino`, `firmware/escaner_i2c/escaner_i2c.ino`, `docs/diagrama_electrico.md`, `docs/prueba_firmware.md` | Firmware completo (parser, rampa del disco, DROP con interrupción, LCD no bloqueante, EEPROM, watchdog), escáner I2C (basado en el escáner clásico de Arduino Playground), tabla de conexiones, checklist de mediciones y la lista de pruebas | [COMPLETAR: el equipo debe probarlo en el hardware, ajustar los ángulos de la trampilla y la dirección de la LCD, y poder explicar cada sección] |
+| Claude Code (Anthropic) | Prompt 3 (dataset): `backend/tools/normalizar_dataset.py` | Script que copia fotos originales a `backend/dataset/` (reduce a 320 px sin recortar, renombra <objeto>__<nnn>.jpg, agrega a metadatos.csv) y agrupa The Garbage Dataset en 3 clases | [COMPLETAR: revisar el mapeo de categorías y validar con la norma local] |
 
 ## 5. Fuentes de contenido (explicaciones del modo Adivina)
 
 | Fuente | Qué se usó | Validado por |
 |---|---|---|
 | [COMPLETAR: norma ambiental local de separación de residuos] | Criterios de clasificación orgánica / inorgánica / peligroso | [COMPLETAR] |
+
+## 6. Datasets externos
+
+| Dataset | Fuente | Licencia | Qué se usó | Cómo se rotula |
+|---|---|---|---|---|
+| The Garbage Dataset (GD), Suman Kunwar | Kaggle `sumn2u/garbage-classification-v2` · artículo arXiv 2602.10500 | Artículo CC BY 4.0; [COMPLETAR: confirmar la licencia en la página de Kaggle] | Carpeta `original`, 400 fotos por clase con semilla 42: biological → orgánica; cardboard, paper, plastic, metal, glass, clothes, shoes → inorgánica (57–58 de cada una); battery → peligroso. "trash" se descartó | En `metadatos.csv`: `camara = externo:garbage_dataset_gd` y `objeto_id = gd_<categoria>_<n>` (cada foto es un objeto distinto) |
+
+**Advertencia para la defensa:** son fotos de internet con otros fondos y otra luz (especificación §14.1). Sirven para que la IA conozca muchos productos, pero la precisión que se reporta al jurado debe medirse con nuestros residuos en la bandeja.
