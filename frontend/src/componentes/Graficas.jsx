@@ -1,5 +1,5 @@
 // Gráficas hechas con CSS y SVG propios (sin bibliotecas).
-import { useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { CATEGORIAS, categoria } from '../categorias.js';
 import { pct } from './Comun.jsx';
 
@@ -18,7 +18,8 @@ function rutaSector(centro, R = 92, r = 34, medio = 58) {
   return `M${x1} ${y1} A${R} ${R} 0 0 1 ${x2} ${y2} L${x3} ${y3} A${r} ${r} 0 0 0 ${x4} ${y4} Z`;
 }
 
-export function Carrusel({ categoriaId, pie }) {
+// `residuo`: 'ninguno' | 'en_bandeja' | 'cayendo'. Lo decide la vista a partir del estado que manda el backend.
+export function Carrusel({ categoriaId, residuo = 'ninguno', pie }) {
   const id = categoriaId === null || categoriaId === undefined ? null : Number(categoriaId);
   const destino = id === null ? -60 : -id * 120;
   // Gira por el camino más corto desde donde quedó la vez anterior.
@@ -26,18 +27,31 @@ export function Carrusel({ categoriaId, pie }) {
   const delta = ((((destino - giro.current) % 360) + 540) % 360) - 180;
   giro.current += delta;
   const rot = giro.current;
+  // SOLTAR puede durar menos que la animación: la caída se mantiene visible al menos 0.9 s (solo dibujo).
+  const [caidaVisible, setCaidaVisible] = useState(false);
+  const temporizador = useRef(null);
+  useEffect(() => {
+    if (residuo !== 'cayendo') return;
+    setCaidaVisible(true);
+    clearTimeout(temporizador.current);
+    temporizador.current = setTimeout(() => setCaidaVisible(false), 900);
+  }, [residuo]);
+  useEffect(() => () => clearTimeout(temporizador.current), []);
+  const cayendo = residuo === 'cayendo' || caidaVisible;
   return (
     <figure className="carrusel">
       <svg viewBox="-110 -130 220 240" role="img"
         aria-label={id === null ? 'Carrusel en HOME' : `Carrusel: bote ${categoria(id)?.nombre} bajo la trampilla`}>
+        {/* Disco: arranca y frena suave, como la rampa del servo en el firmware. */}
         <g className="carrusel-disco" style={{ transform: `rotate(${rot}deg)` }}>
           {CATEGORIAS.map((c) => {
-            const [tx, ty] = punto(64, c.id * 120);
+            const [tx, ty] = punto(80, c.id * 120);
+            const apagado = id !== null && id !== c.id;
             return (
               <g key={c.id}>
                 <path d={rutaSector(c.id * 120)} fill={c.hex}
-                  className={`carrusel-sector ${id !== null && id !== c.id ? 'apagado' : ''}`} />
-                <text x={tx} y={ty + 4} textAnchor="middle" className={`carrusel-texto carrusel-etiqueta ${id !== null && id !== c.id ? 'apagado' : ''}`}
+                  className={`carrusel-sector ${apagado ? 'apagado' : ''} ${cayendo && id === c.id ? 'impacto' : ''}`} />
+                <text x={tx} y={ty + 4} textAnchor="middle" className={`carrusel-texto carrusel-etiqueta ${apagado ? 'apagado' : ''}`}
                   style={{ transform: `rotate(${-rot}deg)` }}>{c.nombre}</text>
               </g>
             );
@@ -45,6 +59,16 @@ export function Carrusel({ categoriaId, pie }) {
         </g>
         <circle r="30" className="carrusel-centro" />
         <text y="4" textAnchor="middle" className="carrusel-centro-texto">{id === null ? 'HOME' : 'bote'}</text>
+
+        {/* Bandeja con trampilla de dos hojas (vista desde arriba), fija sobre el disco. */}
+        <g className={`carrusel-bandeja ${cayendo ? 'abierta' : ''}`}>
+          <rect x="-15" y="-70" width="30" height="30" rx="3" className="bandeja-hueco" />
+          <rect x="-15" y="-70" width="15" height="30" className="bandeja-hoja hoja-izq" />
+          <rect x="0" y="-70" width="15" height="30" className="bandeja-hoja hoja-der" />
+          {(residuo !== 'ninguno' || cayendo) && (
+            <rect x="-7" y="-62" width="14" height="14" rx="4" className={`bandeja-residuo ${cayendo ? 'cayendo' : ''}`} />
+          )}
+        </g>
         <polygon points="0,-94 -11,-112 11,-112" className="carrusel-trampilla" />
         <text y="-118" textAnchor="middle" className="carrusel-trampilla-texto">trampilla</text>
       </svg>

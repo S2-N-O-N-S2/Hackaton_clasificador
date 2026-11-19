@@ -8,6 +8,10 @@ import {
   Simulado, Tarjeta, TEXTO_MOTIVO, hora, pct, useAccion, useDatos,
 } from '../componentes/Comun.jsx';
 
+const EN_BOTE = ['POSICIONAR', 'SOLTAR', 'REGISTRAR', 'ACTUALIZAR_NIVEL'];
+const EN_BANDEJA = ['CAPTURA', 'CLASIFICACION', 'ESPERA_ADIVINANZA', 'RETROALIMENTACION', 'REVISION', 'VERIFICAR_BOTE',
+  'BOTE_LLENO', 'POSICIONAR', 'PENDIENTE'];
+
 function Resultado({ caso, umbrales }) {
   if (!caso) return <p className="atenuado">Esperando el primer residuo…</p>;
   if (caso.oculto) {
@@ -71,16 +75,23 @@ export default function EnVivo() {
   const caso = maquina?.caso_actual || ultimaClasificacion;
   const foto = caso?.foto || captura?.foto;
   const enRevision = maquina?.estado === 'REVISION';
-  // Solo para dibujar: el bote que el backend ya decidió (o el que predijo, si aún no hay destino final).
-  const idCarrusel = caso && !caso.oculto ? (caso.final_id ?? (caso.dudoso ? null : caso.pred_id)) : null;
+  const estado = maquina?.estado;
+  // Solo para dibujar, siguiendo el estado que manda el backend (como se mueve la máquina real):
+  // el disco sale de HOME al POSICIONAR y vuelve en HOME; el residuo está en la bandeja hasta SOLTAR.
+  const idCarrusel = EN_BOTE.includes(estado) && caso && !caso.oculto ? (caso.final_id ?? null) : null;
+  const residuo = estado === 'SOLTAR' ? 'cayendo' : EN_BANDEJA.includes(estado) ? 'en_bandeja' : 'ninguno';
+  const efectoFoto = estado === 'CAPTURA' ? 'disparo' : estado === 'CLASIFICACION' ? 'analizando' : '';
   const tapaResultado = caso?.oculto ? undefined : caso?.dudoso ? REVISION.hex : categoria(caso?.pred_id)?.hex;
 
   return (
     <div className="vista-en-vivo">
       <div className="rejilla-en-vivo">
         <Tarjeta titulo="Última foto" extra={caso && <span className="atenuado">#{caso.id} · {hora(caso.fecha_hora)}</span>}>
-          <div className="llegada-suave" key={foto || 'sin-foto'}>
-            <Foto foto={foto} simulado={caso?.simulado} />
+          {/* Flash al tomar la foto y línea de escaneo mientras la IA clasifica. */}
+          <div className={`foto-marco ${efectoFoto}`}>
+            <div className="llegada-suave" key={foto || 'sin-foto'}>
+              <Foto foto={foto} simulado={caso?.simulado} />
+            </div>
           </div>
         </Tarjeta>
 
@@ -92,8 +103,8 @@ export default function EnVivo() {
           <div className="estado-grande">{NOMBRE_ESTADO[maquina?.estado] || '—'}</div>
           <p className="mensaje-maquina">{maquina?.mensaje}</p>
           {segundos !== null && <p className="cuenta-chica">Quedan {segundos} s</p>}
-          <Carrusel categoriaId={idCarrusel}
-            pie={idCarrusel === null ? 'Disco en HOME (sin bote elegido)' : `Bote ${categoria(idCarrusel)?.color} bajo la trampilla`} />
+          <Carrusel categoriaId={idCarrusel} residuo={residuo}
+            pie={idCarrusel === null ? 'Disco en HOME' : `Bote ${categoria(idCarrusel)?.color} bajo la trampilla`} />
           {maquina && (
             <ul className="lista-hardware">
               <li>Arduino: {maquina.serial?.conectado ? `conectado (${maquina.serial.puerto})` : 'DESCONECTADO'} <Simulado si={!!maquina.serial?.simulado} /></li>

@@ -85,7 +85,7 @@ export default function Juego() {
     contenido = (
       <div className="juego-pregunta">
         <h1 className="titulo-grande">¿A qué bote va?</h1>
-        {segundos !== null && <div className="cuenta-grande">{segundos}</div>}
+        {segundos !== null && <div className={`cuenta-grande tic ${segundos <= 3 ? 'urgente' : ''}`} key={segundos}>{segundos}</div>}
         <BotonesCategoria deshabilitado={ocupado} alElegir={(id) => ejecutar(() => api.adivinar(id))} />
       </div>
     );

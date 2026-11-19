@@ -279,8 +279,21 @@ input[type="checkbox"] { width: 1.25rem; height: 1.25rem; min-height: 0; accent-
 /* Carrusel: el disco gira hasta dejar el bote correcto bajo la trampilla. */
 .carrusel { margin: 0.4rem auto 0; max-width: 260px; }
 .carrusel svg { width: 100%; height: auto; display: block; }
-.carrusel-disco { transition: transform 0.9s cubic-bezier(0.45, 0.05, 0.25, 1); }
-.carrusel-etiqueta { transition: transform 0.9s cubic-bezier(0.45, 0.05, 0.25, 1); transform-box: fill-box; transform-origin: center; }
+/* Rampa de servo: acelera, frena y se asienta con un rebote mínimo. */
+.carrusel-disco { transition: transform 1.2s cubic-bezier(0.65, 0, 0.25, 1.06); }
+.carrusel-etiqueta { transition: transform 1.2s cubic-bezier(0.65, 0, 0.25, 1.06); transform-box: fill-box; transform-origin: center; }
+.carrusel-sector.impacto { animation: impacto 0.45s 0.55s ease-out; }
+@keyframes impacto { 40% { filter: brightness(1.35); } }
+/* Bandeja: dos hojas que se abren hacia los lados; el residuo cae (se aleja y desaparece). */
+.bandeja-hueco { fill: #1A2420; }
+.bandeja-hoja { fill: #DCE2DF; stroke: var(--maquina); stroke-width: 1.5; transform-box: fill-box; transition: transform 0.25s ease-in; }
+.hoja-izq { transform-origin: left center; }
+.hoja-der { transform-origin: right center; }
+.carrusel-bandeja.abierta .bandeja-hoja { transform: scaleX(0.12); }
+.bandeja-residuo { fill: #8A6F4D; stroke: #5E4A31; stroke-width: 1.5; transform-box: fill-box; transform-origin: center; animation: posarse 0.35s ease-out; }
+.bandeja-residuo.cayendo { animation: caida 0.6s 0.2s ease-in forwards; }
+@keyframes posarse { from { transform: scale(1.5); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes caida { to { transform: scale(0.3); opacity: 0; } }
 .carrusel-sector { transition: opacity 0.4s; stroke: #fff; stroke-width: 1.5; }
 .carrusel-sector.apagado { opacity: 0.28; }
 .carrusel-texto { font-family: var(--f-letrero); font-size: 11.5px; font-weight: 700; fill: #fff; transition: fill 0.4s; }
@@ -290,6 +303,27 @@ input[type="checkbox"] { width: 1.25rem; height: 1.25rem; min-height: 0; accent-
 .carrusel-trampilla { fill: var(--maquina); }
 .carrusel-trampilla-texto { font-family: var(--f-texto); font-size: 10px; fill: var(--tinta-suave); }
 .carrusel figcaption { text-align: center; font-size: 0.85rem; color: var(--tinta-suave); margin-top: 0.2rem; }
+
+/* Foto: flash de cámara (CAPTURA) y línea de escaneo (CLASIFICACION). */
+.foto-marco { position: relative; border-radius: 4px; overflow: hidden; }
+.foto-marco::after { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; }
+.foto-marco.disparo::after { background: #fff; animation: flash 0.55s ease-out; }
+.foto-marco.analizando::after {
+  opacity: 1; height: 22%; inset: auto 0 auto 0; top: 0;
+  background: linear-gradient(to bottom, rgba(242, 183, 5, 0) 0%, rgba(242, 183, 5, 0.45) 85%, #F2B705 100%);
+  animation: escaneo 1.1s ease-in-out infinite alternate;
+}
+.foto-marco.analizando::before {
+  content: "La IA está analizando la foto"; position: absolute; z-index: 1; right: 0.5rem; top: 0.5rem;
+  background: rgba(26, 36, 32, 0.85); color: #fff; font-size: 0.8rem; font-weight: 600; padding: 0.15rem 0.5rem; border-radius: 3px;
+}
+@keyframes flash { 0% { opacity: 0.95; } 100% { opacity: 0; } }
+@keyframes escaneo { from { top: -22%; } to { top: 100%; } }
+
+/* Cuenta regresiva del juego: cada segundo "late"; los últimos 3 en rojo. */
+.cuenta-grande.tic { animation: tic 0.35s ease-out; }
+.cuenta-grande.urgente { color: var(--rojo); }
+@keyframes tic { from { transform: scale(1.25); opacity: 0.4; } to { transform: none; opacity: 1; } }
 
 /* Llegada de una clasificación nueva: la placa "cae" por la trampilla. Un solo movimiento. */
 .llegada { animation: caer 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.15) both; }
