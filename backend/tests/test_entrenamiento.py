@@ -206,3 +206,27 @@ def test_reentrenar_desde_la_api(tmp_path, monkeypatch):
         assert estado["entrenando"] is False
         assert estado["ultimo_resultado"]["version"] == "v1" and estado["ultimo_resultado"]["activado"]
         assert estado["versiones"][0]["version"] == "v1"
+
+
+# ----------------------------------------------------------------------------- revisar_dataset
+def test_revisar_dataset_detecta_problemas(tmp_path):
+    from tools.revisar_dataset import revisar
+
+    crear_dataset(tmp_path, objetos_por_clase=2)
+    errores, avisos, resumen = revisar(tmp_path, max_lado=320)
+    assert errores == [] and resumen["organica"]["objetos"] == 2
+
+    cv2.imwrite(str(tmp_path / "organica" / "sinid.jpg"), np.full((224, 224, 3), 120, np.uint8))
+    cv2.imwrite(str(tmp_path / "inorganica" / "grande__1.jpg"),
+                np.random.default_rng(1).integers(0, 255, (480, 640, 3), dtype=np.uint8))
+    errores, avisos, _ = revisar(tmp_path, max_lado=320)
+    texto = " ".join(errores + avisos)
+    assert "SIN ID" in texto and "un solo color" in texto and "224×224" in texto and "más de 320" in texto
+
+
+def test_revisar_dataset_exige_dos_objetos(tmp_path):
+    from tools.revisar_dataset import revisar
+
+    crear_dataset(tmp_path, objetos_por_clase=1)
+    errores, _, _ = revisar(tmp_path)
+    assert sum("al menos 2" in e for e in errores) == 3
