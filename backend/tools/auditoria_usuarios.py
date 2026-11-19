@@ -87,6 +87,8 @@ def _sesion() -> requests.Session:
 
 def _plantilla(ruta: str) -> str:
     """'/api/clasificaciones/57/corregir' → '/api/clasificaciones/{id}/corregir' (para agrupar tiempos)."""
+    if ruta.startswith("/captures/"):
+        return "/captures/{foto}"
     partes = [("{id}" if p.isdigit() else p) for p in ruta.split("?")[0].split("/")]
     return "/".join(partes)
 
@@ -375,18 +377,25 @@ def verificar_historial(base: str) -> dict[str, Any]:
         if offset >= datos["total"]:
             break
     estados = Counter(c["estado"] for c in casos)
+    corregidos_despues = 0
     for c in casos:
         if c["estado"] == "registrado":
             if c["final_id"] not in (0, 1, 2):
                 R.hallazgo("historial", f"Caso #{c['id']} registrado sin categoría final válida")
             if c.get("bote_id") is not None and c["bote_id"] != c["final_id"]:
-                R.hallazgo("historial", f"Caso #{c['id']}: cayó en el bote {c['bote_id']} pero su categoría es {c['final_id']}")
+                if c["corregido"] and c["origen"] == "panel":
+                    # Lo corrigió un operador DESPUÉS de caer: el residuo físico sigue en el otro bote (el panel avisa
+                    # que hay que moverlo a mano). No es una falla del software.
+                    corregidos_despues += 1
+                else:
+                    R.hallazgo("historial", f"Caso #{c['id']}: cayó en el bote {c['bote_id']} pero su categoría es {c['final_id']}")
             if c["dudoso"] and not c["corregido"] and c["origen"] == "camara":
                 R.hallazgo("historial", f"Caso dudoso #{c['id']} registrado sin resolución")
         if c.get("motivo_dudoso") == "foto_no_valida" and c.get("pred_id") is not None:
             R.hallazgo("historial", f"Caso #{c['id']}: foto no válida con predicción")
     motivos = Counter(c.get("motivo_dudoso") for c in casos if c.get("dudoso"))
-    return {"total": len(casos), "estados": dict(estados), "motivos": {str(k): v for k, v in motivos.items()}}
+    return {"total": len(casos), "estados": dict(estados), "motivos": {str(k): v for k, v in motivos.items()},
+            "corregidos_despues_de_caer": corregidos_despues}
 
 
 async def esperar_menu(base: str, limite_s: float = 60.0) -> str | None:
@@ -451,7 +460,9 @@ def escribir_reporte(ruta: Path, args, duracion_s: float, historial: dict, estad
         lineas.append(f"| `{clave}` | {len(v)} | {statistics.median(v):.0f} | {percentil(v, 95):.0f} | {max(v):.0f} | "
                       f"{sum(ms > LENTO_MS for ms in v)} |")
     lineas += ["", "## Historial al terminar", "", f"- Casos: {historial['total']}  ·  por estado: {historial['estados']}",
-               f"- Motivos de revisión: {historial['motivos']}", f"- Estados vistos por el monitor: {dict(monitor.estados)}",
+               f"- Motivos de revisión: {historial['motivos']}",
+               f"- Corregidos desde el panel DESPUÉS de caer (el residuo sigue en el otro bote; el panel pide moverlo "
+               f"a mano): {historial['corregidos_despues_de_caer']}", f"- Estados vistos por el monitor: {dict(monitor.estados)}",
                "", "## Ejemplos de hallazgos (máx. 25)", "", "```json"]
     lineas += [json.dumps(h, ensure_ascii=False, default=str)[:600] for h in R.hallazgos[:25]]
     lineas += ["```", "", "_Datos SIMULADOS: usuarios virtuales contra el backend en simulación; no son mediciones con personas "

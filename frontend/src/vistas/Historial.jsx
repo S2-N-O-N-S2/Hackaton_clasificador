@@ -14,7 +14,13 @@ function Fila({ c, alCorregir }) {
   const [abierto, setAbierto] = useState(false);
   const { ejecutar, ocupado, error } = useAccion();
   async function corregir(id) {
-    const r = await ejecutar(() => api.corregir(c.id, id), { ok: `Caso #${c.id} corregido a ${categoria(id).nombre}` });
+    // Si el residuo YA cayó en otro bote, corregir el dato no lo mueve: se avisa que hay que pasarlo a mano.
+    const yaCayo = c.bote_id !== null && c.bote_id !== undefined && c.bote_id !== id;
+    const r = await ejecutar(() => api.corregir(c.id, id), {
+      ok: yaCayo
+        ? `Caso #${c.id} corregido a ${categoria(id).nombre}. El residuo ya cayó en el bote ${categoria(c.bote_id)?.color}: muévelo a mano al bote ${categoria(id).color}.`
+        : `Caso #${c.id} corregido a ${categoria(id).nombre}`,
+    });
     if (r) { setAbierto(false); alCorregir(); }
   }
   return (
