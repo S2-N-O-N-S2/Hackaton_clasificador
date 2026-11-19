@@ -20,12 +20,16 @@ export default function Inicio() {
       <div className="botones-menu">
         <button type="button" className={`boton-menu boton-ia ${maquina?.modo === 'ia' ? 'elegido' : ''}`}
           disabled={ocupado || !puedeElegir} onClick={() => elegir('ia')}>
-          <span className="tecla">1</span> Usar IA
+          {maquina?.modo === 'ia' && <span className="elegido-marca">Modo actual</span>}
+          <span className="tecla">1</span>
+          <span>Usar IA</span>
           <small>La IA clasifica y el carrusel lo deposita</small>
         </button>
         <button type="button" className={`boton-menu boton-adivina ${maquina?.modo === 'adivina' ? 'elegido' : ''}`}
           disabled={ocupado || !puedeElegir} onClick={() => elegir('adivina')}>
-          <span className="tecla">2</span> Adivinar
+          {maquina?.modo === 'adivina' && <span className="elegido-marca">Modo actual</span>}
+          <span className="tecla">2</span>
+          <span>Adivinar</span>
           <small>¿Le ganas a la IA?</small>
         </button>
       </div>
@@ -53,7 +57,7 @@ export default function Inicio() {
           <p className="mensaje-maquina">{maquina?.mensaje}</p>
         </Tarjeta>
         <Tarjeta titulo="Teclado 4×4">
-          <p>Última tecla: <strong className="tecla-grande">{ultimaTecla ? ultimaTecla.tecla : '—'}</strong></p>
+          <p>Última tecla: <span className="tecla tecla-grande llegada" key={ultimaTecla?.recibido}>{ultimaTecla ? ultimaTecla.tecla : '—'}</span></p>
           <p className="atenuado">El panel y el teclado comparten el mismo estado: lo que elijas aquí se ve en la LCD y viceversa.</p>
         </Tarjeta>
       </div>

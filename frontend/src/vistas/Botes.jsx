@@ -23,7 +23,7 @@ export default function Botes() {
       <MensajeError error={error || datos.error} />
       <div className="rejilla-3">
         {lista.map((b) => (
-          <Tarjeta key={b.id} titulo={b.nombre} className={`tarjeta-bote ${b.bloqueado ? 'bloqueado' : ''}`}>
+          <Tarjeta key={b.id} titulo={`Bote ${b.color}`} className={`tarjeta-bote ${b.bloqueado ? 'bloqueado' : ''}`}>
             <NivelBote bote={b} />
             <ul className="lista-datos">
               <li>Capacidad calibrada: <strong>{b.capacidad_piezas}</strong> piezas</li>
@@ -50,6 +50,7 @@ export default function Botes() {
         </Tarjeta>
         <Tarjeta titulo="Historial de vaciados">
           {datos.datos?.vaciados?.length ? (
+            <div className="tabla-desplazable">
             <table className="tabla">
               <thead><tr><th>Fecha</th><th>Bote</th><th>Piezas</th><th>Origen</th></tr></thead>
               <tbody>
@@ -63,6 +64,7 @@ export default function Botes() {
                 ))}
               </tbody>
             </table>
+            </div>
           ) : <p className="atenuado">Sin vaciados registrados.</p>}
         </Tarjeta>
       </div>
