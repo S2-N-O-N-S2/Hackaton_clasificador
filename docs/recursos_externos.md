@@ -17,6 +17,8 @@ La convocatoria permite bibliotecas, tutoriales e IA generativa **con atribució
 | vosk | 0.3.45 | Apache 2.0 | Voz offline | `voice.py` |
 | sounddevice | ver lock | MIT | Captura de micrófono para Vosk | `voice.py` |
 | pytest, httpx | ver lock | MIT / BSD | Pruebas | `backend/tests/` |
+| React / react-dom | 18.3.1 | MIT | Interfaz del panel | `frontend/src/` |
+| Vite + @vitejs/plugin-react | 6.4.6 / 4.7.0 | MIT | Servidor de desarrollo y compilación del panel | `frontend/` |
 
 ## 2. Modelos preentrenados
 
@@ -39,6 +41,7 @@ La convocatoria permite bibliotecas, tutoriales e IA generativa **con atribució
 | Claude Code (Anthropic) | Fase 0: `requirements.txt`, `tools/verificar_hardware.py`, `tools/calcular_par.py`, `docs/mediciones.md` | Scripts y fórmulas de geometría y par (fricción + inercia, factor de seguridad 2) | [COMPLETAR: el equipo debe revisar las fórmulas y llenar las mediciones] |
 | Claude Code (Anthropic) | Fase 3: todo `backend/app/` y `backend/tests/` (orquestador, serial, cámara, modelo simulado, BD, API, WebSocket, pruebas) y `docs/api_contrato.md` | Código completo y pruebas | [COMPLETAR: el equipo debe leer `orchestrator.py` y `model.py` y poder modificar `aplicar_reglas` en vivo] |
 | Claude Code (Anthropic) | Fase 4: `training/` (captura, entrenamiento por objeto, evaluación), `ModeloReal` y `GestorReentrenamiento` en `app/model.py`, `tests/test_entrenamiento.py`, sección IA de `memoria_tecnica.md` | Código, pruebas y documentación | [COMPLETAR: el equipo debe capturar el dataset real y revisar los umbrales con `evaluate.py`] |
+| Claude Code (Anthropic) | Fase 6: `frontend/` (panel React + Vite) | Todo el panel: capa de API, WebSocket con reconexión, estado global, 10 vistas, gráficas SVG/CSS, estilos y el servidor de datos de ejemplo (`src/mock/`, JSON copiados de `docs/api_contrato.md`) | [COMPLETAR: el equipo debe probarlo con el backend real y poder explicar cada vista] |
 
 ## 5. Fuentes de contenido (explicaciones del modo Adivina)
 

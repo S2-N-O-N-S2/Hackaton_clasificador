@@ -1,0 +1,12 @@
+{
+  "niveles_usados": ["verificada", "alta"],
+  "por_intento": [{"intento": "1", "n": 9, "acierto": 0.44}, {"intento": "2", "n": 9, "acierto": 0.56}, {"intento": "6+", "n": 4, "acierto": 0.75}],
+  "mitades": {"n_sesiones": 5, "primera": 0.52, "segunda": 0.70, "diferencia": 0.18},
+  "correccion_tras_explicacion": {"n_oportunidades": 7, "corregidas": 5, "tasa": 0.71},
+  "rondas": {
+    "por_participante": [{"alias": "V1", "ronda1": 0.6, "ronda2": 0.8, "n1": 10, "n2": 10}],
+    "promedio": {"ronda1": 0.6, "ronda2": 0.8, "n_voluntarios": 1}
+  },
+  "muestra": {"n_sesiones": 9, "n_intentos": 40, "n_voluntarios": 1},
+  "muestra_pequena": true
+}
