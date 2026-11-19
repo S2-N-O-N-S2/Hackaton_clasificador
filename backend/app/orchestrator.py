@@ -130,6 +130,7 @@ class Orquestador:
         self._fin_cuenta: float | None = None
         self._t_error: float | None = None
         self._espera_humana_s = 0.0
+        self._marcas: list[tuple[str, float]] = []  # (estado, instante) durante el ciclo actual
 
     # ================================================================ ciclo de vida
     async def iniciar(self) -> None:
@@ -201,6 +202,8 @@ class Orquestador:
         anterior = self.estado
         self.estado = nuevo
         self.estado_desde = ahora()
+        if self.ciclo_activo:
+            self._marcas.append((nuevo.value, time.monotonic()))
         self.mensaje = mensaje or ""
         texto = f"{anterior.value} -> {nuevo.value}" + (f": {mensaje}" if mensaje else "")
         self.db.registrar_evento("info", "orquestador", texto)
@@ -265,6 +268,7 @@ class Orquestador:
         tipo = mensaje.tipo
         if tipo == CONECTADO:
             await self._alerta("info", "SERIAL_CONECTADO", f"Arduino conectado en {self.enlace.puerto}")
+            await self._sincronizar_angulos()
         elif tipo == DESCONECTADO:
             await self._alerta("error", "SERIAL_DESCONECTADO", "Se perdió el enlace con el Arduino")
             if not self.ciclo_activo and self.estado != Estado.ERROR:
@@ -352,6 +356,16 @@ class Orquestador:
     async def calibrar_angulo(self, categoria_id: int, grados: int) -> None:
         await self._cmd(f"CAL:{categoria_id}:{grados}", ("CAL_OK",))
 
+    async def _sincronizar_angulos(self) -> None:
+        """Al conectarse el Arduino se le mandan los ángulos de la configuración (única fuente de verdad)."""
+        for categoria in IDS_CATEGORIA:
+            try:
+                await self.calibrar_angulo(categoria, self.config.angulo(categoria))
+            except ErrorSerial as error:
+                await self._alerta("aviso", "CAL_NO_SINCRONIZADA", f"No se pudo enviar el ángulo {categoria}: {error}")
+                return
+        self.db.registrar_evento("info", "serial", f"Ángulos sincronizados: {self.config.get('angulos')}")
+
     async def manual(self, accion: str, datos: dict[str, Any]) -> str:
         """Control manual desde el panel (solo en MENU, OPERADOR o ERROR)."""
         if self.ciclo_activo or self.estado not in ESTADOS_CONTROL_MANUAL:
@@ -388,6 +402,7 @@ class Orquestador:
     async def _ciclo(self) -> None:
         t0 = time.monotonic()
         self._espera_humana_s = 0.0
+        self._marcas = []
         self.modo = self.modo or self.config.get("modo_por_defecto")
         try:
             decision = await self._capturar_y_clasificar()
@@ -550,7 +565,22 @@ class Orquestador:
         self._espera_humana_s += time.monotonic() - inicio
         await self._transicion(Estado.VERIFICAR_BOTE, "Bote vaciado")
 
+    def _guardar_tiempos(self) -> None:
+        """Duración de cada etapa del ciclo (ms) → clasificaciones.tiempos_etapas y bitácora de eventos."""
+        if self._caso_id is None or len(self._marcas) < 2:
+            return
+        tiempos: dict[str, int] = {}
+        for (estado, inicio), (_, fin) in zip(self._marcas, self._marcas[1:]):
+            tiempos[estado] = tiempos.get(estado, 0) + int((fin - inicio) * 1000)
+        self.db.actualizar_clasificacion(self._caso_id, tiempos_etapas=json.dumps(tiempos))
+        resumen = ", ".join(f"{e} {ms} ms" for e, ms in tiempos.items())
+        self.db.registrar_evento("info", "orquestador", f"Tiempos caso #{self._caso_id}: {resumen}")
+
     async def _entrar_menu(self) -> None:
+        if self.ciclo_activo:
+            self._marcas.append(("FIN", time.monotonic()))
+            self._guardar_tiempos()
+        self._marcas = []
         self.modo = None
         self._caso_id = None
         self._oculto = False

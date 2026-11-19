@@ -1,6 +1,6 @@
 # Contrato de interfaces — Backend ↔ Panel ↔ Arduino
 
-> **Versión 1.2 — 2026-11-19.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
+> **Versión 1.3 — 2026-11-19.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
 > Detalla las secciones 9 y 17 de `docs/ESPECIFICACION.md`. Si este contrato y la especificación se contradicen, manda la especificación: avisen y corrijan este archivo.
 > **Nadie cambia este archivo sin avisar a la otra persona.** Cada cambio sube la versión y se anota en la sección 9 ("Historial").
 
@@ -70,11 +70,13 @@
   "tiempo_ciclo_ms": 3120,
   "drop_confirmado": true,
   "bote_id": 0,
+  "tiempos_etapas": {"CAPTURA": 412, "CLASIFICACION": 180, "VERIFICAR_BOTE": 2, "POSICIONAR": 1650, "SOLTAR": 820, "REGISTRAR": 15, "ACTUALIZAR_NIVEL": 5, "HOME": 1600},
   "simulado": true,
   "estado": "registrado"
 }
 ```
 - `final_id` es `null` mientras el caso está en revisión o pendiente.
+- `tiempos_etapas`: milisegundos que duró cada estado del ciclo (diagnóstico). Vale `null` mientras el ciclo no termina.
 - `drop_confirmado` vale `true` con `DROP_OK`, `false` con `DROP_TIMEOUT` y `null` si el residuo no se soltó.
 - En modo Adivina, **antes de que el usuario responda**, el backend **no envía** `probabilidades`, `pred_id`, `confianza` ni `dudoso`. En su lugar manda `"oculto": true`.
 
@@ -122,7 +124,7 @@
 ```json
 {"nivel": "error", "codigo": "SERIAL_DESCONECTADO", "mensaje": "Se perdió el enlace con el Arduino", "fecha_hora": "2026-11-19T10:40:00"}
 ```
-Códigos: `SERIAL_CONECTADO`, `SERIAL_DESCONECTADO`, `ERROR_SERIAL`, `ARDUINO_REINICIADO`, `WATCHDOG`, `CAMARA_NO_DISPONIBLE`, `MODELO_NO_CARGADO`, `POS_TIMEOUT`, `DROP_TIMEOUT`, `BOTE_CASI_LLENO`, `BOTE_LLENO`, `REVISION_PENDIENTE`, `RESIDUO_NO_RETIRADO`, `ERROR_INTERNO`, `RECUPERADO`, `MODELO_ACTIVADO`, `VOZ_NO_DISPONIBLE`.
+Códigos: `SERIAL_CONECTADO`, `SERIAL_DESCONECTADO`, `ERROR_SERIAL`, `ARDUINO_REINICIADO`, `WATCHDOG`, `CAMARA_NO_DISPONIBLE`, `MODELO_NO_CARGADO`, `POS_TIMEOUT`, `DROP_TIMEOUT`, `BOTE_CASI_LLENO`, `BOTE_LLENO`, `REVISION_PENDIENTE`, `RESIDUO_NO_RETIRADO`, `ERROR_INTERNO`, `RECUPERADO`, `MODELO_ACTIVADO`, `CAL_NO_SINCRONIZADA`, `VOZ_NO_DISPONIBLE`.
 
 ---
 
@@ -386,6 +388,7 @@ Se usa a 115 200 baudios, en ASCII, con líneas terminadas en `\n` (el Arduino i
 - Para eliminar el juego mecánico, el disco **siempre se acerca al ángulo destino desde abajo** (desde un ángulo menor). Si el destino es menor que el actual, primero baja 5° de más y luego sube.
 - El backend **quita acentos y el carácter `|`** de los textos antes de mandarlos y recorta cada línea a 20 caracteres. El Arduino confía en esos textos, pero no se cae si llega algo más largo: recorta.
 - Los valores por defecto de los ángulos (170 / 90 / 10, con HOME en 90) se usan **solo si la EEPROM está vacía**. El valor bueno viene de la calibración.
+- **Cada vez que se conecta**, el backend manda `CAL:0`, `CAL:1` y `CAL:2` con los ángulos de su configuración. La configuración del backend es la fuente de verdad, y la EEPROM es la copia para cuando el Arduino trabaja solo.
 
 ---
 
@@ -422,5 +425,6 @@ Mientras el backend no exista, el panel puede trabajar con **datos de ejemplo**:
 | Versión | Fecha | Quién | Cambio |
 |---|---|---|---|
 | 1.0 | 2026-11-19 | Persona A (generado con Claude Code) | Versión inicial |
+| 1.3 | 2026-11-19 | Persona A (generado con Claude Code) | Fase 5: campo `tiempos_etapas` en Clasificacion; el backend manda los 3 `CAL` al conectarse; alerta `CAL_NO_SINCRONIZADA`. **Avisar a la Persona B** (el firmware debe responder `CAL_OK` rápido justo después de `READY`). |
 | 1.2 | 2026-11-19 | Persona A (generado con Claude Code) | Fase 4: `roi` en la configuración (`[x, y, ancho, alto]` en fracciones), `indice_camara` acepta también una URL (celular), `mensaje` en `GET /api/modelo/estado`, alerta `MODELO_ACTIVADO`. `POST /api/modelo/reentrenar` ya funciona (antes `501`). **Avisar a la Persona B.** |
 | 1.1 | 2026-11-19 | Persona A (generado con Claude Code) | Al implementar la Fase 3: `sin_modelo`, campo `estado` en Clasificacion, `capacidad_calibrada` en Bote, `requieren_reinicio` en la configuración, código `501`, `/api/sim/retirar` y lista completa de códigos de alerta. **Avisar a la Persona B.** |

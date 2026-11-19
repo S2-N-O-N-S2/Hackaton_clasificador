@@ -40,6 +40,7 @@ La convocatoria permite bibliotecas, tutoriales e IA generativa **con atribució
 | Claude Code (Anthropic) | Fase 0: `requirements.txt`, `tools/verificar_hardware.py`, `tools/calcular_par.py`, `docs/mediciones.md` | Scripts y fórmulas de geometría y par (fricción + inercia, factor de seguridad 2) | [COMPLETAR: el equipo debe revisar las fórmulas y llenar las mediciones] |
 | Claude Code (Anthropic) | Fase 3: todo `backend/app/` y `backend/tests/` (orquestador, serial, cámara, modelo simulado, BD, API, WebSocket, pruebas) y `docs/api_contrato.md` | Código completo y pruebas | [COMPLETAR: el equipo debe leer `orchestrator.py` y `model.py` y poder modificar `aplicar_reglas` en vivo] |
 | Claude Code (Anthropic) | Fase 4: `training/` (captura, entrenamiento por objeto, evaluación), `ModeloReal` y `GestorReentrenamiento` en `app/model.py`, `tests/test_entrenamiento.py`, sección IA de `memoria_tecnica.md` | Código, pruebas y documentación | [COMPLETAR: el equipo debe capturar el dataset real y revisar los umbrales con `evaluate.py`] |
+| Claude Code (Anthropic) | Fase 5 (preparación): `tools/calibrar_angulos.py`, tiempos por etapa y sincronización de ángulos en `orchestrator.py`, migración en `db.py`, `tests/test_fase5.py`, `docs/integracion_fase5.md`, `docs/resultados/ciclos_reales.md` | Código, pruebas y documentación | [COMPLETAR] |
 
 ## 5. Fuentes de contenido (explicaciones del modo Adivina)
 

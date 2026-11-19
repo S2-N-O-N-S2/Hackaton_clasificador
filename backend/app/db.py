@@ -10,6 +10,7 @@ Inicializar a mano (crea las tablas si no existen):
 
 from __future__ import annotations
 
+import json
 import sqlite3
 import threading
 from datetime import datetime
@@ -38,6 +39,7 @@ CREATE TABLE IF NOT EXISTS clasificaciones (
     tiempo_ciclo_ms  INTEGER,                    -- tiempo de MÁQUINA (sin la espera humana)
     drop_confirmado  INTEGER,                    -- 1 DROP_OK, 0 DROP_TIMEOUT, NULL no se soltó
     bote_id          INTEGER,
+    tiempos_etapas   TEXT,                       -- JSON {estado: ms} para diagnosticar dónde se atora el ciclo
     simulado         INTEGER NOT NULL DEFAULT 0,
     estado           TEXT    NOT NULL DEFAULT 'en_proceso'
                      CHECK (estado IN ('en_proceso', 'registrado', 'pendiente', 'error'))
@@ -144,6 +146,11 @@ CREATE TABLE IF NOT EXISTS config (
 );
 """
 
+# (tabla, columna, tipo) que se agregaron después de la primera versión del esquema
+COLUMNAS_AGREGADAS = [
+    ("clasificaciones", "tiempos_etapas", "TEXT"),  # Fase 5
+]
+
 # Botes iniciales. CAPACIDAD PROVISIONAL: [COMPLETAR con la calibración de §13.2]
 BOTES_INICIALES = [
     (0, "Orgánica", "verde", 0),
@@ -171,6 +178,11 @@ class BaseDatos:
     def inicializar(self) -> None:
         with self._lock:
             self._conexion.executescript(ESQUEMA)
+            # Migraciones: columnas agregadas después de crear bases de datos existentes
+            for tabla, columna, tipo in COLUMNAS_AGREGADAS:
+                existentes_col = {f[1] for f in self._conexion.execute(f"PRAGMA table_info({tabla})")}
+                if columna not in existentes_col:
+                    self._conexion.execute(f"ALTER TABLE {tabla} ADD COLUMN {columna} {tipo}")
             existentes = self._conexion.execute("SELECT COUNT(*) FROM botes").fetchone()[0]
             if existentes == 0:
                 self._conexion.executemany(
@@ -240,6 +252,7 @@ def clasificacion_a_dict(fila: dict[str, Any], oculto: bool = False) -> dict[str
         "tiempo_ciclo_ms": fila["tiempo_ciclo_ms"],
         "drop_confirmado": _bool_o_none(fila["drop_confirmado"]),
         "bote_id": fila["bote_id"],
+        "tiempos_etapas": json.loads(fila["tiempos_etapas"]) if fila.get("tiempos_etapas") else None,
         "simulado": bool(fila["simulado"]),
         "estado": fila["estado"],
     }
