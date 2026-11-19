@@ -243,7 +243,8 @@ Respuesta de `GET /api/modelo/estado`:
     "tiempo_adivinanza_s": 20, "tiempo_revision_s": 30,
     "tiempo_retro_firme_s": 5, "tiempo_retro_media_s": 8,
     "umbral_aviso_bote": 0.80,
-    "microfono": "", "voz_segundos": 4, "voz_habla": true
+    "microfono": "", "voz_segundos": 4, "voz_habla": true,
+    "voz_nombre": "Laura", "voz_volumen": 150, "voz_velocidad": 1.0
   },
   "categorias": [{"id": 0, "clave": "organica", "nombre": "Orgánica", "color": "verde", "hex": "#2E9E44"}],
   "requieren_reinicio": ["indice_camara", "puerto_serial"]
@@ -331,10 +332,11 @@ Qué hace cada `accion`:
 - `respuesta_bote`: en `MENU` o `ESPERA_OBJETO` ("¿dónde tiro esta lata?"): la LCD responde, el disco **muestra** el bote (POS y HOME, sin DROP) y queda una **pista** de 60 s. Si luego se coloca un residuo y la cámara opina otra categoría, el caso va a `REVISION` con `motivo_dudoso = conflicto_voz`.
 - `no_reconocido`: la LCD dice "No reconoci el objeto"; el caso sigue igual.
 
-Configuración: `microfono` (`""` = predeterminado de Windows, o parte del nombre, por ejemplo `"DroidCam"`), `voz_segundos` (1–10) y `voz_habla` (`true`/`false`).
+Configuración: `microfono` (`""` = predeterminado de Windows, o parte del nombre, por ejemplo `"DroidCam"`), `voz_segundos` (1–10), `voz_habla` (`true`/`false`), `voz_nombre` (voz de Windows en español: `"Laura"`, `"Pablo"` o `"Helena"`), `voz_volumen` (10–300 %; 100 = máximo sin distorsión) y `voz_velocidad` (0.5–2.0).
 
 | Endpoint (diagnóstico) | Cuerpo | Respuesta |
 |---|---|---|
+| `GET /api/voz/voces` | — | `{"voces": ["Microsoft Pablo", "Microsoft Laura", "Microsoft Helena"], "configurada": "Laura", "volumen": 150, "velocidad": 1.0, "habla": true, "motivo": null}` |
 | `GET /api/voz/microfonos` | — | `{"microfonos": [{"indice": 2, "nombre": "Micrófono (DroidCam Audio)", "predeterminado": false}], "configurado": "", "voz": {…}}` |
 | `POST /api/voz/nivel` | — | Graba 1 s del micrófono configurado: `{"microfono": "…", "rms": 1315.7, "pico": 11449, "veredicto": "Bien: llega sonido"}` (o "SILENCIO TOTAL…") |
 | `POST /api/voz/decir` | `{"texto": "Va en el bote azul."}` | `{"ok": true}`. `503` si la voz que habla está apagada o no hay voz en español en Windows |
@@ -452,7 +454,7 @@ Mientras el backend no exista, el panel puede trabajar con **datos de ejemplo**:
 | Versión | Fecha | Quién | Cambio |
 |---|---|---|---|
 | 1.0 | 2026-11-19 | Persona A (generado con Claude Code) | Versión inicial |
-| 1.5 | 2026-11-19 | Persona A (generado con Claude Code) | Voz que habla (texto a voz de Windows): `voz_habla` en la configuración, `estado.voz.habla` / `voz_sintetica` / `motivo_habla`, `POST /api/voz/decir`; diagnóstico del micrófono: `GET /api/voz/microfonos` y `POST /api/voz/nivel`. Página de prueba en `/prueba/voz`. **Avisar a la Persona B** (puede agregar en Configuración el interruptor "El sistema habla" y el selector de micrófono). |
+| 1.5 | 2026-11-19 | Persona A (generado con Claude Code) | Voz que habla (texto a voz de Windows): `voz_habla`, `voz_nombre`, `voz_volumen` y `voz_velocidad` en la configuración, `GET /api/voz/voces`, `estado.voz.habla` / `voz_sintetica` / `motivo_habla`, `POST /api/voz/decir`; diagnóstico del micrófono: `GET /api/voz/microfonos` y `POST /api/voz/nivel`. Página de prueba en `/prueba/voz`. **Avisar a la Persona B** (puede agregar en Configuración el interruptor "El sistema habla" y el selector de micrófono). |
 | 1.4 | 2026-11-19 | Persona A (generado con Claude Code) | Fase 9 adelantada en simulación (voz): `POST /api/voz/escuchar`, `POST /api/sim/voz`, evento WebSocket `voz`, `estado.voz` con `escuchando`/`motivo`/`microfono`, configuración `microfono` y `voz_segundos`, tecla **A** = hablar. **Avisar a la Persona B:** el panel puede agregar un botón 🎤 que llame a `POST /api/voz/escuchar` y mostrar el evento `voz`. |
 | 1.3 | 2026-11-19 | Persona A (generado con Claude Code) | Fase 5: campo `tiempos_etapas` en Clasificacion; el backend manda los 3 `CAL` al conectarse; alerta `CAL_NO_SINCRONIZADA`. **Avisar a la Persona B** (el firmware debe responder `CAL_OK` rápido justo después de `READY`). |
 | 1.2 | 2026-11-19 | Persona A (generado con Claude Code) | Fase 4: `roi` en la configuración (`[x, y, ancho, alto]` en fracciones), `indice_camara` acepta también una URL (celular), `mensaje` en `GET /api/modelo/estado`, alerta `MODELO_ACTIVADO`. `POST /api/modelo/reentrenar` ya funciona (antes `501`). **Avisar a la Persona B.** |

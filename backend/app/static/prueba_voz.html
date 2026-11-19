@@ -105,10 +105,26 @@
       <label><input type="checkbox" id="habla"> El sistema dice la clasificación y el bote</label>
     </div>
     <div class="fila">
-      <input id="decir" type="text" value="Es inorgánica. Va en el bote azul.">
+      <label for="voz-nombre">Voz</label>
+      <select id="voz-nombre"></select>
+    </div>
+    <div class="fila">
+      <label for="volumen">Volumen</label>
+      <input id="volumen" type="range" min="10" max="300" step="10" style="flex:1">
+      <b id="volumen-txt" style="min-width:52px">—</b>
+    </div>
+    <div class="fila">
+      <label for="velocidad">Velocidad</label>
+      <input id="velocidad" type="range" min="0.5" max="2" step="0.1" style="flex:1">
+      <b id="velocidad-txt" style="min-width:52px">—</b>
+    </div>
+    <div class="fila">
+      <input id="decir" type="text" value="Es inorgánica, con 92 por ciento de certeza. Va en el bote azul.">
       <button class="sec" type="button" id="decir-btn">🔊 Decir</button>
     </div>
     <p class="ayuda" id="habla-txt">Usa la voz en español de Windows, por las bocinas de la laptop.</p>
+    <p class="ayuda">Volumen: 100 % = lo más fuerte sin distorsión; arriba de 100 % se comprime para sonar más fuerte.
+      Si aun así suena bajo, sube el volumen de Windows.</p>
   </section>
 
   <section class="tarjeta">
@@ -205,7 +221,7 @@
     }
     if (!v.disponible && v.motivo) aviso(v.motivo);
     if (document.activeElement !== $("habla")) $("habla").checked = !!v.habla;
-    $("habla-txt").textContent = v.voz_sintetica ? `Voz: ${v.voz_sintetica}, por las bocinas de la laptop.`
+    $("habla-txt").textContent = v.voz_sintetica ? `Última voz usada: ${v.voz_sintetica}, por las bocinas de la laptop.`
       : (v.motivo_habla || "Usa la voz en español de Windows, por las bocinas de la laptop.");
   }
 
@@ -281,6 +297,32 @@
     try { await api("POST", "/api/voz/decir", { texto: $("decir").value }); aviso(""); } catch (err) { aviso(err.message); }
   });
 
+  async function cargarVoces() {
+    try {
+      const d = await api("GET", "/api/voz/voces");
+      const sel = $("voz-nombre"); sel.innerHTML = "";
+      for (const v of d.voces) sel.add(new Option(v.replace("Microsoft ", "") + " (España)", v.replace("Microsoft ", "")));
+      const actual = [...sel.options].find((o) => d.configurada && o.value.toLowerCase().includes(d.configurada.toLowerCase()));
+      if (actual) sel.value = actual.value;
+      $("volumen").value = d.volumen; $("volumen-txt").textContent = d.volumen + " %";
+      $("velocidad").value = d.velocidad; $("velocidad-txt").textContent = d.velocidad + "×";
+      if (!d.voces.length) $("habla-txt").textContent = d.motivo || "Sin voces en español";
+    } catch (err) { aviso("No se pudieron leer las voces: " + err.message); }
+  }
+  async function guardarYDecir(parcial, texto) {
+    await guardar(parcial, texto);
+    try { await api("POST", "/api/voz/decir", { texto: $("decir").value }); } catch (err) { aviso(err.message); }
+  }
+  $("voz-nombre").addEventListener("change", () =>
+    guardarYDecir({ voz_nombre: $("voz-nombre").value }, `Voz: ${$("voz-nombre").value}.`));
+  $("volumen").addEventListener("input", () => { $("volumen-txt").textContent = $("volumen").value + " %"; });
+  $("volumen").addEventListener("change", () =>
+    guardarYDecir({ voz_volumen: Number($("volumen").value) }, `Volumen: ${$("volumen").value} %.`));
+  $("velocidad").addEventListener("input", () => { $("velocidad-txt").textContent = $("velocidad").value + "×"; });
+  $("velocidad").addEventListener("change", () =>
+    guardarYDecir({ voz_velocidad: Number($("velocidad").value) }, `Velocidad: ${$("velocidad").value}×.`));
+
+  cargarVoces();
   cargarMicrofonos();
   refrescar();
   setInterval(refrescar, 1000);

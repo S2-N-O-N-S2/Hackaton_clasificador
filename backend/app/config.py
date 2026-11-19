@@ -140,6 +140,9 @@ def valores_por_defecto() -> dict[str, Any]:
         "microfono": "",
         "voz_segundos": 4,
         "voz_habla": True,   # el sistema DICE en voz alta la clasificación y el bote (voz de Windows)
+        "voz_nombre": "Laura",   # voz de Windows en español: "Laura", "Pablo" o "Helena" (España)
+        "voz_volumen": 150,      # % (10–300). 100 = máximo sin distorsión; más alto se comprime para sonar más fuerte
+        "voz_velocidad": 1.0,    # 0.5 (lento) a 2.0 (rápido)
     }
 
 
@@ -193,6 +196,20 @@ def _validar_segundos_voz(v: Any) -> float:
     v = float(v)
     if not 1 <= v <= 10:
         raise ValueError("debe estar entre 1 y 10 segundos")
+    return v
+
+
+def _validar_volumen(v: Any) -> int:
+    v = int(round(float(v)))
+    if not 10 <= v <= 300:
+        raise ValueError("debe estar entre 10 y 300 (%)")
+    return v
+
+
+def _validar_velocidad(v: Any) -> float:
+    v = round(float(v), 2)
+    if not 0.5 <= v <= 2.0:
+        raise ValueError("debe estar entre 0.5 y 2.0")
     return v
 
 
@@ -251,6 +268,9 @@ VALIDADORES = {
     "microfono": _validar_texto_opcional,
     "voz_segundos": _validar_segundos_voz,
     "voz_habla": _validar_bool,
+    "voz_nombre": _validar_texto_opcional,
+    "voz_volumen": _validar_volumen,
+    "voz_velocidad": _validar_velocidad,
 }
 
 

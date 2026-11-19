@@ -164,7 +164,8 @@ class Voz:
         self._ruta_modelo = (ajustes.dir_modelos / NOMBRE_MODELO) if ajustes is not None else None
         self.disponible = self._revisar()
         # Voz que HABLA. En las pruebas automáticas (SIM_RAPIDO=1) se queda callada.
-        self.locutor = Locutor(activo=ajustes is not None and not getattr(ajustes, "sim_rapido", False))
+        self.locutor = Locutor(activo=ajustes is not None and not getattr(ajustes, "sim_rapido", False),
+                               config=config.get if config is not None else None)
 
     def _revisar(self) -> bool:
         if self.vocabulario is None:

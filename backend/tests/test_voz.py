@@ -297,3 +297,32 @@ def test_se_puede_callar_desde_la_configuracion(cliente):
 def test_decir_y_nivel_responden_sin_hardware(cliente):
     assert cliente.post("/api/voz/decir", json={"texto": "hola"}).status_code == 503  # en pruebas está callada
     assert cliente.post("/api/voz/nivel").status_code in (200, 503)  # depende de si hay micrófono
+
+
+def test_volumen_normaliza_y_no_satura():
+    import numpy as np
+
+    from app.tts import preparar_audio
+
+    bajito = (np.sin(np.linspace(0, 60, 4000)) * 800).astype(np.int16)  # voz "bajita"
+    normal = preparar_audio(bajito, 1.0)
+    assert abs(np.abs(normal).max() - 0.98) < 1e-3          # 100 % = al máximo sin distorsión
+    assert abs(np.abs(preparar_audio(bajito, 0.5)).max() - 0.49) < 1e-3
+    fuerte = preparar_audio(bajito, 3.0)
+    assert np.abs(fuerte).max() <= 0.981                     # 300 %: más fuerte, pero sin pasarse de 1.0
+    assert np.sqrt((fuerte ** 2).mean()) > np.sqrt((normal ** 2).mean())  # se oye más fuerte (más energía)
+    assert preparar_audio(np.zeros(10, np.int16), 2.0).max() == 0
+
+
+def test_config_de_la_voz_que_habla(tmp_path):
+    config = Configuracion(BaseDatos(tmp_path / "c.db"))
+    assert config.get("voz_nombre") == "Laura" and config.get("voz_volumen") == 150
+    assert config.actualizar({"voz_nombre": "Pablo", "voz_volumen": 250, "voz_velocidad": 1.2})["voz_volumen"] == 250
+    for malo in ({"voz_volumen": 500}, {"voz_velocidad": 3}, {"voz_habla": "tal vez"}):
+        with pytest.raises(ValueError):
+            config.actualizar(malo)
+
+
+def test_endpoint_de_voces(cliente):
+    d = cliente.get("/api/voz/voces").json()
+    assert d["voces"] == [] and d["configurada"] == "Laura" and d["volumen"] == 150  # en pruebas está callada

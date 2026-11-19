@@ -212,6 +212,18 @@ async def post_voz_decir(request: Request, cuerpo: SimVozIn) -> dict[str, Any]:
     return {"ok": dicho}
 
 
+@router.get("/api/voz/voces")
+async def get_voz_voces(request: Request) -> dict[str, Any]:
+    """Voces de Windows en español para la voz que habla, y la configurada."""
+    ctx = _ctx(request)
+    locutor = ctx.orq.voz.locutor
+    if locutor.activo and not locutor.voces:
+        await asyncio.to_thread(locutor.calentar)
+    return {"voces": locutor.voces, "configurada": ctx.config.get("voz_nombre"),
+            "volumen": ctx.config.get("voz_volumen"), "velocidad": ctx.config.get("voz_velocidad"),
+            "habla": ctx.orq.voz.habla, "motivo": locutor.motivo}
+
+
 @router.get("/api/voz/microfonos")
 def get_voz_microfonos(request: Request) -> dict[str, Any]:
     """Micrófonos disponibles y el configurado (`microfono` en /api/config)."""
