@@ -1,0 +1,25 @@
+{
+  "clases": [
+    0,
+    1,
+    2
+  ],
+  "nombres": [
+    "organica",
+    "inorganica",
+    "peligroso"
+  ],
+  "cabeza": "logistica",
+  "roi": [
+    0.0,
+    0.0,
+    1.0,
+    1.0
+  ],
+  "extractor": "MobileNetV2-imagenet-avg",
+  "entrada": [
+    224,
+    224,
+    3
+  ]
+}

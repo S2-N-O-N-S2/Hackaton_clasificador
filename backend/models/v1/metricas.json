@@ -1,0 +1,110 @@
+{
+  "version": "v1",
+  "fecha": "2026-11-19T13:04:57",
+  "cabeza": "logistica",
+  "aumento": false,
+  "semilla": 42,
+  "fraccion_val": 0.25,
+  "roi": [
+    0.0,
+    0.0,
+    1.0,
+    1.0
+  ],
+  "dataset": {
+    "organica": {
+      "fotos": 400,
+      "objetos": 400
+    },
+    "inorganica": {
+      "fotos": 400,
+      "objetos": 400
+    },
+    "peligroso": {
+      "fotos": 400,
+      "objetos": 400
+    }
+  },
+  "n_imagenes": 1200,
+  "objetos_entrenamiento": 900,
+  "objetos_validacion": 300,
+  "entrenamiento": {
+    "n": 900,
+    "aciertos": 900,
+    "precision": 1.0,
+    "por_clase": {
+      "organica": {
+        "n": 300,
+        "aciertos": 300,
+        "acierto": 1.0
+      },
+      "inorganica": {
+        "n": 300,
+        "aciertos": 300,
+        "acierto": 1.0
+      },
+      "peligroso": {
+        "n": 300,
+        "aciertos": 300,
+        "acierto": 1.0
+      }
+    },
+    "matriz_confusion": [
+      [
+        300,
+        0,
+        0
+      ],
+      [
+        0,
+        300,
+        0
+      ],
+      [
+        0,
+        0,
+        300
+      ]
+    ]
+  },
+  "validacion": {
+    "n": 300,
+    "aciertos": 294,
+    "precision": 0.98,
+    "por_clase": {
+      "organica": {
+        "n": 100,
+        "aciertos": 100,
+        "acierto": 1.0
+      },
+      "inorganica": {
+        "n": 100,
+        "aciertos": 96,
+        "acierto": 0.96
+      },
+      "peligroso": {
+        "n": 100,
+        "aciertos": 98,
+        "acierto": 0.98
+      }
+    },
+    "matriz_confusion": [
+      [
+        100,
+        0,
+        0
+      ],
+      [
+        2,
+        96,
+        2
+      ],
+      [
+        0,
+        2,
+        98
+      ]
+    ]
+  },
+  "nota": "Separación por objeto físico; el modelo guardado se entrenó solo con la parte de entrenamiento."
+}
