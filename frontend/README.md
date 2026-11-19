@@ -15,6 +15,7 @@ npm run build            # versión optimizada en frontend/dist/
 
 Abrir `http://localhost:5173`. Desde un celular **en la misma red**: `http://<IP-de-la-laptop>:5173`
 (la IP se ve con `ipconfig`, en "Dirección IPv4"). Si Windows pregunta por el firewall, permitir el acceso en **redes privadas**.
+Para **instalarlo como app** en el celular (PWA, con ícono y pantalla completa), ver [`docs/app_movil.md`](../docs/app_movil.md).
 
 Para el celular, el **backend** también debe escuchar en la red (por defecto uvicorn solo atiende a `127.0.0.1`):
 
