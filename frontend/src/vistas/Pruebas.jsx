@@ -17,7 +17,7 @@ function NuevoResiduo({ alGuardar }) {
     e.preventDefault();
     const r = await ejecutar(() => api.registrarResiduo({
       nombre: nombre.trim(), categoria_real: cat, simulado, usado_en_entrenamiento: usado,
-    }));
+    }), { ok: `Residuo agregado: ${nombre.trim()}` });
     if (r) { setNombre(''); alGuardar(); }
   }
   return (
@@ -56,7 +56,7 @@ function CorridaManual({ residuos, corrida, alRegistrar }) {
     setInicio(null);
     const r = await ejecutar(() => api.registrarPrueba({
       corrida, modo: 'manual', residuo_id: Number(residuoId), categoria_asignada: cat, tiempo_s: tiempo,
-    }));
+    }), { ok: `Registrado en ${tiempo} s` });
     if (r) { setUltimo(r); alRegistrar(); }
   }
 
@@ -98,7 +98,7 @@ function CorridaSistema({ residuos, corrida, alRegistrar }) {
     e.preventDefault();
     const r = await ejecutar(() => api.registrarPrueba({
       corrida, modo: 'sistema', residuo_id: Number(residuoId), categoria_asignada: cat, tiempo_s: Number(tiempo),
-    }));
+    }), { ok: 'Corrida del sistema registrada' });
     if (r) { setResiduoId(''); setTiempo(''); alRegistrar(); }
   }
   return (
@@ -181,8 +181,8 @@ export default function Pruebas() {
       <Tarjeta titulo="Tabla comparativa">
         {comp && (
           <div className="cifras">
-            <Cifra etiqueta="Manual: acierto" valor={pct(comp.manual?.precision)} detalle={`${comp.manual?.aciertos ?? 0}/${comp.manual?.n ?? 0} · ${comp.manual?.tiempo_promedio_s ?? '—'} s prom.`} />
-            <Cifra etiqueta="Sistema: acierto" valor={pct(comp.sistema?.precision)} detalle={`${comp.sistema?.aciertos ?? 0}/${comp.sistema?.n ?? 0} · ${comp.sistema?.tiempo_promedio_s ?? '—'} s prom.`} />
+            <Cifra etiqueta="Manual: acierto" valor={pct(comp.manual?.precision)} progreso={comp.manual?.precision} detalle={`${comp.manual?.aciertos ?? 0}/${comp.manual?.n ?? 0} · ${comp.manual?.tiempo_promedio_s ?? '—'} s prom.`} />
+            <Cifra etiqueta="Sistema: acierto" valor={pct(comp.sistema?.precision)} progreso={comp.sistema?.precision} detalle={`${comp.sistema?.aciertos ?? 0}/${comp.sistema?.n ?? 0} · ${comp.sistema?.tiempo_promedio_s ?? '—'} s prom.`} />
           </div>
         )}
         <div className="tabla-desplazable">

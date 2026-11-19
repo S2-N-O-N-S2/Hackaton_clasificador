@@ -58,7 +58,7 @@ function PantallaRetro({ retro, estado }) {
         <div className="retro-acciones">
           {retro.puede_reportar && (
             <button type="button" className={`boton-reportar ${retro.tono === 'prudente' ? 'destacado' : ''}`}
-              disabled={ocupado} onClick={() => ejecutar(() => api.reportarError())}>
+              disabled={ocupado} onClick={() => ejecutar(() => api.reportarError(), { ok: 'Reporte enviado' })}>
               Creo que la IA se equivocó (tecla *)
             </button>
           )}
@@ -86,7 +86,7 @@ export default function Juego() {
       <div className="juego-pregunta">
         <h1 className="titulo-grande">¿A qué bote va?</h1>
         {segundos !== null && <div className={`cuenta-grande tic ${segundos <= 3 ? 'urgente' : ''}`} key={segundos}>{segundos}</div>}
-        <BotonesCategoria deshabilitado={ocupado} alElegir={(id) => ejecutar(() => api.adivinar(id))} />
+        <BotonesCategoria deshabilitado={ocupado} alElegir={(id) => ejecutar(() => api.adivinar(id), { ok: 'Respuesta enviada' })} />
       </div>
     );
   } else if (retro && ESTADOS_DESPUES.includes(estado)) {

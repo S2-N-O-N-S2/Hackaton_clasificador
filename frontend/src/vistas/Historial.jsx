@@ -5,14 +5,15 @@ import { useEnVivo } from '../estado.jsx';
 import { NOMBRE_ORIGEN, categoria } from '../categorias.js';
 import { HISTORIAL_POR_PAGINA } from '../config.js';
 import {
-  Categoria, ChipRevision, MensajeError, Simulado, TEXTO_ESTADO_CLASIFICACION, fechaHora, pct, useAccion, useDatos,
+  BotonCategoria, Cargando, Categoria, ChipRevision, MensajeError, Simulado, TEXTO_ESTADO_CLASIFICACION, fechaHora, pct,
+  useAccion, useDatos,
 } from '../componentes/Comun.jsx';
 
 function Fila({ c, alCorregir }) {
   const [abierto, setAbierto] = useState(false);
   const { ejecutar, ocupado, error } = useAccion();
   async function corregir(id) {
-    const r = await ejecutar(() => api.corregir(c.id, id));
+    const r = await ejecutar(() => api.corregir(c.id, id), { ok: `Caso #${c.id} corregido a ${categoria(id).nombre}` });
     if (r) { setAbierto(false); alCorregir(); }
   }
   return (
@@ -36,8 +37,7 @@ function Fila({ c, alCorregir }) {
         {abierto && (
           <div className="corregir">
             {[0, 1, 2].map((id) => (
-              <button key={id} type="button" disabled={ocupado} style={{ background: categoria(id).hex }}
-                className="boton-mini" onClick={() => corregir(id)}>{categoria(id).nombre}</button>
+              <BotonCategoria key={id} id={id} disabled={ocupado} onClick={() => corregir(id)} />
             ))}
             <button type="button" className="boton-texto" onClick={() => setAbierto(false)}>Cancelar</button>
           </div>
@@ -81,7 +81,7 @@ export default function Historial() {
         <span className="atenuado">{total} registros</span>
       </div>
       <MensajeError error={error} />
-      {cargando && !datos && <p className="atenuado">Cargando…</p>}
+      {cargando && !datos && <Cargando />}
       {datos && (
         <div className="tabla-desplazable">
           <table className="tabla tabla-tarjetas">

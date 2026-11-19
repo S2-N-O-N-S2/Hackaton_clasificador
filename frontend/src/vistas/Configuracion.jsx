@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import { api, urlFoto } from '../api.js';
 import { useEnVivo } from '../estado.jsx';
 import { categoria } from '../categorias.js';
-import { Categoria, MensajeError, Tarjeta, fechaHora, pct, useAccion, useDatos } from '../componentes/Comun.jsx';
+import { BotonCategoria, Categoria, MensajeError, Tarjeta, fechaHora, pct, useAccion, useDatos } from '../componentes/Comun.jsx';
 
 const CAMPOS = [
   { clave: 'umbral_general', nombre: 'Umbral general (0–1)', tipo: 'fraccion' },
@@ -32,7 +32,7 @@ function Umbrales({ config, alGuardar }) {
     });
     if (valores.modo_por_defecto !== config.valores.modo_por_defecto) parcial.modo_por_defecto = valores.modo_por_defecto;
     if (Object.keys(parcial).length === 0) return;
-    const r = await ejecutar(() => api.guardarConfig(parcial));
+    const r = await ejecutar(() => api.guardarConfig(parcial), { ok: 'Cambios guardados' });
     if (r) { setGuardado(true); alGuardar(r); setTimeout(() => setGuardado(false), 2000); }
   }
 
@@ -71,11 +71,12 @@ function Calibracion({ config, alGuardar }) {
   useEffect(() => { setAngulos(config.valores.angulos); }, [config]);
 
   async function mover() {
-    const r = await ejecutar(() => api.manual('ang', { grados: Number(grados) }));
+    const r = await ejecutar(() => api.manual('ang', { grados: Number(grados) }), { ok: `Disco movido a ${grados}°` });
     if (r) setRespuesta(r.respuesta_arduino);
   }
   async function guardarComo(id) {
-    const r = await ejecutar(() => api.guardarConfig({ angulos: { ...angulos, [id]: Number(grados) } }));
+    const r = await ejecutar(() => api.guardarConfig({ angulos: { ...angulos, [id]: Number(grados) } }),
+      { ok: `Ángulo de ${categoria(id).nombre}: ${grados}°` });
     if (r) alGuardar(r);
   }
 
@@ -87,8 +88,7 @@ function Calibracion({ config, alGuardar }) {
       <div className="fila-botones">
         <button type="button" className="boton-principal" disabled={ocupado} onClick={mover}>Mover el disco (ANG)</button>
         {[0, 1, 2].map((id) => (
-          <button key={id} type="button" className="boton-mini" style={{ background: categoria(id).hex }} disabled={ocupado}
-            onClick={() => guardarComo(id)}>Guardar como {categoria(id).nombre}</button>
+          <BotonCategoria key={id} id={id} disabled={ocupado} onClick={() => guardarComo(id)}>Guardar como {categoria(id).nombre}</BotonCategoria>
         ))}
       </div>
       <p>Ángulos guardados: {[0, 1, 2].map((id) => `${categoria(id).nombre} ${angulos?.[id] ?? '—'}°`).join(' · ')} · HOME {config.valores.angulo_home}°</p>
@@ -108,7 +108,7 @@ function ZonaDeInteres({ config, alGuardar }) {
 
   async function guardar(e) {
     e.preventDefault();
-    const r = await ejecutar(() => api.guardarConfig({ roi: roi.map(Number) }));
+    const r = await ejecutar(() => api.guardarConfig({ roi: roi.map(Number) }), { ok: 'Zona de interés guardada' });
     if (r) alGuardar(r);
   }
   return (
@@ -143,7 +143,8 @@ function Capacidades() {
       {botes.map((b) => (
         <form key={b.id} className="formulario en-linea" onSubmit={(e) => {
           e.preventDefault();
-          ejecutar(() => api.ajustarBote(b.id, { capacidad_piezas: parseInt(valores[b.id] ?? b.capacidad_piezas, 10) }));
+          ejecutar(() => api.ajustarBote(b.id, { capacidad_piezas: parseInt(valores[b.id] ?? b.capacidad_piezas, 10) }),
+            { ok: `Capacidad del bote ${b.color} guardada` });
         }}>
           <label>{b.nombre} (piezas)
             <input type="number" min="1" step="1" value={valores[b.id] ?? b.capacidad_piezas}
@@ -171,7 +172,7 @@ function Modelo() {
       {modelo.entrenando ? (
         <p>Reentrenando… {modelo.progreso !== null ? pct(modelo.progreso) : ''}</p>
       ) : (
-        <button type="button" className="boton-principal" disabled={ocupado} onClick={() => ejecutar(() => api.reentrenar())}>
+        <button type="button" className="boton-principal" disabled={ocupado} onClick={() => ejecutar(() => api.reentrenar(), { ok: 'Reentrenamiento iniciado' })}>
           Reentrenar con las correcciones
         </button>
       )}
@@ -196,7 +197,7 @@ function PorVerificar() {
   const { datos, error, recargar } = useDatos(() => api.porVerificar(), []);
   const accion = useAccion();
   async function decidir(id, a) {
-    const r = await accion.ejecutar(() => api.decidirPorVerificar(id, a));
+    const r = await accion.ejecutar(() => api.decidirPorVerificar(id, a), { ok: a === 'aprobar' ? 'Etiqueta aprobada' : 'Etiqueta rechazada' });
     if (r) recargar();
   }
   return (
@@ -226,7 +227,7 @@ function ControlManual() {
   const { ejecutar, ocupado, error } = useAccion();
   const permitido = ['MENU', 'OPERADOR', 'ERROR'].includes(maquina?.estado);
   async function hacer(accion, cuerpo) {
-    const r = await ejecutar(() => api.manual(accion, cuerpo));
+    const r = await ejecutar(() => api.manual(accion, cuerpo), { ok: `${accion.toUpperCase()} enviado al Arduino` });
     if (r) setRespuesta(`${accion.toUpperCase()} → ${r.respuesta_arduino}`);
   }
   return (
@@ -234,8 +235,7 @@ function ControlManual() {
       {!permitido && <p className="texto-error">Solo en MENÚ, OPERADOR o ERROR.</p>}
       <div className="fila-botones">
         {[0, 1, 2].map((id) => (
-          <button key={id} type="button" className="boton-mini" style={{ background: categoria(id).hex }}
-            disabled={ocupado || !permitido} onClick={() => hacer('pos', { id })}>POS {categoria(id).nombre}</button>
+          <BotonCategoria key={id} id={id} disabled={ocupado || !permitido} onClick={() => hacer('pos', { id })}>POS {categoria(id).nombre}</BotonCategoria>
         ))}
         <button type="button" className="boton-secundario" disabled={ocupado || !permitido} onClick={() => hacer('home')}>HOME</button>
         <button type="button" className="boton-secundario" disabled={ocupado || !permitido} onClick={() => hacer('drop')}>Abrir trampilla</button>
@@ -260,13 +260,13 @@ function Simulacion() {
     <Tarjeta titulo="Simulación (sin hardware)" className="tarjeta-simulacion">
       <p>Colocar un residuo simulado:</p>
       <div className="fila-botones">
-        <button type="button" className="boton-secundario" disabled={ocupado} onClick={() => ejecutar(() => api.simObjeto())}>Al azar</button>
+        <button type="button" className="boton-secundario" disabled={ocupado} onClick={() => ejecutar(() => api.simObjeto(), { ok: 'Residuo simulado colocado' })}>Al azar</button>
         {[0, 1, 2].map((id) => (
-          <button key={id} type="button" className="boton-mini" style={{ background: categoria(id).hex }} disabled={ocupado}
-            onClick={() => ejecutar(() => api.simObjeto(id))}>{categoria(id).nombre}</button>
+          <BotonCategoria key={id} id={id} disabled={ocupado}
+            onClick={() => ejecutar(() => api.simObjeto(id), { ok: `Residuo simulado: ${categoria(id).nombre}` })} />
         ))}
       </div>
-      <button type="button" className="boton-secundario" disabled={ocupado} onClick={() => ejecutar(() => api.simRetirar())}>
+      <button type="button" className="boton-secundario" disabled={ocupado} onClick={() => ejecutar(() => api.simRetirar(), { ok: 'Bandeja libre' })}>
         Retirar el residuo de la bandeja (LIBRE)
       </button>
       <p>Teclado 4×4 simulado:</p>
