@@ -1,0 +1,3651 @@
+{
+  "metricas": {
+    "n": 300,
+    "aciertos": 294,
+    "precision": 0.98,
+    "por_clase": {
+      "organica": {
+        "n": 100,
+        "aciertos": 100,
+        "acierto": 1.0
+      },
+      "inorganica": {
+        "n": 100,
+        "aciertos": 96,
+        "acierto": 0.96
+      },
+      "peligroso": {
+        "n": 100,
+        "aciertos": 98,
+        "acierto": 0.98
+      }
+    },
+    "matriz_confusion": [
+      [
+        100,
+        0,
+        0
+      ],
+      [
+        2,
+        96,
+        2
+      ],
+      [
+        0,
+        2,
+        98
+      ]
+    ],
+    "con_umbrales": {
+      "umbral_general": 0.6,
+      "umbral_peligroso": 0.35,
+      "a_revision": 4,
+      "fraccion_a_revision": 0.0133,
+      "precision_aceptadas": 0.9865,
+      "peligrosos_enviados_a_otro_bote": 0
+    }
+  },
+  "detalle": [
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_10__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9886274933815002,
+      "dudoso": false,
+      "probs": [
+        0.989,
+        0.005,
+        0.006
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_114__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9990226030349731,
+      "dudoso": false,
+      "probs": [
+        0.999,
+        0.0,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_117__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.999882698059082,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_119__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9803594946861267,
+      "dudoso": false,
+      "probs": [
+        0.98,
+        0.017,
+        0.003
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_120__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999905824661255,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_131__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9995299577713013,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_13__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999532699584961,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_146__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999969005584717,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_14__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999611377716064,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_151__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9998579025268555,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_159__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9998561143875122,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_15__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9941732287406921,
+      "dudoso": false,
+      "probs": [
+        0.994,
+        0.006,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_173__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9994003772735596,
+      "dudoso": false,
+      "probs": [
+        0.999,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_179__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999903440475464,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_202__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999817609786987,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_205__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9913392663002014,
+      "dudoso": false,
+      "probs": [
+        0.991,
+        0.009,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_214__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9666573405265808,
+      "dudoso": false,
+      "probs": [
+        0.967,
+        0.031,
+        0.002
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_219__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9998809099197388,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_238__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9998249411582947,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_248__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999953508377075,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_259__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999982118606567,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_25__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999550580978394,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_267__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999880790710449,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_276__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9760436415672302,
+      "dudoso": false,
+      "probs": [
+        0.976,
+        0.023,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_281__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9431906938552856,
+      "dudoso": false,
+      "probs": [
+        0.943,
+        0.057,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_286__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999947547912598,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_304__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999874830245972,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_305__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999170303344727,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_313__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9998842477798462,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_316__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999854564666748,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_317__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9993852376937866,
+      "dudoso": false,
+      "probs": [
+        0.999,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_318__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.999862790107727,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_321__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9998679161071777,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_329__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9770967364311218,
+      "dudoso": false,
+      "probs": [
+        0.977,
+        0.012,
+        0.011
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_346__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999959468841553,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_360__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999809265136719,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_362__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9986588954925537,
+      "dudoso": false,
+      "probs": [
+        0.999,
+        0.001,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_363__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.999900221824646,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_36__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.999829888343811,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_376__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9998748302459717,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_378__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9998806715011597,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_381__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9976418018341064,
+      "dudoso": false,
+      "probs": [
+        0.998,
+        0.001,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_393__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.995566189289093,
+      "dudoso": false,
+      "probs": [
+        0.996,
+        0.004,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_394__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9994012117385864,
+      "dudoso": false,
+      "probs": [
+        0.999,
+        0.0,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_397__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.8464981317520142,
+      "dudoso": false,
+      "probs": [
+        0.846,
+        0.15,
+        0.003
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_399__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.999963641166687,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_3__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999274015426636,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_400__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999686479568481,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_401__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9997500777244568,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_404__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999544620513916,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_407__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9992716908454895,
+      "dudoso": false,
+      "probs": [
+        0.999,
+        0.0,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_408__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999738931655884,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_423__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999209642410278,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_426__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.999609649181366,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_43__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999222755432129,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_440__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9998206496238708,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_444__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.99835205078125,
+      "dudoso": false,
+      "probs": [
+        0.998,
+        0.002,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_447__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.997514009475708,
+      "dudoso": false,
+      "probs": [
+        0.998,
+        0.002,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_457__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9987626075744629,
+      "dudoso": false,
+      "probs": [
+        0.999,
+        0.001,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_481__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.999992847442627,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_482__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.99982088804245,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_483__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999567270278931,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_492__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9995636343955994,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_497__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.7370731234550476,
+      "dudoso": false,
+      "probs": [
+        0.737,
+        0.262,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_507__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999823570251465,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_527__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999971389770508,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_530__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9979356527328491,
+      "dudoso": false,
+      "probs": [
+        0.998,
+        0.002,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_531__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999842643737793,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_534__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9998881816864014,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_536__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9981755018234253,
+      "dudoso": false,
+      "probs": [
+        0.998,
+        0.001,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_538__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.998789370059967,
+      "dudoso": false,
+      "probs": [
+        0.999,
+        0.0,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_53__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9972445964813232,
+      "dudoso": false,
+      "probs": [
+        0.997,
+        0.002,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_554__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9998419284820557,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_556__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999914169311523,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_568__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9996960163116455,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_570__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999991655349731,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_577__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9989598989486694,
+      "dudoso": false,
+      "probs": [
+        0.999,
+        0.001,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_578__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9993257522583008,
+      "dudoso": false,
+      "probs": [
+        0.999,
+        0.001,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_583__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.999601423740387,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_586__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999973773956299,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_588__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999790191650391,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_59__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999911785125732,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_5__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.999733030796051,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_602__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.999997615814209,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_610__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999850988388062,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_612__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9990665316581726,
+      "dudoso": false,
+      "probs": [
+        0.999,
+        0.001,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_625__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.998382568359375,
+      "dudoso": false,
+      "probs": [
+        0.998,
+        0.001,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_630__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.999134361743927,
+      "dudoso": false,
+      "probs": [
+        0.999,
+        0.0,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_637__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.999985933303833,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_640__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.999876856803894,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_656__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9996914863586426,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_657__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9995512366294861,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_665__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9780867695808411,
+      "dudoso": false,
+      "probs": [
+        0.978,
+        0.017,
+        0.005
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_675__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999357461929321,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_685__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.999976396560669,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_6__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.7605466842651367,
+      "dudoso": false,
+      "probs": [
+        0.761,
+        0.238,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_70__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999933242797852,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_84__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9990159273147583,
+      "dudoso": false,
+      "probs": [
+        0.999,
+        0.001,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_89__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9999978542327881,
+      "dudoso": false,
+      "probs": [
+        1.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\organica\\gd_biological_9__001.jpg",
+      "real": 0,
+      "pred": 0,
+      "confianza": 0.9992320537567139,
+      "dudoso": false,
+      "probs": [
+        0.999,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_cardboard_1068__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9970051646232605,
+      "dudoso": false,
+      "probs": [
+        0.003,
+        0.997,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_cardboard_1237__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.913429319858551,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.913,
+        0.087
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_cardboard_1358__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999723434448242,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_cardboard_199__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9997749924659729,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_cardboard_414__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9992173910140991,
+      "dudoso": false,
+      "probs": [
+        0.001,
+        0.999,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_cardboard_415__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999821186065674,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_cardboard_475__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9986370205879211,
+      "dudoso": false,
+      "probs": [
+        0.001,
+        0.999,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_cardboard_594__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9638458490371704,
+      "dudoso": false,
+      "probs": [
+        0.028,
+        0.964,
+        0.008
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_cardboard_597__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.996584415435791,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.997,
+        0.003
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_cardboard_694__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.6047258973121643,
+      "dudoso": true,
+      "probs": [
+        0.04,
+        0.605,
+        0.355
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_cardboard_741__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9768299460411072,
+      "dudoso": false,
+      "probs": [
+        0.018,
+        0.977,
+        0.005
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_cardboard_870__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9977632761001587,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.998,
+        0.002
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_cardboard_937__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9992515444755554,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.999,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_cardboard_939__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.7658978700637817,
+      "dudoso": false,
+      "probs": [
+        0.233,
+        0.766,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_clothes_1057__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9752933979034424,
+      "dudoso": false,
+      "probs": [
+        0.023,
+        0.975,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_clothes_1116__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9775444269180298,
+      "dudoso": false,
+      "probs": [
+        0.005,
+        0.978,
+        0.018
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_clothes_1136__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.584320068359375,
+      "dudoso": true,
+      "probs": [
+        0.414,
+        0.584,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_clothes_1179__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.999901294708252,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_clothes_1263__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999903440475464,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_clothes_1363__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999053478240967,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_clothes_1523__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999195337295532,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_clothes_1791__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9996176958084106,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_clothes_223__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9985648989677429,
+      "dudoso": false,
+      "probs": [
+        0.001,
+        0.999,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_clothes_286__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.999911904335022,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_clothes_378__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999256134033203,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_clothes_568__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9989105463027954,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.999,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_clothes_749__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999767541885376,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_clothes_79__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9997510313987732,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_glass_102__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9997664093971252,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_glass_1134__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9992676377296448,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.999,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_glass_1165__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999593496322632,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_glass_138__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.999329686164856,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.999,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_glass_1395__001.jpg",
+      "real": 1,
+      "pred": 2,
+      "confianza": 0.6696645617485046,
+      "dudoso": false,
+      "probs": [
+        0.003,
+        0.328,
+        0.67
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_glass_1501__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9997925162315369,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_glass_159__001.jpg",
+      "real": 1,
+      "pred": 0,
+      "confianza": 0.6650288701057434,
+      "dudoso": false,
+      "probs": [
+        0.665,
+        0.185,
+        0.15
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_glass_1625__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.999996542930603,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_glass_1699__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9981946349143982,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.998,
+        0.002
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_glass_187__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999361038208008,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_glass_314__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9994519352912903,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.999,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_glass_389__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9160977602005005,
+      "dudoso": false,
+      "probs": [
+        0.001,
+        0.916,
+        0.082
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_glass_454__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9982624650001526,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.998,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_glass_584__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.983945906162262,
+      "dudoso": false,
+      "probs": [
+        0.016,
+        0.984,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_glass_822__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9982600808143616,
+      "dudoso": false,
+      "probs": [
+        0.001,
+        0.998,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_metal_220__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9977013468742371,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.998,
+        0.002
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_metal_314__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9943917393684387,
+      "dudoso": false,
+      "probs": [
+        0.006,
+        0.994,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_metal_319__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9932395219802856,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.993,
+        0.007
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_metal_529__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.947124183177948,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.947,
+        0.053
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_metal_565__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.8618915677070618,
+      "dudoso": false,
+      "probs": [
+        0.138,
+        0.862,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_metal_618__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9998917579650879,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_metal_623__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999874830245972,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_metal_630__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9468802213668823,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.947,
+        0.053
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_metal_677__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9982696771621704,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.998,
+        0.002
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_metal_716__001.jpg",
+      "real": 1,
+      "pred": 0,
+      "confianza": 0.6903934478759766,
+      "dudoso": false,
+      "probs": [
+        0.69,
+        0.309,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_metal_730__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999687671661377,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_metal_785__001.jpg",
+      "real": 1,
+      "pred": 2,
+      "confianza": 0.7075819969177246,
+      "dudoso": false,
+      "probs": [
+        0.007,
+        0.285,
+        0.708
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_paper_1120__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.7324293255805969,
+      "dudoso": false,
+      "probs": [
+        0.001,
+        0.732,
+        0.266
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_paper_1195__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999822378158569,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_paper_129__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.998887836933136,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.999,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_paper_148__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999855756759644,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_paper_187__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9954777359962463,
+      "dudoso": false,
+      "probs": [
+        0.005,
+        0.995,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_paper_190__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999985694885254,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_paper_213__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9590206146240234,
+      "dudoso": false,
+      "probs": [
+        0.032,
+        0.959,
+        0.009
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_paper_250__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999737739562988,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_paper_260__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9227532744407654,
+      "dudoso": false,
+      "probs": [
+        0.006,
+        0.923,
+        0.071
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_paper_268__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.8118495941162109,
+      "dudoso": false,
+      "probs": [
+        0.001,
+        0.812,
+        0.188
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_paper_388__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9961124062538147,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.996,
+        0.003
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_paper_40__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.8287296891212463,
+      "dudoso": false,
+      "probs": [
+        0.003,
+        0.829,
+        0.169
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_paper_414__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9998769760131836,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_paper_523__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999313354492188,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_paper_59__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.999919056892395,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_paper_716__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999212026596069,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_paper_753__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9922481775283813,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.992,
+        0.007
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_paper_894__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9534832239151001,
+      "dudoso": false,
+      "probs": [
+        0.046,
+        0.953,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_plastic_1018__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999946355819702,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_plastic_1103__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999961853027344,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_plastic_1211__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999971389770508,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_plastic_1273__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9977158308029175,
+      "dudoso": false,
+      "probs": [
+        0.001,
+        0.998,
+        0.002
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_plastic_1296__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999992847442627,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_plastic_440__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999337196350098,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_plastic_512__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9997119307518005,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_plastic_592__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9998966455459595,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_plastic_696__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999960660934448,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_plastic_82__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999966621398926,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_plastic_876__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9994863271713257,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.999,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_plastic_930__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999837875366211,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_plastic_991__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9933251738548279,
+      "dudoso": false,
+      "probs": [
+        0.006,
+        0.993,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_shoes_1156__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999687671661377,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_shoes_121__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999997615814209,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_shoes_1233__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9881315231323242,
+      "dudoso": false,
+      "probs": [
+        0.011,
+        0.988,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_shoes_1265__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9424759745597839,
+      "dudoso": false,
+      "probs": [
+        0.032,
+        0.942,
+        0.026
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_shoes_192__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999622106552124,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_shoes_232__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999982118606567,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_shoes_256__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9987221360206604,
+      "dudoso": false,
+      "probs": [
+        0.001,
+        0.999,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_shoes_432__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999955892562866,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_shoes_569__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9905269145965576,
+      "dudoso": false,
+      "probs": [
+        0.008,
+        0.991,
+        0.001
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_shoes_700__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9992192983627319,
+      "dudoso": false,
+      "probs": [
+        0.001,
+        0.999,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_shoes_70__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999244213104248,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_shoes_793__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9997792840003967,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_shoes_915__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.999494194984436,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.999,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\inorganica\\gd_shoes_976__001.jpg",
+      "real": 1,
+      "pred": 1,
+      "confianza": 0.9999973773956299,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        1.0,
+        0.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_101__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9631431698799133,
+      "dudoso": false,
+      "probs": [
+        0.002,
+        0.035,
+        0.963
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_104__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9912136197090149,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.009,
+        0.991
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_107__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9975899457931519,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.002,
+        0.998
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_112__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9805302619934082,
+      "dudoso": false,
+      "probs": [
+        0.001,
+        0.018,
+        0.981
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_114__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999985694885254,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_120__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999507665634155,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_142__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9996602535247803,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_144__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9055882692337036,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.094,
+        0.906
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_145__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999856948852539,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_152__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999840259552002,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_159__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9522736668586731,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.048,
+        0.952
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_16__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999980926513672,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_176__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999977350234985,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_188__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999995231628418,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_191__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999641180038452,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_194__001.jpg",
+      "real": 2,
+      "pred": 1,
+      "confianza": 0.6423201560974121,
+      "dudoso": true,
+      "probs": [
+        0.002,
+        0.642,
+        0.356
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_215__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999783039093018,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_216__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999990463256836,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_221__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999724626541138,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_226__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999568462371826,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_22__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9986974596977234,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.001,
+        0.999
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_235__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999864101409912,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_24__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9954828023910522,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.004,
+        0.995
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_261__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999990463256836,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_26__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999046325683594,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_270__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.8245997428894043,
+      "dudoso": false,
+      "probs": [
+        0.005,
+        0.17,
+        0.825
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_279__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9997934699058533,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_280__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9992223978042603,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.001,
+        0.999
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_291__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999339580535889,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_297__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9560473561286926,
+      "dudoso": false,
+      "probs": [
+        0.004,
+        0.04,
+        0.956
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_29__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999896287918091,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_311__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.999692440032959,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_316__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999929666519165,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_317__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999128580093384,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_327__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999878406524658,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_341__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9963537454605103,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.003,
+        0.996
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_360__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999710321426392,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_362__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9996271133422852,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_384__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9990733861923218,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.001,
+        0.999
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_386__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999250173568726,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_387__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.6988592743873596,
+      "dudoso": false,
+      "probs": [
+        0.013,
+        0.288,
+        0.699
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_39__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999159574508667,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_404__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9993032217025757,
+      "dudoso": false,
+      "probs": [
+        0.001,
+        0.0,
+        0.999
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_40__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999439716339111,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_420__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9998742341995239,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_422__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9994907379150391,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        0.999
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_424__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9998800754547119,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_430__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9445673227310181,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.055,
+        0.945
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_433__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9993335604667664,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.001,
+        0.999
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_434__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.999933123588562,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_442__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999799728393555,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_448__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.8224287033081055,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.177,
+        0.822
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_461__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9995139837265015,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_467__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9997419714927673,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_472__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999070167541504,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_486__001.jpg",
+      "real": 2,
+      "pred": 1,
+      "confianza": 0.6313164830207825,
+      "dudoso": true,
+      "probs": [
+        0.008,
+        0.631,
+        0.361
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_489__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9985383749008179,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.001,
+        0.999
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_48__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999603033065796,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_497__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999916553497314,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_50__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999889135360718,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_510__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999685287475586,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_511__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.98370760679245,
+      "dudoso": false,
+      "probs": [
+        0.003,
+        0.013,
+        0.984
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_527__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.76976078748703,
+      "dudoso": false,
+      "probs": [
+        0.004,
+        0.226,
+        0.77
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_529__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9995187520980835,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_52__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9805886149406433,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.019,
+        0.981
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_537__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9875108003616333,
+      "dudoso": false,
+      "probs": [
+        0.001,
+        0.011,
+        0.988
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_542__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9996914863586426,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_543__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.6100311875343323,
+      "dudoso": false,
+      "probs": [
+        0.001,
+        0.389,
+        0.61
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_559__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9993025064468384,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.001,
+        0.999
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_560__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999644756317139,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_561__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999661445617676,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_572__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999697208404541,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_577__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.999909520149231,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_581__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999603033065796,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_588__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9985774755477905,
+      "dudoso": false,
+      "probs": [
+        0.001,
+        0.0,
+        0.999
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_591__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999877214431763,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_606__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9998787641525269,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_609__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9977626800537109,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.002,
+        0.998
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_612__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999713897705078,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_617__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9573642015457153,
+      "dudoso": false,
+      "probs": [
+        0.004,
+        0.039,
+        0.957
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_634__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.999897837638855,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_644__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999942779541016,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_652__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999914169311523,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_660__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999442100524902,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_661__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9967538714408875,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.003,
+        0.997
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_672__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999568462371826,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_673__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999828338623047,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_695__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.999930739402771,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_697__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999653100967407,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_698__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999407529830933,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_700__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999853372573853,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_714__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999997615814209,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_716__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999978542327881,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_718__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9998689889907837,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_735__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999983310699463,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_742__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999885559082031,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_744__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999451637268066,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_746__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9985910058021545,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.001,
+        0.999
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_92__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999207258224487,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    },
+    {
+      "foto": "C:\\Users\\alan6\\AppData\\Local\\Temp\\claude\\f6e8ef5ed92a22b4\\bb020fff-51a7-406c-86fa-cb33743d6922\\scratchpad\\dataset_limpio\\peligroso\\gd_battery_95__001.jpg",
+      "real": 2,
+      "pred": 2,
+      "confianza": 0.9999322891235352,
+      "dudoso": false,
+      "probs": [
+        0.0,
+        0.0,
+        1.0
+      ]
+    }
+  ]
+}
