@@ -165,33 +165,50 @@ def valores_por_defecto() -> dict[str, Any]:
 CLAVES_REQUIEREN_REINICIO = {"puerto_serial", "indice_camara"}
 
 
-def _validar_umbral(v: Any) -> float:
+def _numero(v: Any) -> float:
+    """Número real finito. Rechaza true/false (en Python True == 1) y NaN/infinito."""
+    if isinstance(v, bool) or v is None:
+        raise ValueError("debe ser un número")
     v = float(v)
+    if v != v or v in (float("inf"), float("-inf")):
+        raise ValueError("debe ser un número finito")
+    return v
+
+
+def _entero(v: Any) -> int:
+    """Entero. Rechaza true/false y decimales (antes 1.9 se convertía en 1 sin avisar)."""
+    n = _numero(v)
+    if n != int(n):
+        raise ValueError("debe ser un número entero")
+    return int(n)
+
+
+def _validar_umbral(v: Any) -> float:
+    v = _numero(v)
     if not 0.0 <= v <= 1.0:
         raise ValueError("debe estar entre 0 y 1")
     return round(v, 4)
 
 
 def _validar_umbral_desconocido(v: Any) -> float:
-    if isinstance(v, bool):
-        raise ValueError("debe ser un número entre 0.5 y 3")
-    v = float(v)
+    v = _numero(v)
     if not 0.5 <= v <= 3.0:
         raise ValueError("debe estar entre 0.5 y 3")
     return round(v, 3)
 
 
 def _validar_angulo(v: Any) -> int:
-    v = int(v)
+    v = _entero(v)
     if not 0 <= v <= 180:
         raise ValueError("debe estar entre 0 y 180")
     return v
 
 
 def _validar_entero_positivo(v: Any) -> int:
-    v = int(v)
-    if v <= 0:
-        raise ValueError("debe ser mayor que 0")
+    """Tiempos en segundos: de 1 a 600 (10 min). Antes se aceptaba 10^12 s y una revisión no vencía nunca."""
+    v = _entero(v)
+    if not 1 <= v <= 600:
+        raise ValueError("debe estar entre 1 y 600")
     return v
 
 
@@ -233,7 +250,7 @@ def fuente_camara(v: Any) -> int | str:
 def _validar_roi(v: Any) -> list[float]:
     if not isinstance(v, (list, tuple)) or len(v) != 4:
         raise ValueError("debe ser [x, y, ancho, alto] en fracciones de 0 a 1")
-    x, y, ancho, alto = (float(n) for n in v)
+    x, y, ancho, alto = (_numero(n) for n in v)
     if not (0 <= x < 1 and 0 <= y < 1 and 0 < ancho <= 1 and 0 < alto <= 1 and x + ancho <= 1.0001 and y + alto <= 1.0001):
         raise ValueError("la zona debe quedar dentro de la imagen")
     return [round(x, 4), round(y, 4), round(ancho, 4), round(alto, 4)]

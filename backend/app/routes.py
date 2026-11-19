@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from typing import Any, Literal
 
 from fastapi import APIRouter, Body, HTTPException, Query, Request
-from pydantic import BaseModel, StrictInt
+from pydantic import BaseModel, Field, StrictInt
 
 from .bins import GestorBotes
 from .camera import PISTAS_ESPECIALES, copiar_a_dataset
@@ -61,42 +61,42 @@ class ModoIn(BaseModel):
 
 
 class CorregirIn(BaseModel):
-    final_id: int
+    final_id: StrictInt  # StrictInt: true/false o "1" se rechazan (pydantic convertía true en 1)
 
 
 class RevisionIn(BaseModel):
     accion: Literal["resolver", "pendiente"]
-    final_id: int | None = None
+    final_id: StrictInt | None = None
 
 
 class PruebaIn(BaseModel):
-    corrida: int
+    corrida: StrictInt = Field(ge=1, le=2)
     modo: Literal["manual", "sistema"]
-    residuo_id: int
-    categoria_asignada: int | None = None
-    tiempo_s: float | None = None
+    residuo_id: StrictInt
+    categoria_asignada: StrictInt | None = Field(None, ge=0, le=2)
+    tiempo_s: float | None = Field(None, ge=0, le=3600, allow_inf_nan=False)
 
 
 class ResiduoIn(BaseModel):
-    nombre: str
-    categoria_real: int
+    nombre: str = Field(min_length=1, max_length=80)
+    categoria_real: StrictInt = Field(ge=0, le=2)
     simulado: bool = False
     usado_en_entrenamiento: bool = False
 
 
 class AdivinarIn(BaseModel):
-    categoria: int
+    categoria: StrictInt
 
 
 class PruebaAprendizajeIn(BaseModel):
-    alias: str
-    ronda: int
-    residuos: list[int]
+    alias: str = Field(min_length=1, max_length=12)
+    ronda: StrictInt = Field(ge=1, le=2)
+    residuos: list[StrictInt] = Field(min_length=1, max_length=50)
 
 
 class BoteIn(BaseModel):
-    capacidad_piezas: int | None = None
-    umbral_aviso: float | None = None
+    capacidad_piezas: StrictInt | None = Field(None, ge=1, le=10000)
+    umbral_aviso: float | None = Field(None, ge=0, le=1, allow_inf_nan=False)
 
 
 class PorVerificarIn(BaseModel):
@@ -111,7 +111,7 @@ class SimObjetoIn(BaseModel):
 
 
 class SimTeclaIn(BaseModel):
-    tecla: str
+    tecla: str = Field(min_length=1, max_length=1)
 
 
 # ---------------------------------------------------------------------------- estado y modo
@@ -185,7 +185,8 @@ def get_estadisticas(request: Request, simulado: str = "incluir") -> dict[str, A
     ctx = _ctx(request)
     filtro = _filtro_simulado(simulado)
     filas = ctx.db.consultar(
-        f"SELECT pred_id, final_id FROM clasificaciones WHERE final_id IS NOT NULL AND pred_id IS NOT NULL{filtro}"
+        f"SELECT pred_id, final_id FROM clasificaciones WHERE final_id IS NOT NULL AND pred_id IS NOT NULL "
+        f"AND estado != 'en_proceso'{filtro}"
     )
     matriz = _matriz_vacia()
     for f in filas:
@@ -455,7 +456,10 @@ def post_por_verificar(request: Request, cuerpo: PorVerificarIn) -> dict[str, An
     # Rechazar no borra: mueve a _rechazadas/ para poder revisarlo después
     destino_dir = ctx.ajustes.dir_dataset / (clave if cuerpo.accion == "aprobar" else f"_rechazadas/{clave}")
     destino_dir.mkdir(parents=True, exist_ok=True)
-    shutil.move(str(origen), str(destino_dir / nombre))
+    try:
+        shutil.move(str(origen), str(destino_dir / nombre))
+    except FileNotFoundError:  # otro operador la movió al mismo tiempo
+        raise HTTPException(404, "Esa imagen ya fue revisada") from None
     ctx.db.registrar_evento("info", "api", f"Etiqueta {cuerpo.id}: {cuerpo.accion}")
     pendientes = sum(len(list((ctx.ajustes.dir_dataset / "_por_verificar" / c).glob("*.jpg")))
                      for c in CLAVES_CATEGORIA)

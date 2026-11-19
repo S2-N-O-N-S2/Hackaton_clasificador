@@ -126,6 +126,8 @@ class Orquestador:
         self._tareas: set[asyncio.Task] = set()
         self._resolucion: asyncio.Future | None = None
         self._bandeja_libre = asyncio.Event()
+        # OBJ que llegó mientras otro ciclo terminaba (auditoría): se procesa al volver al menú
+        self._objeto_esperando = False
         self._vaciado = asyncio.Event()
         self._fin_cuenta: float | None = None
         self._t_error: float | None = None
@@ -281,11 +283,17 @@ class Orquestador:
         elif tipo == "OBJ":
             self._bandeja_libre.clear()
             if self.estado in (Estado.MENU, Estado.ESPERA_OBJETO) and not self.ciclo_activo:
-                self._tarea_ciclo = asyncio.create_task(self._ciclo())
+                self._iniciar_ciclo()
+            elif self.ciclo_activo:
+                # El firmware manda OBJ una sola vez (flanco): si se ignora, el residuo se queda en la bandeja
+                # sin clasificar para siempre. Se recuerda y se procesa en cuanto el ciclo actual termine.
+                self._objeto_esperando = True
+                self.db.registrar_evento("aviso", "serial", f"OBJ durante {self.estado.value}: se procesa al terminar")
             else:
                 self.db.registrar_evento("aviso", "serial", f"OBJ ignorado en {self.estado.value}")
         elif tipo == "LIBRE":
             self._bandeja_libre.set()
+            self._objeto_esperando = False
         elif tipo == "KEY" and mensaje.args:
             tecla = mensaje.args[0]
             await self.difusor.emitir("tecla", {"tecla": tecla})
@@ -399,6 +407,18 @@ class Orquestador:
         return respuesta
 
     # ================================================================ el ciclo
+    def _iniciar_ciclo(self) -> None:
+        self._objeto_esperando = False
+        self._tarea_ciclo = asyncio.create_task(self._ciclo())
+        self._tarea_ciclo.add_done_callback(lambda _: self._lanzar(self._revisar_objeto_esperando()))
+
+    async def _revisar_objeto_esperando(self) -> None:
+        """Al terminar un ciclo: si llegó un residuo mientras tanto y sigue en la bandeja, se procesa."""
+        if (self._objeto_esperando and not self._bandeja_libre.is_set() and not self.ciclo_activo
+                and self.estado in (Estado.MENU, Estado.ESPERA_OBJETO)):
+            self.db.registrar_evento("info", "orquestador", "Se procesa el residuo que llegó durante el ciclo anterior")
+            self._iniciar_ciclo()
+
     async def _ciclo(self) -> None:
         t0 = time.monotonic()
         self._espera_humana_s = 0.0
@@ -531,6 +551,9 @@ class Orquestador:
         if final_id not in IDS_CATEGORIA:
             raise ValueError(f"Categoría inválida ({final_id}): no se suelta el residuo")
         bote_id = self.botes.bote_para_categoria(final_id)
+        # El destino ya está decidido: se guarda AHORA para que el panel lo vea mientras el disco gira
+        # (antes solo se guardaba al registrar y el panel veía final_id = null en POSICIONAR y SOLTAR).
+        self.db.actualizar_clasificacion(self._caso_id, final_id=final_id)
 
         # --- VERIFICAR_BOTE / BOTE_LLENO (el bloqueo se activa en la Fase 7)
         await self._transicion(Estado.VERIFICAR_BOTE)

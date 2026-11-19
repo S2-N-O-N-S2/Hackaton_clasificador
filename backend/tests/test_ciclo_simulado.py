@@ -187,3 +187,55 @@ def test_objeto_desconocido_va_a_revision_aunque_la_ia_este_segura(cliente):
 def test_sim_objeto_rechaza_booleanos(cliente):
     c, _ = cliente
     assert c.post("/api/sim/objeto", json={"categoria_real": True}).status_code in (400, 422)
+
+
+# --- Regresiones encontradas por la auditoría de 3000 usuarios (tools/auditoria_usuarios.py)
+def test_el_panel_ve_el_destino_mientras_el_disco_gira(cliente):
+    c, _ = cliente
+    with c.websocket_connect("/ws/eventos") as ws:
+        ws.receive_json()
+        c.post("/api/sim/objeto", json={"categoria_real": 2})
+        vistos = {}
+        while "SOLTAR" not in vistos:
+            m = ws.receive_json()
+            if m["tipo"] == "estado" and m["datos"]["estado"] in ("POSICIONAR", "SOLTAR"):
+                vistos[m["datos"]["estado"]] = (m["datos"].get("caso_actual") or {}).get("final_id")
+    assert vistos == {"POSICIONAR": 2, "SOLTAR": 2}
+
+
+def test_residuo_colocado_mientras_termina_el_ciclo_no_se_pierde(cliente):
+    c, _ = cliente
+    with c.websocket_connect("/ws/eventos") as ws:
+        ws.receive_json()
+        c.post("/api/sim/objeto", json={"categoria_real": 0})
+        while True:  # el primer residuo ya cayó: el siguiente llega mientras se registra / regresa a HOME
+            m = ws.receive_json()
+            if m["tipo"] == "registrado":
+                break
+        assert c.post("/api/sim/objeto", json={"categoria_real": 1}).status_code == 200
+    esperar(lambda: c.get("/api/clasificaciones").json()["total"] == 2
+            and c.get("/api/estado").json()["estado"] == "MENU", limite=8)
+    finales = sorted(x["final_id"] for x in c.get("/api/clasificaciones").json()["items"])
+    assert finales == [0, 1]
+
+
+@pytest.mark.parametrize("ruta, cuerpo", [
+    ("/api/clasificaciones/1/corregir", {"final_id": True}),
+    ("/api/pruebas/residuos", {"nombre": "x" * 500, "categoria_real": 1}),
+    ("/api/pruebas/residuos", {"nombre": "", "categoria_real": 1}),
+    ("/api/pruebas", {"corrida": 1, "modo": "manual", "residuo_id": 1, "categoria_asignada": 1, "tiempo_s": -3}),
+    ("/api/juego/adivinar", {"categoria": True}),
+])
+def test_datos_invalidos_se_rechazan(cliente, ruta, cuerpo):
+    c, _ = cliente
+    assert c.post(ruta, json=cuerpo).status_code == 422
+
+
+@pytest.mark.parametrize("cambio", [
+    {"tiempo_revision_s": 10 ** 12}, {"umbral_general": True}, {"angulo_home": 90.5}, {"angulo_home": True},
+    {"umbral_desconocido": 0}, {"roi": [0, 0, True, 1]},
+])
+def test_config_invalida_se_rechaza(cliente, cambio):
+    c, _ = cliente
+    assert c.put("/api/config", json=cambio).status_code in (400, 422)
+    assert c.put("/api/config", content='{"umbral_general": NaN}', headers={"Content-Type": "application/json"}).status_code in (400, 422)
