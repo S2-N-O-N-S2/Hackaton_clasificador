@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { api } from '../api.js';
 import { useEnVivo } from '../estado.jsx';
 import { categoria } from '../categorias.js';
-import { Cifra, MensajeError, MuestraPequena, Tarjeta, pct, useDatos } from '../componentes/Comun.jsx';
+import { Cargando, Cifra, IconoCategoria, MensajeError, MuestraPequena, Tarjeta, pct, useDatos } from '../componentes/Comun.jsx';
 import { BarrasHorizontales, MatrizConfusion } from '../componentes/Graficas.jsx';
 
 export function FiltroNiveles({ niveles, alCambiar }) {
@@ -38,25 +38,26 @@ export default function HumanoIA() {
       <h1>Humano vs. IA</h1>
       <FiltroNiveles niveles={niveles} alCambiar={setNiveles} />
       <MensajeError error={error} />
-      {cargando && !datos && <p className="atenuado">Cargando…</p>}
+      {cargando && !datos && <Cargando />}
       {datos && (
         <>
           <MuestraPequena si={datos.muestra_pequena} />
           <div className="cifras">
-            <Cifra etiqueta="Acierto humano" valor={pct(datos.acierto_humano)} detalle={`n = ${datos.n_adivinanzas} adivinanzas`} />
-            <Cifra etiqueta="Acierto de la IA (mismos residuos)" valor={pct(datos.humano_vs_ia?.acierto_ia)} detalle={`n = ${datos.humano_vs_ia?.n ?? '—'}`} />
+            <Cifra etiqueta="Acierto humano" valor={pct(datos.acierto_humano)} progreso={datos.acierto_humano} detalle={`n = ${datos.n_adivinanzas} adivinanzas`} />
+            <Cifra etiqueta="Acierto de la IA (mismos residuos)" valor={pct(datos.humano_vs_ia?.acierto_ia)} progreso={datos.humano_vs_ia?.acierto_ia} detalle={`n = ${datos.humano_vs_ia?.n ?? '—'}`} />
             <Cifra etiqueta="Sesiones" valor={datos.n_sesiones} />
-            <Cifra etiqueta="Certeza media (aparte)" valor={pct(datos.media_aparte?.acierto_humano)} detalle={`n = ${datos.media_aparte?.n_adivinanzas ?? 0}`} />
+            <Cifra etiqueta="Certeza media (aparte)" valor={pct(datos.media_aparte?.acierto_humano)} progreso={datos.media_aparte?.acierto_humano} detalle={`n = ${datos.media_aparte?.n_adivinanzas ?? 0}`} />
           </div>
           <div className="rejilla-2">
             <Tarjeta titulo="Humano vs. IA">
               <BarrasHorizontales items={[
                 { etiqueta: 'Humano', valor: datos.humano_vs_ia?.acierto_humano, color: '#F28C05' },
-                { etiqueta: 'IA', valor: datos.humano_vs_ia?.acierto_ia, color: '#1f2937' },
+                { etiqueta: 'IA', valor: datos.humano_vs_ia?.acierto_ia, color: '#0E7C86' },
               ]} />
             </Tarjeta>
             <Tarjeta titulo="Acierto humano por categoría">
               <BarrasHorizontales items={[0, 1, 2].map((id) => ({
+                id,
                 etiqueta: categoria(id).nombre,
                 valor: datos.por_categoria?.[id]?.acierto ?? null,
                 color: categoria(id).hex,
@@ -71,8 +72,8 @@ export default function HumanoIA() {
                 <ol className="lista-parejas">
                   {datos.parejas_confusion.map((p) => (
                     <li key={`${p.dijo}-${p.era}`}>
-                      Dijeron <strong style={{ color: categoria(p.dijo)?.hex }}>{categoria(p.dijo)?.nombre}</strong> y era{' '}
-                      <strong style={{ color: categoria(p.era)?.hex }}>{categoria(p.era)?.nombre}</strong>: {p.veces} veces
+                      Dijeron <strong className="nombre-cat" data-cat={categoria(p.dijo)?.clave}><IconoCategoria id={p.dijo} tam={15} /> {categoria(p.dijo)?.nombre}</strong> y era{' '}
+                      <strong className="nombre-cat" data-cat={categoria(p.era)?.clave}><IconoCategoria id={p.era} tam={15} /> {categoria(p.era)?.nombre}</strong>: <strong>{p.veces}</strong> veces
                     </li>
                   ))}
                 </ol>

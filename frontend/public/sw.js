@@ -9,9 +9,9 @@ self.addEventListener('activate', (evento) => evento.waitUntil(self.clients.clai
 
 const PAGINA_SIN_CONEXION = `<!doctype html><html lang="es"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1"><title>Clasificador</title>
-<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#23332E;color:#EEF1EF;
+<style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#E9F2EE;color:#1A2A28;
 font-family:system-ui,sans-serif;text-align:center;padding:24px;box-sizing:border-box}
-button{margin-top:16px;padding:12px 20px;border:0;border-radius:6px;background:#F2B705;color:#23332E;
+button{margin-top:16px;padding:12px 20px;border:0;border-radius:6px;background:#0E7C86;color:#FFFFFF;
 font-weight:700;font-size:1rem}</style></head><body><div><h1>Sin conexión con la laptop</h1>
 <p>Revisa que la laptop esté encendida, con el panel corriendo, y que el celular esté en la misma red Wi-Fi.</p>
 <button onclick="location.reload()">Reintentar</button></div></body></html>`;

@@ -3,7 +3,8 @@ import { useEffect, useState } from 'react';
 import { useEnVivo } from './estado.jsx';
 import { NOMBRE_ESTADO } from './categorias.js';
 import { MODO_MOCK } from './config.js';
-import { Simulado, hora } from './componentes/Comun.jsx';
+import { BarraProceso, Notificaciones, Simulado } from './componentes/Comun.jsx';
+import { BarraUrgente, Campana } from './componentes/Avisos.jsx';
 import { Logotipo } from './componentes/Graficas.jsx';
 import Inicio from './vistas/Inicio.jsx';
 import EnVivo from './vistas/EnVivo.jsx';
@@ -52,11 +53,8 @@ function Encabezado() {
   const { conexion, maquina } = useEnVivo();
   const c = TEXTO_CONEXION[conexion] || TEXTO_CONEXION.conectando;
   const estado = maquina?.estado;
-  // Franjas de advertencia en el borde inferior solo cuando algo pide atención.
-  const alerta = estado === 'REVISION' ? 'alerta-revision'
-    : (estado === 'ERROR' || estado === 'BOTE_LLENO') ? 'alerta-error' : '';
   return (
-    <header className={`encabezado ${alerta}`}>
+    <header className="encabezado">
       <div className="marca">
         <Logotipo />
         <div className="marca-textos">
@@ -71,41 +69,14 @@ function Encabezado() {
             {maquina.modo && <small> · modo {maquina.modo === 'ia' ? 'IA' : 'Adivina'}</small>}
           </span>
         )}
-        <span className={`conexion ${c.clase}`} title={conexion === 'polling' ? 'Consultando /api/estado cada 2 s' : ''}>
-          <span className="conexion-punto" /> {c.texto}
+        <span className={`conexion ${c.clase}`} title={conexion === 'polling' ? 'Consultando /api/estado cada 2 s' : c.texto}>
+          <span className="conexion-punto" /> <span className="conexion-texto">{c.texto}</span>
         </span>
-        {MODO_MOCK && <span className="rotulo rotulo-simulado">DATOS DE EJEMPLO</span>}
+        {MODO_MOCK && <span className="rotulo rotulo-simulado" title="Datos de ejemplo, sin backend">DATOS DE EJEMPLO</span>}
         {!MODO_MOCK && maquina?.simulacion && <Simulado />}
+        <Campana />
       </div>
     </header>
-  );
-}
-
-// Avisos que importan en cualquier pestaña.
-function AvisosGlobales({ ruta }) {
-  const { maquina, alertas } = useEnVivo();
-  const [ocultas, setOcultas] = useState(() => new Set());
-  const estado = maquina?.estado;
-  const visibles = alertas.filter((a) => a.nivel !== 'info' && !ocultas.has(a.fecha_hora + a.codigo)).slice(0, 3);
-  return (
-    <div className="avisos">
-      {estado === 'REVISION' && ruta !== 'en-vivo' && ruta !== 'juego' && (
-        <a className="aviso aviso-revision" href="#/en-vivo">Hay un residuo en revisión: la IA no está segura. Resolver ahora</a>
-      )}
-      {estado === 'BOTE_LLENO' && ruta !== 'botes' && (
-        <a className="aviso aviso-error" href="#/botes">Un bote está lleno (ESTIMADO): el residuo espera en la bandeja. Ir a Botes</a>
-      )}
-      {estado === 'ERROR' && (
-        <div className="aviso aviso-error">Falla segura: trampilla cerrada y disco en HOME. {maquina.mensaje}</div>
-      )}
-      {visibles.map((a) => (
-        <div key={a.fecha_hora + a.codigo} className={`aviso aviso-${a.nivel}`}>
-          <span>{hora(a.fecha_hora)} · {a.mensaje}</span>
-          <button type="button" className="boton-texto" aria-label="Ocultar aviso"
-            onClick={() => setOcultas((s) => new Set(s).add(a.fecha_hora + a.codigo))}>✕</button>
-        </div>
-      ))}
-    </div>
   );
 }
 
@@ -114,21 +85,27 @@ export default function App() {
   const vista = VISTAS.find((v) => v.ruta === ruta) || VISTAS[0];
   const { Componente } = vista;
   // En el celular la regleta de pestañas se desplaza: deja visible la pestaña activa.
+  // Y cada pestaña nueva empieza desde arriba.
   useEffect(() => {
-    document.querySelector('.navegacion a.activa')?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+    document.querySelector('.navegacion a.activa')?.scrollIntoView({ block: 'nearest', inline: 'center', behavior: 'smooth' });
+    window.scrollTo({ top: 0 });
   }, [vista.ruta]);
   return (
     <div className="app">
       <Encabezado />
       <nav className="navegacion" aria-label="Vistas">
         {VISTAS.map((v) => (
-          <a key={v.ruta} href={`#/${v.ruta}`} className={v.ruta === vista.ruta ? 'activa' : ''}>{v.nombre}</a>
+          <a key={v.ruta} href={`#/${v.ruta}`} className={v.ruta === vista.ruta ? 'activa' : ''}
+            aria-current={v.ruta === vista.ruta ? 'page' : undefined}>{v.nombre}</a>
         ))}
       </nav>
-      <AvisosGlobales ruta={vista.ruta} />
-      <main className="contenido">
+      <BarraProceso />
+      <BarraUrgente ruta={vista.ruta} />
+      {/* key: al cambiar de pestaña el contenido entra con un fundido corto. */}
+      <main className="contenido entra-vista" key={vista.ruta}>
         <Componente />
       </main>
+      <Notificaciones />
     </div>
   );
 }

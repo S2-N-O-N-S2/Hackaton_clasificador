@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { api } from '../api.js';
 import { useEnVivo } from '../estado.jsx';
 import { categoria } from '../categorias.js';
-import { Cifra, MensajeError, Tarjeta, pct, useDatos } from '../componentes/Comun.jsx';
+import { Cargando, Cifra, IconoCategoria, MensajeError, Numero, Tarjeta, pct, useDatos } from '../componentes/Comun.jsx';
 import { BarrasHorizontales, MatrizConfusion } from '../componentes/Graficas.jsx';
 
 export default function Estadisticas() {
@@ -25,11 +25,11 @@ export default function Estadisticas() {
         {datos?.incluye_simulados && <span className="rotulo rotulo-simulado">INCLUYE DATOS SIMULADOS</span>}
       </div>
       <MensajeError error={error} />
-      {cargando && !datos && <p className="atenuado">Cargando…</p>}
+      {cargando && !datos && <Cargando />}
       {datos && (
         <>
           <div className="cifras">
-            <Cifra etiqueta="Tasa de acierto" valor={pct(datos.tasa_acierto, 1)} detalle={`n = ${datos.muestra}`} />
+            <Cifra etiqueta="Tasa de acierto" valor={pct(datos.tasa_acierto, 1)} progreso={datos.tasa_acierto} detalle={`n = ${datos.muestra}`} />
             <Cifra etiqueta="Tiempo promedio por residuo" valor={datos.tiempo_promedio_ms ? `${(datos.tiempo_promedio_ms / 1000).toFixed(1)} s` : '—'} detalle="tiempo de máquina" />
             <Cifra etiqueta="Dudosos" valor={datos.dudosos} />
             <Cifra etiqueta="Corregidos" valor={datos.corregidos} />
@@ -43,7 +43,7 @@ export default function Estadisticas() {
                     const f = datos.por_categoria?.[id];
                     return (
                       <tr key={id}>
-                        <td style={{ color: categoria(id).hex, fontWeight: 700 }}>{categoria(id).nombre}</td>
+                        <td className="celda-cat" data-cat={categoria(id).clave}><IconoCategoria id={id} tam={16} /> {categoria(id).nombre}</td>
                         <td>{f?.conteo ?? 0}</td><td>{f?.aciertos ?? 0}</td><td>{pct(f?.precision)}</td>
                       </tr>
                     );
@@ -51,16 +51,19 @@ export default function Estadisticas() {
                 </tbody>
               </table>
               <BarrasHorizontales items={[0, 1, 2].map((id) => ({
-                etiqueta: categoria(id).nombre, valor: datos.por_categoria?.[id]?.precision ?? null, color: categoria(id).hex,
+                id, etiqueta: categoria(id).nombre, valor: datos.por_categoria?.[id]?.precision ?? null, color: categoria(id).hex,
               }))} />
             </Tarjeta>
             <Tarjeta titulo="Matriz de confusión">
               <MatrizConfusion matriz={datos.matriz_confusion} />
             </Tarjeta>
             <Tarjeta titulo="Residuos desviados de la basura mezclada">
-              <ul className="lista-datos">
+              <ul className="lista-desviados">
                 {[0, 1, 2].map((id) => (
-                  <li key={id}><span style={{ color: categoria(id).hex }}>■</span> {categoria(id).nombre}: <strong>{datos.desviados_por_categoria?.[id] ?? 0}</strong></li>
+                  <li key={id} data-cat={categoria(id).clave}>
+                    <IconoCategoria id={id} tam={18} /> <span>{categoria(id).nombre}</span>
+                    <Numero valor={datos.desviados_por_categoria?.[id] ?? 0} clase="desviados-n" />
+                  </li>
                 ))}
               </ul>
             </Tarjeta>
