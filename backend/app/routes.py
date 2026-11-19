@@ -7,6 +7,7 @@ Errores: EstadoInvalido → 409, ErrorSerial → 503 (manejadores en main.py), V
 
 from __future__ import annotations
 
+import asyncio
 import shutil
 from dataclasses import dataclass
 from typing import Any, Literal
@@ -113,6 +114,10 @@ class SimObjetoIn(BaseModel):
 
 class SimTeclaIn(BaseModel):
     tecla: str = Field(min_length=1, max_length=1)
+
+
+class SimVozIn(BaseModel):
+    texto: str
 
 
 class SimVozIn(BaseModel):
