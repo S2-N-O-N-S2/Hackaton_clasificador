@@ -53,7 +53,7 @@ def crear_app() -> FastAPI:
         botes = GestorBotes(db, config.get("umbral_aviso_bote"))
         juego = Juego(db)
         extractor = ExtractorMobileNet()  # se carga solo cuando se usa (TensorFlow tarda en importar)
-        orq = Orquestador(ajustes, config, db, camara, cargar_modelo(ajustes, db, extractor), botes, juego, Voz(),
+        orq = Orquestador(ajustes, config, db, camara, cargar_modelo(ajustes, db, extractor), botes, juego, Voz(ajustes, config),
                           Difusor(), crear_enlace)
 
         async def avisar_modelo() -> None:

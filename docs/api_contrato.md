@@ -1,6 +1,6 @@
 # Contrato de interfaces — Backend ↔ Panel ↔ Arduino
 
-> **Versión 1.3 — 2026-11-19.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
+> **Versión 1.4 — 2026-11-19.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
 > Detalla las secciones 9 y 17 de `docs/ESPECIFICACION.md`. Si este contrato y la especificación se contradicen, manda la especificación: avisen y corrijan este archivo.
 > **Nadie cambia este archivo sin avisar a la otra persona.** Cada cambio sube la versión y se anota en la sección 9 ("Historial").
 
@@ -142,7 +142,7 @@ Códigos: `SERIAL_CONECTADO`, `SERIAL_DESCONECTADO`, `ERROR_SERIAL`, `ARDUINO_RE
   "serial": {"conectado": true, "puerto": "SIMULADO", "simulado": true},
   "camara": {"disponible": true, "indice": 0, "simulada": true},
   "modelo": {"cargado": true, "version": "sim", "simulado": true},
-  "voz": {"disponible": false},
+  "voz": {"disponible": true, "escuchando": false, "motivo": null, "microfono": "predeterminado"},
   "caso_actual": null,
   "cuenta_regresiva_s": null,
   "mensaje": "Coloca un residuo o elige un modo",
@@ -241,7 +241,8 @@ Respuesta de `GET /api/modelo/estado`:
     "roi": [0.0, 0.0, 1.0, 1.0],
     "tiempo_adivinanza_s": 20, "tiempo_revision_s": 30,
     "tiempo_retro_firme_s": 5, "tiempo_retro_media_s": 8,
-    "umbral_aviso_bote": 0.80
+    "umbral_aviso_bote": 0.80,
+    "microfono": "", "voz_segundos": 4
   },
   "categorias": [{"id": 0, "clave": "organica", "nombre": "Orgánica", "color": "verde", "hex": "#2E9E44"}],
   "requieren_reinicio": ["indice_camara", "puerto_serial"]
@@ -318,6 +319,19 @@ Respuesta de `GET /api/juego/aprendizaje`:
 
 Respuesta: `{"ok": true, "respuesta_arduino": "POS_OK:0"}`. Si el Arduino no responde a tiempo, `503`. Cada acción manual se registra en `eventos` con origen `manual`.
 
+### 3.12b Voz (§15) — **agregado**
+| Endpoint | Cuerpo | Respuesta |
+|---|---|---|
+| `POST /api/voz/escuchar` | — | Push-to-talk (igual que la tecla **A**): graba `voz_segundos` y actúa. Responde **al terminar** (~4–5 s) con `{"fase": "reconocido", "contexto": "menu" \| "revision", "texto_crudo": "es una lata", "intencion": {"tipo": "categoria" \| "modo" \| "desconocido" \| "vacio", "valor": 1, "objeto": "lata", "texto": "es una lata"}, "accion": "revision_resuelta" \| "modo_ia" \| "modo_adivina" \| "modo_menu" \| "respuesta_bote" \| "no_reconocido" \| "ignorado"}`. `409` si no se puede hablar en el estado actual (solo en `MENU`, `ESPERA_OBJETO` y `REVISION`) o si ya está escuchando; `503` si la voz no está disponible (sin micrófono o sin Vosk) |
+
+Qué hace cada `accion`:
+- `revision_resuelta`: en `REVISION`, la voz resolvió el caso (`origen = voz`, `corregido = 1`, foto a `_por_verificar/`).
+- `modo_ia` / `modo_adivina` / `modo_menu`: menú por voz.
+- `respuesta_bote`: en `MENU` o `ESPERA_OBJETO` ("¿dónde tiro esta lata?"): la LCD responde, el disco **muestra** el bote (POS y HOME, sin DROP) y queda una **pista** de 60 s. Si luego se coloca un residuo y la cámara opina otra categoría, el caso va a `REVISION` con `motivo_dudoso = conflicto_voz`.
+- `no_reconocido`: la LCD dice "No reconoci el objeto"; el caso sigue igual.
+
+Configuración: `microfono` (`""` = predeterminado de Windows, o parte del nombre, por ejemplo `"DroidCam"`) y `voz_segundos` (1–10).
+
 ### 3.13 Archivos
 `GET /captures/{archivo}` → `image/jpeg`.
 
@@ -345,6 +359,7 @@ Cada mensaje del servidor tiene esta forma:
 | `modelo` | Progreso y fin de un reentrenamiento | Igual que `GET /api/modelo/estado` |
 | `alerta` | Fallas y avisos | `Alerta` |
 | `tecla` | Cada tecla del teclado 4×4 (para mostrarla en el panel) | `{"tecla": "1"}` |
+| `voz` (**agregado**) | Al empezar a escuchar, al reconocer y si falla | `{"fase": "escuchando", "segundos": 4, "contexto": "revision"}`, luego la misma respuesta de `POST /api/voz/escuchar` (`"fase": "reconocido"`), o `{"fase": "error", "mensaje": "…"}` |
 
 - **Mensajes del panel al servidor:** solo `{"tipo": "ping"}`, al que el servidor responde `{"tipo": "pong", …}`.
 - **Reconexión del panel:** reintenta a los 1, 2, 5 y 5 s. Mientras está desconectado, consulta `GET /api/estado` cada 2 s y muestra el aviso "Sin conexión en vivo".
@@ -403,6 +418,8 @@ Con `SIMULACION=1`, el backend se comporta igual en esta API, con estas diferenc
 - **`POST /api/sim/objeto`** (**agregado**, solo en simulación) simula que se colocó un residuo, como si llegara `OBJ`. El cuerpo es opcional: `{"categoria_real": 1}`, para forzar la imagen de una carpeta de `sim_images/`.
 - **`POST /api/sim/tecla`** (**agregado**, solo en simulación): `{"tecla": "1"}` simula una tecla del teclado 4×4.
 - **`POST /api/sim/retirar`** (**agregado**, solo en simulación) simula que el operador retiró el residuo de la bandeja (`LIBRE`).
+- **`POST /api/sim/voz`** (**agregado**, solo en simulación): `{"texto": "es una cáscara de plátano"}` simula que alguien lo **dijo** (sin micrófono). Responde igual que `POST /api/voz/escuchar` más `"simulado": true`.
+- Con `SIMULACION=1` y `SIM_IA_REAL=1`, la cámara, el modelo y la voz son reales; solo el Arduino es simulado.
 - En simulación, el backend usa otra base de datos (`clasificador_sim.db`) para no mezclar datos simulados con reales.
 
 Mientras el backend no exista, el panel puede trabajar con **datos de ejemplo**: los JSON de este documento, guardados en `frontend/src/mock/`.
@@ -419,12 +436,14 @@ Mientras el backend no exista, el panel puede trabajar con **datos de ejemplo**:
 | Serial `HOME_OK`, `OK`, `CAL_OK`, `STATUS`, `LIBRE`, `WATCHDOG` | La especificación pide "responder siempre"; `LIBRE` sirve para saber cuándo se retiró el residuo |
 | `POST /api/sim/objeto`, `/api/sim/tecla` y `/api/sim/retirar` | Probar el ciclo completo sin hardware (sección 20.2) |
 | `motivo_dudoso: sin_modelo` y `estado` de la clasificación | Falla segura sin modelo; distinguir casos pendientes o con error |
+| `POST /api/voz/escuchar`, `POST /api/sim/voz`, evento `voz` | Botón de micrófono en el panel y prueba de la voz sin micrófono (Fase 9) |
 
 ## 9. Historial
 
 | Versión | Fecha | Quién | Cambio |
 |---|---|---|---|
 | 1.0 | 2026-11-19 | Persona A (generado con Claude Code) | Versión inicial |
+| 1.4 | 2026-11-19 | Persona A (generado con Claude Code) | Fase 9 adelantada en simulación (voz): `POST /api/voz/escuchar`, `POST /api/sim/voz`, evento WebSocket `voz`, `estado.voz` con `escuchando`/`motivo`/`microfono`, configuración `microfono` y `voz_segundos`, tecla **A** = hablar. **Avisar a la Persona B:** el panel puede agregar un botón 🎤 que llame a `POST /api/voz/escuchar` y mostrar el evento `voz`. |
 | 1.3 | 2026-11-19 | Persona A (generado con Claude Code) | Fase 5: campo `tiempos_etapas` en Clasificacion; el backend manda los 3 `CAL` al conectarse; alerta `CAL_NO_SINCRONIZADA`. **Avisar a la Persona B** (el firmware debe responder `CAL_OK` rápido justo después de `READY`). |
 | 1.2 | 2026-11-19 | Persona A (generado con Claude Code) | Fase 4: `roi` en la configuración (`[x, y, ancho, alto]` en fracciones), `indice_camara` acepta también una URL (celular), `mensaje` en `GET /api/modelo/estado`, alerta `MODELO_ACTIVADO`. `POST /api/modelo/reentrenar` ya funciona (antes `501`). **Avisar a la Persona B.** |
 | 1.1 | 2026-11-19 | Persona A (generado con Claude Code) | Al implementar la Fase 3: `sin_modelo`, campo `estado` en Clasificacion, `capacidad_calibrada` en Bote, `requieren_reinicio` en la configuración, código `501`, `/api/sim/retirar` y lista completa de códigos de alerta. **Avisar a la Persona B.** |
