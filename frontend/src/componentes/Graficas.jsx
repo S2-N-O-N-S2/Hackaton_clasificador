@@ -82,7 +82,7 @@ export function Logotipo() {
   return (
     <svg className="marca-logo" viewBox="-100 -100 200 200" aria-hidden="true">
       {CATEGORIAS.map((c) => <path key={c.id} d={rutaSector(c.id * 120, 96, 30, 56)} fill={c.hex} />)}
-      <circle r="18" fill="#F1F5F3" />
+      <circle r="18" fill="#FFFFFF" />
     </svg>
   );
 }

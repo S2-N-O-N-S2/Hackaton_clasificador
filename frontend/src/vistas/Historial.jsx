@@ -17,21 +17,21 @@ function Fila({ c, alCorregir }) {
   }
   return (
     <tr className={c.dudoso ? 'fila-dudosa' : ''}>
-      <td>{c.id}</td>
-      <td>{fechaHora(c.fecha_hora)}</td>
-      <td>{c.foto && <img className="miniatura" src={urlFoto(c.foto)} alt={`Foto #${c.id}`} loading="lazy" />}</td>
-      <td>{c.oculto ? '(oculto)' : <Categoria id={c.pred_id} />} {c.dudoso && <ChipRevision />}</td>
-      <td>{pct(c.confianza)}</td>
-      <td>
+      <td data-etiqueta="Caso">#{c.id}</td>
+      <td data-etiqueta="Hora">{fechaHora(c.fecha_hora)}</td>
+      <td className="celda-foto">{c.foto && <img className="miniatura" src={urlFoto(c.foto)} alt={`Foto #${c.id}`} loading="lazy" />}</td>
+      <td data-etiqueta="Predicción">{c.oculto ? '(oculto)' : <Categoria id={c.pred_id} />} {c.dudoso && <ChipRevision />}</td>
+      <td data-etiqueta="Confianza">{pct(c.confianza)}</td>
+      <td data-etiqueta="Final">
         <Categoria id={c.final_id} vacio="Pendiente" />
         {TEXTO_ESTADO_CLASIFICACION[c.estado] && (
           <span className={`rotulo ${c.estado === 'error' ? 'rotulo-error' : 'rotulo-aviso'}`}>{TEXTO_ESTADO_CLASIFICACION[c.estado]}</span>
         )}
       </td>
-      <td>{NOMBRE_ORIGEN[c.origen] || c.origen}</td>
-      <td>{c.corregido ? 'Sí' : 'No'}</td>
-      <td><Simulado si={!!c.simulado} /></td>
-      <td>
+      <td data-etiqueta="Origen">{NOMBRE_ORIGEN[c.origen] || c.origen}</td>
+      <td data-etiqueta="Corregido">{c.corregido ? 'Sí' : 'No'}</td>
+      <td>{c.simulado ? <Simulado /> : null}</td>
+      <td className="celda-acciones">
         {!abierto && <button type="button" className="boton-secundario" onClick={() => setAbierto(true)}>Corregir</button>}
         {abierto && (
           <div className="corregir">
@@ -84,7 +84,7 @@ export default function Historial() {
       {cargando && !datos && <p className="atenuado">Cargando…</p>}
       {datos && (
         <div className="tabla-desplazable">
-          <table className="tabla">
+          <table className="tabla tabla-tarjetas">
             <thead>
               <tr><th>#</th><th>Hora</th><th>Foto</th><th>Predicción</th><th>Confianza</th><th>Final</th><th>Origen</th><th>Corregido</th><th></th><th>Acción</th></tr>
             </thead>
