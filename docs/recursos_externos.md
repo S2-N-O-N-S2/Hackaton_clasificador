@@ -37,6 +37,7 @@ La convocatoria permite bibliotecas, tutoriales e IA generativa **con atribució
 |---|---|---|---|
 | Claude Code (Anthropic) | Inicio: estructura de carpetas, README, plantillas de `bitacora.md`, `recursos_externos.md`, `.gitignore` | Estructura y textos iniciales | [COMPLETAR] |
 | Claude Code (Anthropic) | Fase 0: `requirements.txt`, `tools/verificar_hardware.py`, `tools/calcular_par.py`, `docs/mediciones.md` | Scripts y fórmulas de geometría y par (fricción + inercia, factor de seguridad 2) | [COMPLETAR: el equipo debe revisar las fórmulas y llenar las mediciones] |
+| Claude Code (Anthropic) | Fase 3: todo `backend/app/` y `backend/tests/` (orquestador, serial, cámara, modelo simulado, BD, API, WebSocket, pruebas) y `docs/api_contrato.md` | Código completo y pruebas | [COMPLETAR: el equipo debe leer `orchestrator.py` y `model.py` y poder modificar `aplicar_reglas` en vivo] |
 
 ## 5. Fuentes de contenido (explicaciones del modo Adivina)
 

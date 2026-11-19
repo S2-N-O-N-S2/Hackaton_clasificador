@@ -1,6 +1,6 @@
 # Contrato de interfaces — Backend ↔ Panel ↔ Arduino
 
-> **Versión 1.0 — 2026-11-19.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
+> **Versión 1.1 — 2026-11-19.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
 > Detalla las secciones 9 y 17 de `docs/ESPECIFICACION.md`. Si este contrato y la especificación se contradicen, manda la especificación: avisen y corrijan este archivo.
 > **Nadie cambia este archivo sin avisar a la otra persona.** Cada cambio sube la versión y se anota en la sección 9 ("Historial").
 
@@ -18,7 +18,7 @@
 | Fotos | Ruta relativa servida por el backend: `"/captures/20261119_103205.jpg"` |
 | Datos simulados | Todo objeto que pueda venir de simulación trae `"simulado": true/false`. Si es `true`, el panel muestra la etiqueta **SIMULADO** |
 | Niveles de bote | Siempre traen `"estimado": true`. El panel los rotula **ESTIMADO** |
-| Errores | Formato de FastAPI: `{"detail": "mensaje en español"}`. Códigos: `400` dato inválido, `404` no existe, `409` acción no permitida en el estado actual, `422` validación, `503` hardware no disponible |
+| Errores | Formato de FastAPI: `{"detail": "mensaje en español"}`. Códigos: `400` dato inválido, `404` no existe, `409` acción no permitida en el estado actual, `422` validación, `501` todavía no implementado (indica la fase), `503` hardware no disponible |
 | CORS | El backend permite cualquier origen (red local del evento) |
 
 ### 1.1 Catálogo de categorías (fijo)
@@ -37,7 +37,8 @@
 | `estado` (máquina) | `MENU`, `ESPERA_OBJETO`, `CAPTURA`, `CLASIFICACION`, `ESPERA_ADIVINANZA`, `RETROALIMENTACION`, `REVISION`, `VERIFICAR_BOTE`, `BOTE_LLENO`, `POSICIONAR`, `SOLTAR`, `REGISTRAR`, `ACTUALIZAR_NIVEL`, `HOME`, `PENDIENTE`, `OPERADOR`, `ERROR` |
 | `modo` | `ia`, `adivina`, `null` (todavía no se elige) |
 | `origen` (clasificación) | `camara`, `voz`, `manual`, `teclado`, `panel` |
-| `motivo_dudoso` | `confianza_baja`, `riesgo_peligroso`, `conflicto_voz`, `null` |
+| `motivo_dudoso` | `confianza_baja`, `riesgo_peligroso`, `conflicto_voz`, `sin_modelo` (no hay modelo cargado: el sistema no adivina), `null` |
+| `estado` (clasificación) | `en_proceso`, `registrado`, `pendiente`, `error` |
 | `nivel_certeza` | `verificada`, `alta`, `media`, `baja` |
 | `fuente_referencia` | `ia`, `operador`, `etiqueta_real` |
 | `medio` (adivinanza) | `teclado`, `voz`, `panel`, `sin_respuesta` |
@@ -69,7 +70,8 @@
   "tiempo_ciclo_ms": 3120,
   "drop_confirmado": true,
   "bote_id": 0,
-  "simulado": true
+  "simulado": true,
+  "estado": "registrado"
 }
 ```
 - `final_id` es `null` mientras el caso está en revisión o pendiente.
@@ -83,6 +85,7 @@
   "capacidad_piezas": 12, "piezas_actuales": 10, "no_confirmadas": 1,
   "nivel": 0.833, "estado": "casi_lleno", "bloqueado": false,
   "umbral_aviso": 0.8, "ultimo_vaciado": "2026-11-19T09:10:00",
+  "capacidad_calibrada": false,
   "estimado": true
 }
 ```
@@ -119,7 +122,7 @@
 ```json
 {"nivel": "error", "codigo": "SERIAL_DESCONECTADO", "mensaje": "Se perdió el enlace con el Arduino", "fecha_hora": "2026-11-19T10:40:00"}
 ```
-Códigos previstos: `SERIAL_DESCONECTADO`, `CAMARA_NO_DISPONIBLE`, `MODELO_NO_CARGADO`, `POS_TIMEOUT`, `DROP_TIMEOUT`, `BOTE_CASI_LLENO`, `BOTE_LLENO`, `REVISION_PENDIENTE`, `VOZ_NO_DISPONIBLE`.
+Códigos: `SERIAL_CONECTADO`, `SERIAL_DESCONECTADO`, `ERROR_SERIAL`, `ARDUINO_REINICIADO`, `WATCHDOG`, `CAMARA_NO_DISPONIBLE`, `MODELO_NO_CARGADO`, `POS_TIMEOUT`, `DROP_TIMEOUT`, `BOTE_CASI_LLENO`, `BOTE_LLENO`, `REVISION_PENDIENTE`, `RESIDUO_NO_RETIRADO`, `ERROR_INTERNO`, `RECUPERADO`, `VOZ_NO_DISPONIBLE`.
 
 ---
 
@@ -237,7 +240,8 @@ Respuesta de `GET /api/modelo/estado`:
     "tiempo_retro_firme_s": 5, "tiempo_retro_media_s": 8,
     "umbral_aviso_bote": 0.80
   },
-  "categorias": [{"id": 0, "clave": "organica", "nombre": "Orgánica", "color": "verde", "hex": "#2E9E44"}]
+  "categorias": [{"id": 0, "clave": "organica", "nombre": "Orgánica", "color": "verde", "hex": "#2E9E44"}],
+  "requieren_reinicio": ["indice_camara", "puerto_serial"]
 }
 ```
 **`PUT /api/config`**: el cuerpo es un objeto **parcial**, por ejemplo `{"umbral_general": 0.7}`. Responde la configuración completa. Si un valor está fuera de rango (umbrales fuera de 0–1, ángulos fuera de 0–180), responde `422`. Al cambiar un ángulo, el backend manda `CAL:<id>:<ángulo>` al Arduino.
@@ -394,6 +398,8 @@ Con `SIMULACION=1`, el backend se comporta igual en esta API, con estas diferenc
 - `serial.simulado`, `camara.simulada`, `modelo.simulado` y el campo `simulado` de cada clasificación valen `true`.
 - **`POST /api/sim/objeto`** (**agregado**, solo en simulación) simula que se colocó un residuo, como si llegara `OBJ`. El cuerpo es opcional: `{"categoria_real": 1}`, para forzar la imagen de una carpeta de `sim_images/`.
 - **`POST /api/sim/tecla`** (**agregado**, solo en simulación): `{"tecla": "1"}` simula una tecla del teclado 4×4.
+- **`POST /api/sim/retirar`** (**agregado**, solo en simulación) simula que el operador retiró el residuo de la bandeja (`LIBRE`).
+- En simulación, el backend usa otra base de datos (`clasificador_sim.db`) para no mezclar datos simulados con reales.
 
 Mientras el backend no exista, el panel puede trabajar con **datos de ejemplo**: los JSON de este documento, guardados en `frontend/src/mock/`.
 
@@ -407,10 +413,12 @@ Mientras el backend no exista, el panel puede trabajar con **datos de ejemplo**:
 | `POST /api/juego/continuar` | Equivale a la tecla B en la retroalimentación |
 | `POST /api/manual/ang` y serial `ANG` / `ANG_OK` | Calibrar ángulos (Fase 5) |
 | Serial `HOME_OK`, `OK`, `CAL_OK`, `STATUS`, `LIBRE`, `WATCHDOG` | La especificación pide "responder siempre"; `LIBRE` sirve para saber cuándo se retiró el residuo |
-| `POST /api/sim/objeto` y `/api/sim/tecla` | Probar el ciclo completo sin hardware (sección 20.2) |
+| `POST /api/sim/objeto`, `/api/sim/tecla` y `/api/sim/retirar` | Probar el ciclo completo sin hardware (sección 20.2) |
+| `motivo_dudoso: sin_modelo` y `estado` de la clasificación | Falla segura sin modelo; distinguir casos pendientes o con error |
 
 ## 9. Historial
 
 | Versión | Fecha | Quién | Cambio |
 |---|---|---|---|
 | 1.0 | 2026-11-19 | Persona A (generado con Claude Code) | Versión inicial |
+| 1.1 | 2026-11-19 | Persona A (generado con Claude Code) | Al implementar la Fase 3: `sin_modelo`, campo `estado` en Clasificacion, `capacidad_calibrada` en Bote, `requieren_reinicio` en la configuración, código `501`, `/api/sim/retirar` y lista completa de códigos de alerta. **Avisar a la Persona B.** |
