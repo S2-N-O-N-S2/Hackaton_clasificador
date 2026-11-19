@@ -200,6 +200,8 @@ Verifica que no haya conflictos y propón ajustes si los hay.
 | `KEY:<tecla>` | Tecla presionada |
 | `ERR:<código>` | Error (comando inválido, servo, etc.) |
 
+> **Detalle y agregados (2026-11-19):** las respuestas de cada comando, los códigos de error y los agregados `ANG`, `ANG_OK`, `HOME_OK`, `OK`, `CAL_OK`, `STATUS`, `LIBRE` y `WATCHDOG` están en [`docs/api_contrato.md`](api_contrato.md), sección 5.
+
 **Teclado (significado según el estado; el Arduino solo envía `KEY:<tecla>` y toda la lógica de menús vive en el orquestador de Python):**
 
 | Tecla | MENÚ | ESPERA_ADIVINANZA | REVISIÓN | BOTE_LLENO / Operador |
@@ -505,6 +507,8 @@ Diseña el esquema con al menos estas tablas (incluye las sentencias `CREATE TAB
 | POST | `/api/manual/{accion}` | Control manual (posición, trampilla, luz); se registra como manual |
 | GET | `/captures/{archivo}` | Fotos |
 | WS | `/ws/eventos` | Eventos en tiempo real hacia el panel |
+
+> **Formato JSON y agregados (2026-11-19):** los cuerpos y respuestas de cada ruta, los eventos del WebSocket y las rutas agregadas (`/api/revision`, `/api/pruebas/residuos`, `/api/juego/continuar`, `/api/manual/ang`, `/api/sim/*`) están en [`docs/api_contrato.md`](api_contrato.md).
 
 ---
 
