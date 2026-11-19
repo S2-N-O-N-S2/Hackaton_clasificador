@@ -17,6 +17,11 @@ La convocatoria permite bibliotecas, tutoriales e IA generativa **con atribució
 | vosk | 0.3.45 | Apache 2.0 | Voz offline | `voice.py` |
 | sounddevice | ver lock | MIT | Captura de micrófono para Vosk | `voice.py` |
 | pytest, httpx | ver lock | MIT / BSD | Pruebas | `backend/tests/` |
+| Arduino AVR core | 1.8.8 | LGPL | Compilación para el Arduino UNO | `firmware/` |
+| Servo (Arduino) | 1.3.0 | LGPL | Servos del disco y de la trampilla | `clasificador_uno.ino` |
+| EEPROM, Wire (Arduino) | 2.0 / 1.0 | LGPL | Calibración persistente; bus I2C de la LCD | `clasificador_uno.ino`, `escaner_i2c.ino` |
+| LiquidCrystal I2C (Frank de Brabander) | 1.1.2 | ver repositorio de la biblioteca | LCD 20×4 por I2C | `clasificador_uno.ino` |
+| Keypad (Mark Stanley, Alexander Brevig) | 3.1.1 | LGPL | Teclado matricial 4×4 | `clasificador_uno.ino` |
 
 ## 2. Modelos preentrenados
 
@@ -37,6 +42,7 @@ La convocatoria permite bibliotecas, tutoriales e IA generativa **con atribució
 |---|---|---|---|
 | Claude Code (Anthropic) | Inicio: estructura de carpetas, README, plantillas de `bitacora.md`, `recursos_externos.md`, `.gitignore` | Estructura y textos iniciales | [COMPLETAR] |
 | Claude Code (Anthropic) | Fase 0: `requirements.txt`, `tools/verificar_hardware.py`, `tools/calcular_par.py`, `docs/mediciones.md` | Scripts y fórmulas de geometría y par (fricción + inercia, factor de seguridad 2) | [COMPLETAR: el equipo debe revisar las fórmulas y llenar las mediciones] |
+| Claude Code (Anthropic) | Fase 2: `firmware/clasificador_uno/clasificador_uno.ino`, `firmware/escaner_i2c/escaner_i2c.ino`, `docs/diagrama_electrico.md`, `docs/prueba_firmware.md` | Firmware completo (parser, rampa del disco, DROP con interrupción, LCD no bloqueante, EEPROM, watchdog), escáner I2C (basado en el escáner clásico de Arduino Playground), tabla de conexiones, checklist de mediciones y la lista de pruebas | [COMPLETAR: el equipo debe probarlo en el hardware, ajustar los ángulos de la trampilla y la dirección de la LCD, y poder explicar cada sección] |
 
 ## 5. Fuentes de contenido (explicaciones del modo Adivina)
 
