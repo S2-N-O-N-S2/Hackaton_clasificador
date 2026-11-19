@@ -1,0 +1,54 @@
+{
+  "valores": {
+    "umbral_general": 0.6,
+    "umbral_peligroso": 0.35,
+    "umbral_tono_firme": 0.8,
+    "modo_por_defecto": "ia",
+    "angulos": {
+      "0": 170,
+      "1": 90,
+      "2": 10
+    },
+    "angulo_home": 90,
+    "puerto_serial": "COM5",
+    "indice_camara": 0,
+    "roi": [
+      0.0,
+      0.0,
+      1.0,
+      1.0
+    ],
+    "tiempo_adivinanza_s": 20,
+    "tiempo_revision_s": 30,
+    "tiempo_retro_firme_s": 5,
+    "tiempo_retro_media_s": 8,
+    "umbral_aviso_bote": 0.8
+  },
+  "categorias": [
+    {
+      "id": 0,
+      "clave": "organica",
+      "nombre": "Orgánica",
+      "color": "verde",
+      "hex": "#2E9E44"
+    },
+    {
+      "id": 1,
+      "clave": "inorganica",
+      "nombre": "Inorgánica",
+      "color": "azul",
+      "hex": "#1E6FD9"
+    },
+    {
+      "id": 2,
+      "clave": "peligroso",
+      "nombre": "Peligroso",
+      "color": "gris",
+      "hex": "#6B7280"
+    }
+  ],
+  "requieren_reinicio": [
+    "indice_camara",
+    "puerto_serial"
+  ]
+}

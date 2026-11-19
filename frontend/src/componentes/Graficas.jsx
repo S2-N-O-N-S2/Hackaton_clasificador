@@ -1,0 +1,115 @@
+// Gráficas hechas con CSS y SVG propios (sin bibliotecas).
+import { categoria } from '../categorias.js';
+import { pct } from './Comun.jsx';
+
+// Matriz de confusión: filas = categoría real, columnas = predicha (o adivinanza).
+export function MatrizConfusion({ matriz, titulo = 'Matriz de confusión', columnas = 'Predicha' }) {
+  if (!matriz || !matriz.valores) return <p className="atenuado">Sin datos.</p>;
+  const { etiquetas, valores } = matriz;
+  const maximo = Math.max(1, ...valores.flat());
+  return (
+    <div className="matriz-contenedor">
+      <table className="matriz" aria-label={titulo}>
+        <thead>
+          <tr>
+            <th className="matriz-esquina">Real ↓ / {columnas} →</th>
+            {etiquetas.map((e) => <th key={e} style={{ color: categoria(e)?.hex }}>{categoria(e)?.nombre}</th>)}
+          </tr>
+        </thead>
+        <tbody>
+          {valores.map((fila, i) => (
+            <tr key={etiquetas[i]}>
+              <th style={{ color: categoria(etiquetas[i])?.hex }}>{categoria(etiquetas[i])?.nombre}</th>
+              {fila.map((v, j) => {
+                const intensidad = v / maximo;
+                const diagonal = i === j;
+                const fondo = diagonal
+                  ? `rgba(46, 158, 68, ${0.15 + intensidad * 0.75})`
+                  : `rgba(198, 40, 40, ${v ? 0.12 + intensidad * 0.6 : 0})`;
+                return <td key={j} style={{ background: fondo }} className={diagonal ? 'diagonal' : ''}>{v}</td>;
+              })}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      <p className="atenuado pie">Verde = aciertos (diagonal) · rojo = confusiones</p>
+    </div>
+  );
+}
+
+// Barras horizontales: items = [{etiqueta, valor (0–1 o null), color, detalle}]
+export function BarrasHorizontales({ items }) {
+  return (
+    <div className="barras-h">
+      {items.map((it) => (
+        <div key={it.etiqueta} className="barras-h-fila">
+          <span className="barras-h-etiqueta">{it.etiqueta}</span>
+          <div className="barra" style={{ height: 26 }}>
+            <div className="barra-relleno" style={{ width: `${(it.valor || 0) * 100}%`, background: it.color || '#1E6FD9' }} />
+            <span className="barra-texto">{pct(it.valor)}{it.detalle ? ` · ${it.detalle}` : ''}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+// Gráfica de línea en SVG: puntos = [{x: '1', y: 0.44, n: 9}], y de 0 a 1.
+export function GraficaLineas({ puntos, etiquetaX = 'Intento', etiquetaY = '% de acierto' }) {
+  if (!puntos || puntos.length === 0) return <p className="atenuado">Sin datos.</p>;
+  const ancho = 560;
+  const alto = 260;
+  const m = { izq: 48, der: 16, arr: 16, aba: 44 };
+  const w = ancho - m.izq - m.der;
+  const h = alto - m.arr - m.aba;
+  const paso = puntos.length > 1 ? w / (puntos.length - 1) : 0;
+  const px = (i) => m.izq + (puntos.length > 1 ? i * paso : w / 2);
+  const py = (y) => m.arr + h - (y ?? 0) * h;
+  const conDatos = puntos.map((p, i) => ({ ...p, i })).filter((p) => p.y !== null && p.y !== undefined);
+  const ruta = conDatos.map((p, k) => `${k === 0 ? 'M' : 'L'} ${px(p.i)} ${py(p.y)}`).join(' ');
+  return (
+    <svg className="grafica" viewBox={`0 0 ${ancho} ${alto}`} role="img" aria-label={`${etiquetaY} por ${etiquetaX}`}>
+      {[0, 0.25, 0.5, 0.75, 1].map((y) => (
+        <g key={y}>
+          <line x1={m.izq} x2={ancho - m.der} y1={py(y)} y2={py(y)} className="grafica-rejilla" />
+          <text x={m.izq - 8} y={py(y) + 5} textAnchor="end" className="grafica-texto">{y * 100}%</text>
+        </g>
+      ))}
+      <path d={ruta} className="grafica-linea" />
+      {conDatos.map((p) => (
+        <g key={p.i}>
+          <circle cx={px(p.i)} cy={py(p.y)} r="7" className="grafica-punto" />
+          <text x={px(p.i)} y={py(p.y) - 14} textAnchor="middle" className="grafica-valor">{pct(p.y)}</text>
+        </g>
+      ))}
+      {puntos.map((p, i) => (
+        <text key={p.x} x={px(i)} y={alto - 22} textAnchor="middle" className="grafica-texto">
+          {p.x}
+          <tspan x={px(i)} dy="16" className="grafica-n">n={p.n ?? '—'}</tspan>
+        </text>
+      ))}
+    </svg>
+  );
+}
+
+// Barras verticales agrupadas: grupos = [{etiqueta, valores: [{nombre, valor, color}]}]
+export function BarrasAgrupadas({ grupos }) {
+  return (
+    <div className="barras-v">
+      {grupos.map((g) => (
+        <div key={g.etiqueta} className="barras-v-grupo">
+          <div className="barras-v-columnas">
+            {g.valores.map((v) => (
+              <div key={v.nombre} className="barras-v-col" title={`${v.nombre}: ${pct(v.valor)}`}>
+                <span className="barras-v-valor">{pct(v.valor)}</span>
+                <div className="barras-v-barra" style={{ height: `${(v.valor || 0) * 100}%`, background: v.color }} />
+                <span className="barras-v-nombre">{v.nombre}</span>
+              </div>
+            ))}
+          </div>
+          <div className="barras-v-etiqueta">{g.etiqueta}</div>
+        </div>
+      ))}
+    </div>
+  );
+}

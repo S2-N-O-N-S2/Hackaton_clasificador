@@ -1,0 +1,22 @@
+{
+  "name": "panel-clasificador",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Panel React + Vite del clasificador de residuos (Cyber Insanos · Reto 1)",
+  "scripts": {
+    "dev": "vite",
+    "dev:mock": "vite --mode mock",
+    "build": "vite build",
+    "build:mock": "vite build --mode mock",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^6.0.0"
+  }
+}

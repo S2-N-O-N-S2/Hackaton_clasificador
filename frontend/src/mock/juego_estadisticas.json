@@ -1,0 +1,11 @@
+{
+  "niveles_usados": ["verificada", "alta"],
+  "n_adivinanzas": 40, "n_sesiones": 9,
+  "acierto_humano": 0.62,
+  "por_categoria": {"0": {"n": 12, "acierto": 0.75}, "1": {"n": 18, "acierto": 0.61}, "2": {"n": 10, "acierto": 0.50}},
+  "matriz_confusion_humana": {"etiquetas": [0, 1, 2], "filas": "real", "columnas": "adivinanza", "valores": [[9, 2, 1], [5, 11, 2], [1, 4, 5]]},
+  "humano_vs_ia": {"n": 40, "acierto_humano": 0.62, "acierto_ia": 0.90},
+  "parejas_confusion": [{"dijo": 1, "era": 0, "veces": 5}, {"dijo": 1, "era": 2, "veces": 4}],
+  "media_aparte": {"n_adivinanzas": 6, "acierto_humano": 0.5},
+  "muestra_pequena": true
+}

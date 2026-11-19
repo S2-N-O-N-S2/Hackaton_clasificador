@@ -1,0 +1,15 @@
+{
+  "muestra": 58,
+  "por_categoria": {
+    "0": {"conteo": 20, "aciertos": 18, "precision": 0.90},
+    "1": {"conteo": 25, "aciertos": 22, "precision": 0.88},
+    "2": {"conteo": 13, "aciertos": 12, "precision": 0.92}
+  },
+  "tasa_acierto": 0.897,
+  "matriz_confusion": {"etiquetas": [0, 1, 2], "filas": "real", "columnas": "predicha", "valores": [[18, 1, 1], [2, 22, 1], [0, 1, 12]]},
+  "dudosos": 6,
+  "corregidos": 6,
+  "tiempo_promedio_ms": 3240,
+  "desviados_por_categoria": {"0": 20, "1": 25, "2": 13},
+  "incluye_simulados": true
+}
