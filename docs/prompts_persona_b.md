@@ -136,3 +136,80 @@ Cierra con filas al final de docs/bitacora.md y docs/recursos_externos.md, notas
 (una sola fuente de verdad, reconexión, rótulos SIMULADO/ESTIMADO) y un mensaje de commit propuesto "fase 6: ...".
 No hagas git add, commit ni push.
 ```
+
+---
+
+## Prompt 3 — Preparar el dataset para entrenar la IA
+
+### Requisitos del dataset (acordados con la Persona A)
+
+**1. Estructura de carpetas y nombres (obligatorio)**
+```
+backend\dataset\
+  organica\    platano1__001.jpg  platano1__002.jpg  manzana1__001.jpg ...
+  inorganica\  lata1__001.jpg  botella1__001.jpg ...
+  peligroso\   pila1__001.jpg  blister1__001.jpg ...
+```
+- Las carpetas se llaman exactamente `organica`, `inorganica` y `peligroso` (minúsculas, sin acentos).
+- **Cada nombre lleva el ID del objeto físico antes de `__`.** Todas las fotos del mismo objeto llevan el mismo ID, y objetos distintos llevan IDs distintos (aunque sean del mismo tipo: `platano1`, `platano2`).
+  - **Por qué:** el entrenamiento separa entrenamiento y validación **por objeto**. Sin el ID, cada foto cuenta como un objeto distinto, el mismo plátano termina en los dos lados y la precisión reportada sale inflada (falsa).
+- Un mismo ID **no** debe aparecer en dos categorías.
+
+**2. Cantidad**
+- **Mínimo:** 2 objetos distintos por categoría. Sin eso el entrenamiento no arranca.
+- **Meta:** 5–6 objetos por categoría y 40–60 fotos por categoría (unas 8–10 fotos por objeto, con distintas posiciones, orientaciones y lados).
+
+**3. Normalización de las imágenes**
+- ✅ **Reducir** a un máximo de 320 px por lado, **manteniendo la proporción** (por ejemplo 640×480 → 320×240), en **JPG**.
+- ❌ **NO recortar a 224×224** ni a ningún cuadro. El sistema ya hace ese paso, igual al entrenar y al clasificar en vivo: toma la imagen **completa**, aplica la zona de interés (`roi` de la configuración) y la ajusta a 224×224. Si el dataset viene recortado y en vivo la cámara da la imagen completa, la IA ve los objetos de otro tamaño y falla en la demo aunque la validación salga alta.
+- ❌ No cambiar colores, brillo ni contraste, no aplicar filtros y no rotar (salvo para corregir fotos que estén de lado).
+- Si quieren quitar bordes que no son la bandeja, avisen a la Persona A para ajustar la `roi`. No lo hagan recortando las fotos.
+
+**4. Origen de las fotos**
+- Lo ideal es la **misma cámara (el celular con DroidCam), la misma bandeja y la misma luz de la demo** (especificación §14.1).
+- Si alguna foto viene de internet o de otra cámara, avisen y anótenlo en `docs/recursos_externos.md` (fuente y licencia). Esas fotos funcionan peor en la demo.
+- No incluyan el objeto "dudoso" de la demo (momento 3) ni, de preferencia, los 20 residuos de la prueba oficial.
+
+**5. Verificación antes de entregar**
+```powershell
+cd backend; .\.venv\Scripts\Activate.ps1; python tools\revisar_dataset.py --max-lado 320
+```
+Debe terminar con **"LISTO PARA ENTRENAR"**. Si muestra ERRORES, corríjanlos. Los AVISOS conviene revisarlos.
+
+### Prompt para Claude Code (Persona B)
+
+```
+Necesito preparar el dataset de fotos para entrenar la IA (lee docs/prompts_persona_b.md, "Prompt 3",
+y docs/ESPECIFICACION.md §14.1). Soy la Persona B. Excepción acordada: puedo crear UN archivo en el backend,
+backend/tools/normalizar_dataset.py; no modifiques nada más de backend/.
+
+Tengo las fotos originales en <RUTA_DE_LAS_FOTOS_ORIGINALES> [COMPLETAR], organizadas así: [COMPLETAR: cómo están
+organizadas, por ejemplo una carpeta por objeto o por categoría].
+
+Crea backend/tools/normalizar_dataset.py que:
+1. Lea las fotos originales y las copie (sin modificar los originales) a backend/dataset/<organica|inorganica|peligroso>/.
+2. Reduzca cada foto a un máximo de 320 px por lado, MANTENIENDO LA PROPORCIÓN (cv2.INTER_AREA), y la guarde en JPG
+   (calidad 92). NO recortes a 224×224 ni a cuadro; NO cambies colores ni brillo.
+3. Renombre cada foto como <objeto_id>__<nnn>.jpg, donde objeto_id identifica al OBJETO FÍSICO (minúsculas, sin acentos,
+   sin espacios; por ejemplo platano1). Pregúntame cómo saber el objeto de cada foto si no es evidente por la carpeta.
+4. Agregue cada foto a backend/dataset/metadatos.csv con las columnas
+   archivo,clase_id,clase,objeto_id,fecha_hora,camara (clase_id: 0 organica, 1 inorganica, 2 peligroso).
+5. No sobrescriba fotos existentes (si el nombre existe, use el siguiente número) y muestre un resumen de fotos y
+   objetos por categoría.
+6. Tenga una opción --simular que solo muestre lo que haría, sin copiar nada.
+
+Usa solo lo que ya está en backend/requirements.txt (OpenCV, numpy). Comentarios en español.
+Al terminar, corre: python tools\revisar_dataset.py --max-lado 320 y muéstrame el resultado.
+No hagas git add, commit ni push. Agrega una fila al final de docs/bitacora.md.
+```
+
+### Al terminar, la Persona A entrena y prueba
+```powershell
+python -m training.train
+```
+```powershell
+python -m training.evaluate
+```
+```powershell
+python tools\probar_modelo_vivo.py
+```
