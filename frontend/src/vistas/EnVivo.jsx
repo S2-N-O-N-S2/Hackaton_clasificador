@@ -5,7 +5,7 @@ import { NOMBRE_ESTADO, NOMBRE_ORIGEN, REVISION, categoria } from '../categorias
 import { Carrusel } from '../componentes/Graficas.jsx';
 import {
   Barra, BotonesCategoria, Categoria, ChipRevision, Foto, MensajeError, NivelBote, Probabilidades,
-  Simulado, Tarjeta, TEXTO_MOTIVO, hora, pct, useAccion, useDatos,
+  AvisoMotivo, Cargando, Simulado, Tarjeta, TEXTO_MOTIVO, hora, pct, useAccion, useDatos,
 } from '../componentes/Comun.jsx';
 
 const EN_BOTE = ['POSICIONAR', 'SOLTAR', 'REGISTRAR', 'ACTUALIZAR_NIVEL'];
@@ -19,23 +19,24 @@ function Resultado({ caso, umbrales }) {
   }
   return (
     <div className="resultado">
+      {/* Objeto no reconocido / foto mala: se ve primero y en grande, antes que la categoría. */}
+      {caso.dudoso && <AvisoMotivo motivo={caso.motivo_dudoso} grande />}
       {/* key = id del caso: al llegar una clasificación nueva la placa "cae" por la trampilla (una sola vez). */}
       <div className="resultado-principal llegada" key={caso.id}>
-        <span className="atenuado">La IA dice</span>
-        <Categoria id={caso.pred_id} grande />
+        <span className="atenuado">{caso.motivo_dudoso === 'desconocido' ? 'La IA diría' : 'La IA dice'}</span>
+        <Categoria id={caso.pred_id} grande vacio="Sin clasificar" />
         {caso.dudoso && <ChipRevision />}
       </div>
       <div>
         <span className="atenuado">Confianza</span>
-        <Barra valor={caso.confianza} marca={umbrales?.umbral_general ?? null} alto={34}
-          color={caso.dudoso ? '#F2B705' : '#1f2937'} />
+        <Barra valor={caso.confianza} marca={umbrales?.umbral_general ?? null} alto={24}
+          color={caso.dudoso ? '#F2B705' : '#0E7C86'} />
       </div>
-      {caso.dudoso && <p className="texto-revision">{TEXTO_MOTIVO[caso.motivo_dudoso] || 'Caso dudoso'}</p>}
       <Probabilidades probabilidades={caso.probabilidades}
         umbralGeneral={umbrales?.umbral_general} umbralPeligroso={umbrales?.umbral_peligroso} />
       {umbrales && (
         <p className="atenuado pie">
-          Umbral vigente: {pct(umbrales.umbral_general)} · umbral de peligroso: {pct(umbrales.umbral_peligroso)} (líneas negras)
+          Umbral vigente: {pct(umbrales.umbral_general)} · umbral de peligroso: {pct(umbrales.umbral_peligroso)} (marcas oscuras)
         </p>
       )}
       <div className="resultado-final">
@@ -52,14 +53,15 @@ function PanelRevision({ revision }) {
   const segundos = useCuentaRegresiva();
   const { ejecutar, ocupado, error } = useAccion();
   return (
-    <Tarjeta titulo="Revisión: la IA no está segura" className="tarjeta-revision"
-      extra={segundos !== null && <span className="cuenta-chica">{segundos} s</span>}>
+    <Tarjeta titulo={revision?.motivo === 'desconocido' ? 'Objeto no reconocido: ¿en qué bote va?'
+      : revision?.motivo === 'foto_no_valida' ? 'Foto no válida: ¿en qué bote va?' : 'Revisión: la IA no está segura'}
+      className="tarjeta-revision" extra={segundos !== null && <span className="cuenta-chica">{segundos} s</span>}>
       <p>
         {TEXTO_MOTIVO[revision?.motivo] || 'Caso dudoso'}. El residuo se queda en la bandeja.
         ¿En qué bote va? (decisión del operador: la foto va directo al dataset)
       </p>
-      <BotonesCategoria deshabilitado={ocupado} alElegir={(id) => ejecutar(() => api.resolverRevision(id))} />
-      <button type="button" className="boton-secundario" disabled={ocupado} onClick={() => ejecutar(() => api.dejarPendiente())}>
+      <BotonesCategoria deshabilitado={ocupado} alElegir={(id) => ejecutar(() => api.resolverRevision(id), { ok: `Revisión resuelta: va al bote ${categoria(id)?.color}` })} />
+      <button type="button" className="boton-secundario" disabled={ocupado} onClick={() => ejecutar(() => api.dejarPendiente(), { ok: 'Quedó pendiente: un operador lo retira' })}>
         Dejar pendiente (un operador lo retira)
       </button>
       <MensajeError error={error} />
@@ -117,7 +119,7 @@ export default function EnVivo() {
         {enRevision && <PanelRevision revision={revision} />}
 
         <Tarjeta titulo="Nivel de los botes" className="tarjeta-botes">
-          {botes ? botes.map((b) => <NivelBote key={b.id} bote={b} compacto />) : <p className="atenuado">Cargando…</p>}
+          {botes ? botes.map((b) => <NivelBote key={b.id} bote={b} compacto />) : <Cargando />}
         </Tarjeta>
       </div>
     </div>

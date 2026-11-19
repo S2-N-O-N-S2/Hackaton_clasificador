@@ -38,7 +38,7 @@ class Decision:
     pred_id: int | None          # clase ganadora (argmax)
     confianza: float | None      # probabilidad de la ganadora
     dudoso: bool                 # True → REVISION (el sistema no adivina)
-    motivo: str | None           # confianza_baja | riesgo_peligroso | sin_modelo | None
+    motivo: str | None           # confianza_baja | riesgo_peligroso | desconocido | foto_no_valida | sin_modelo | None
 
 
 # =============================================================================
@@ -53,24 +53,70 @@ def promediar(probabilidades: Sequence[Sequence[float]]) -> np.ndarray:
     return promedio / promedio.sum()
 
 
-def aplicar_reglas(probs: Sequence[float], umbral_general: float, umbral_peligroso: float) -> Decision:
-    """Reglas de decisión de la especificación §4.
+def aplicar_reglas(probs: Sequence[float], umbral_general: float, umbral_peligroso: float,
+                   novedad: float | None = None, umbral_desconocido: float = 1.0) -> Decision:
+    """Reglas de decisión de la especificación §4 (+ objeto desconocido).
 
     1. Si p(peligroso) ≥ UMBRAL_PELIGROSO y peligroso NO es la ganadora → revisión
        (asimetría de riesgo: mandar un peligroso a otro bote es el peor error).
-    2. Si max(prob) < UMBRAL_GENERAL → revisión (el sistema no adivina).
-    3. En otro caso se acepta la clase ganadora.
-    Los límites son inclusivos: confianza = 0.60 se acepta; p(peligroso) = 0.35 manda a revisión.
+    2. Si la foto queda lejos de todo lo que la IA vio al entrenar (novedad > UMBRAL_DESCONOCIDO) → revisión
+       aunque la confianza sea alta: la IA siempre elige una de las 3 clases, incluso con un objeto que nunca vio.
+    3. Si max(prob) < UMBRAL_GENERAL → revisión (el sistema no adivina).
+    4. En otro caso se acepta la clase ganadora.
+    Los límites son inclusivos: confianza = 0.60 se acepta; p(peligroso) = 0.35 manda a revisión;
+    novedad = 1.0 se acepta. Sin datos de novedad (modelo viejo) la regla 2 no se aplica.
     """
     p = [float(x) for x in probs]
+    if len(p) != 3 or any(not np.isfinite(x) for x in p):
+        raise ValueError("Se esperan 3 probabilidades finitas")
     pred = int(np.argmax(p))
     confianza = p[pred]
     # Redondeo a 6 decimales para que 0.6000000001 o 0.5999999999 (promedios) no cambien la decisión
     if pred != ID_PELIGROSO and round(p[ID_PELIGROSO], 6) >= umbral_peligroso:
         return Decision(pred, confianza, True, "riesgo_peligroso")
+    if novedad is not None and np.isfinite(novedad) and round(float(novedad), 6) > umbral_desconocido:
+        return Decision(pred, confianza, True, "desconocido")
     if round(confianza, 6) < umbral_general:
         return Decision(pred, confianza, True, "confianza_baja")
     return Decision(pred, confianza, False, None)
+
+
+# =============================================================================
+# Objetos desconocidos (funciones puras, probadas en tests/test_desconocidos.py)
+# =============================================================================
+# Idea: al entrenar se guarda el "centro" de cada clase (promedio de sus vectores de MobileNetV2) y qué tan
+# lejos de su centro quedan las fotos de entrenamiento (percentil 99). Una foto nueva que queda más lejos de
+# los TRES centros que ese límite es de un objeto que la IA no conoce: va a revisión aunque su confianza sea alta.
+def _unitario(x: np.ndarray) -> np.ndarray:
+    x = np.asarray(x, dtype=np.float64)
+    norma = np.linalg.norm(x, axis=-1, keepdims=True)
+    return x / np.where(norma == 0, 1.0, norma)
+
+
+def calcular_novedad(embeddings: np.ndarray, clases: Sequence[int], percentil: float = 99.0,
+                     margen: float = 1.10) -> dict[str, Any]:
+    """Centros por clase y límite de distancia (coseno). Devuelve lo que se guarda en models/vN/novedad.json."""
+    e = _unitario(embeddings)
+    clases = np.asarray(clases)
+    centros, limites, n = [], [], []
+    for c in IDS_CATEGORIA:
+        propios = e[clases == c]
+        if len(propios) == 0:
+            raise ValueError(f"No hay ejemplos de la clase {c} para calcular su centro")
+        centro = _unitario(propios.mean(axis=0))
+        distancias = 1.0 - propios @ centro
+        centros.append(centro.round(6).tolist())
+        limites.append(round(float(np.percentile(distancias, percentil)) * margen, 6))
+        n.append(int(len(propios)))
+    return {"centros": centros, "limites": limites, "percentil": percentil, "margen": margen, "n": n}
+
+
+def puntaje_novedad(embeddings: np.ndarray, datos: dict[str, Any]) -> float:
+    """Distancia al centro MÁS cercano dividida entre su límite. ≤ 1: se parece a algo conocido; > 1: desconocido."""
+    e = _unitario(np.asarray(embeddings, dtype=np.float64).reshape(-1, DIMENSION_EMBEDDING).mean(axis=0))
+    centros = np.asarray(datos["centros"], dtype=np.float64)
+    limites = np.maximum(np.asarray(datos["limites"], dtype=np.float64), 1e-9)
+    return float(np.min((1.0 - centros @ e) / limites))
 
 
 # =============================================================================
@@ -145,6 +191,10 @@ class ModeloBase:
         """Devuelve una lista de vectores [p_organica, p_inorganica, p_peligroso], uno por fotograma."""
         raise NotImplementedError
 
+    def analizar(self, frames: list[np.ndarray], pista: dict[str, Any] | None = None) -> tuple[list[np.ndarray], float | None]:
+        """Probabilidades por fotograma y puntaje de novedad (None si el modelo no sabe calcularlo)."""
+        return self.predecir(frames, pista), None
+
     def calentar(self) -> None:
         """Prepara el modelo (carga pesada) antes del primer residuo. Por defecto no hace nada."""
 
@@ -181,6 +231,9 @@ class ModeloReal(ModeloBase):
             self._clasificador = keras.models.load_model(self.dir / "cabeza.keras")
         else:
             raise ErrorModelo(f"Cabeza desconocida: {self.cabeza}")
+        # Datos para detectar objetos desconocidos (tools/calibrar_desconocidos.py o train.py). Opcional.
+        ruta_novedad = self.dir / "novedad.json"
+        self.novedad = json.loads(ruta_novedad.read_text(encoding="utf-8")) if ruta_novedad.exists() else None
 
     def probabilidades(self, embeddings: np.ndarray) -> np.ndarray:
         """(n, 1280) → (n, 3) con columnas en el orden 0 orgánica, 1 inorgánica, 2 peligroso."""
@@ -194,8 +247,13 @@ class ModeloReal(ModeloBase):
         return salida
 
     def predecir(self, frames, pista=None):
+        return self.analizar(frames, pista)[0]
+
+    def analizar(self, frames, pista=None):
         imagenes = np.stack([preparar_imagen(f, self.roi) for f in frames])
-        return list(self.probabilidades(self.extractor.embeddings(imagenes)))
+        embeddings = self.extractor.embeddings(imagenes)
+        novedad = puntaje_novedad(embeddings, self.novedad) if self.novedad else None
+        return list(self.probabilidades(embeddings)), novedad
 
     def calentar(self) -> None:
         self.extractor.embeddings(np.zeros((1, TAMANO_ENTRADA, TAMANO_ENTRADA, 3), dtype=np.uint8))
@@ -207,6 +265,8 @@ class ModeloSimulado(ModeloBase):
     Con la "pista" de la cámara simulada:
       - categoría forzada (desde /api/sim/objeto) → acierta con confianza 0.70–0.97;
       - "dudoso" → confianza baja (0.38–0.52);
+      - "desconocido" → una clase con confianza ALTA (como hace una IA real con algo que nunca vio)
+        pero con novedad > 1, para probar la detección de objetos desconocidos;
       - categoría al azar → 85 % acierta, 10 % dudoso, 5 % se equivoca con confianza (realista).
     """
 
@@ -215,14 +275,20 @@ class ModeloSimulado(ModeloBase):
     cargado = True
 
     def predecir(self, frames, pista=None):
+        return self.analizar(frames, pista)[0]
+
+    def analizar(self, frames, pista=None):
         semilla = int.from_bytes(hashlib.sha1(frames[0].tobytes()).digest()[:8], "big")
         azar = np.random.default_rng(semilla)
-        base = self._base(azar, pista or {})
+        pista = pista or {}
+        desconocido = pista.get("categoria") == "desconocido"
+        base = self._base(azar, {**pista, "categoria": int(azar.integers(2)), "forzada": True} if desconocido else pista)
         salida = []
         for _ in frames:
             p = np.clip(base + azar.normal(0, 0.01, 3), 1e-4, None)
             salida.append(p / p.sum())
-        return salida
+        novedad = float(azar.uniform(1.4, 2.2)) if desconocido else float(azar.uniform(0.3, 0.85))
+        return salida, novedad
 
     @staticmethod
     def _base(azar: np.random.Generator, pista: dict[str, Any]) -> np.ndarray:

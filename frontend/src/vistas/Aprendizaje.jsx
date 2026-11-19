@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { api } from '../api.js';
 import { useEnVivo } from '../estado.jsx';
 import { categoria } from '../categorias.js';
-import { Cifra, MensajeError, MuestraPequena, Tarjeta, pct, useAccion, useDatos } from '../componentes/Comun.jsx';
+import { Cargando, Cifra, MensajeError, MuestraPequena, Tarjeta, pct, useAccion, useDatos } from '../componentes/Comun.jsx';
 import { BarrasAgrupadas, GraficaLineas } from '../componentes/Graficas.jsx';
 import { FiltroNiveles } from './HumanoIA.jsx';
 
@@ -20,7 +20,8 @@ function PruebaControlada() {
 
   async function iniciar(e) {
     e.preventDefault();
-    const r = await ejecutar(() => api.iniciarPruebaAprendizaje({ alias: alias.trim(), ronda, residuos: elegidos }));
+    const r = await ejecutar(() => api.iniciarPruebaAprendizaje({ alias: alias.trim(), ronda, residuos: elegidos }),
+      { ok: `Ronda ${ronda} iniciada para ${alias.trim()}` });
     if (r) setResultado(r);
   }
 
@@ -75,7 +76,7 @@ export default function Aprendizaje() {
       <h1>¿La retroalimentación enseña?</h1>
       <FiltroNiveles niveles={niveles} alCambiar={setNiveles} />
       <MensajeError error={error} />
-      {cargando && !datos && <p className="atenuado">Cargando…</p>}
+      {cargando && !datos && <Cargando />}
       {datos && (
         <>
           <MuestraPequena si={datos.muestra_pequena} />
@@ -83,7 +84,7 @@ export default function Aprendizaje() {
             <Cifra etiqueta="Sesiones" valor={datos.muestra?.n_sesiones ?? '—'} />
             <Cifra etiqueta="Intentos" valor={datos.muestra?.n_intentos ?? '—'} />
             <Cifra etiqueta="Voluntarios" valor={datos.muestra?.n_voluntarios ?? '—'} />
-            <Cifra etiqueta="Corrección tras explicación" valor={pct(datos.correccion_tras_explicacion?.tasa)}
+            <Cifra etiqueta="Corrección tras explicación" valor={pct(datos.correccion_tras_explicacion?.tasa)} progreso={datos.correccion_tras_explicacion?.tasa}
               detalle={`${datos.correccion_tras_explicacion?.corregidas ?? 0} de ${datos.correccion_tras_explicacion?.n_oportunidades ?? 0} oportunidades`} />
           </div>
           <div className="rejilla-2">
@@ -97,22 +98,22 @@ export default function Aprendizaje() {
                   etiqueta: `${p.alias} (n=${p.n1}/${p.n2})`,
                   valores: [
                     { nombre: 'R1', valor: p.ronda1, color: '#9CA3AF' },
-                    { nombre: 'R2', valor: p.ronda2, color: '#2E9E44' },
+                    { nombre: 'R2', valor: p.ronda2, color: '#0E7C86' },
                   ],
                 })),
                 ...(datos.rondas?.promedio ? [{
                   etiqueta: `Promedio (${datos.rondas.promedio.n_voluntarios} vol.)`,
                   valores: [
-                    { nombre: 'R1', valor: datos.rondas.promedio.ronda1, color: '#6B7280' },
-                    { nombre: 'R2', valor: datos.rondas.promedio.ronda2, color: '#1F7A34' },
+                    { nombre: 'R1', valor: datos.rondas.promedio.ronda1, color: '#9CA3AF' },
+                    { nombre: 'R2', valor: datos.rondas.promedio.ronda2, color: '#0E7C86' },
                   ],
                 }] : []),
               ]} />
             </Tarjeta>
             <Tarjeta titulo="Primera vs. segunda mitad de cada sesión">
               <div className="cifras">
-                <Cifra etiqueta="Primera mitad" valor={pct(datos.mitades?.primera)} />
-                <Cifra etiqueta="Segunda mitad" valor={pct(datos.mitades?.segunda)} />
+                <Cifra etiqueta="Primera mitad" valor={pct(datos.mitades?.primera)} progreso={datos.mitades?.primera} />
+                <Cifra etiqueta="Segunda mitad" valor={pct(datos.mitades?.segunda)} progreso={datos.mitades?.segunda} />
                 <Cifra etiqueta="Diferencia" valor={datos.mitades?.diferencia === null || datos.mitades?.diferencia === undefined ? '—' : `${datos.mitades.diferencia > 0 ? '+' : ''}${(datos.mitades.diferencia * 100).toFixed(0)} pts`}
                   detalle={`${datos.mitades?.n_sesiones ?? 0} sesiones con ≥ 4 intentos`} />
               </div>

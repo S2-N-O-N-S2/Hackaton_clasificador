@@ -10,7 +10,9 @@ export default function Inicio() {
   const puedeElegir = estado === 'MENU' || estado === 'ESPERA_OBJETO';
 
   async function elegir(modo) {
-    const r = await ejecutar(() => api.elegirModo(modo));
+    const r = await ejecutar(() => api.elegirModo(modo), {
+      ok: modo === 'menu' ? 'De vuelta al menú' : `Modo ${modo === 'ia' ? 'IA' : 'Adivina'}: coloca el residuo en la bandeja`,
+    });
     if (r && modo === 'adivina') window.location.hash = '#/juego';
   }
 

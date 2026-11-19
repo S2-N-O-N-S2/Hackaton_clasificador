@@ -2,7 +2,9 @@
 import { api } from '../api.js';
 import { useEnVivo } from '../estado.jsx';
 import { categoria } from '../categorias.js';
-import { Estimado, MensajeError, NivelBote, Tarjeta, fechaHora, useAccion, useDatos } from '../componentes/Comun.jsx';
+import {
+  Cargando, Estimado, IconoCategoria, MensajeError, NivelBote, Numero, Tarjeta, fechaHora, useAccion, useDatos,
+} from '../componentes/Comun.jsx';
 
 export default function Botes() {
   const { botes, versiones } = useEnVivo();
@@ -12,7 +14,7 @@ export default function Botes() {
 
   async function vaciar(b) {
     if (!window.confirm(`¿Confirmas que el bote ${b.color} (${b.nombre}) ya se vació?`)) return;
-    const r = await ejecutar(() => api.vaciarBote(b.id));
+    const r = await ejecutar(() => api.vaciarBote(b.id), { ok: `Bote ${b.color} marcado como vaciado` });
     if (r) datos.recargar();
   }
 
@@ -41,12 +43,15 @@ export default function Botes() {
       <div className="rejilla-2">
         <Tarjeta titulo="Residuos desviados de la basura mezclada">
           {datos.datos ? (
-            <ul className="lista-datos">
+            <ul className="lista-desviados">
               {[0, 1, 2].map((id) => (
-                <li key={id}><span style={{ color: categoria(id).hex }}>■</span> {categoria(id).nombre}: <strong>{datos.datos.desviados_por_categoria?.[id] ?? 0}</strong></li>
+                <li key={id} data-cat={categoria(id).clave}>
+                  <IconoCategoria id={id} tam={18} /> <span>{categoria(id).nombre}</span>
+                  <Numero valor={datos.datos.desviados_por_categoria?.[id] ?? 0} clase="desviados-n" />
+                </li>
               ))}
             </ul>
-          ) : <p className="atenuado">Cargando…</p>}
+          ) : <Cargando />}
         </Tarjeta>
         <Tarjeta titulo="Historial de vaciados">
           {datos.datos?.vaciados?.length ? (

@@ -13,10 +13,10 @@ from dataclasses import dataclass
 from typing import Any, Literal
 
 from fastapi import APIRouter, Body, HTTPException, Query, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, Field, StrictInt
 
 from .bins import GestorBotes
-from .camera import copiar_a_dataset
+from .camera import PISTAS_ESPECIALES, copiar_a_dataset
 from .config import CATEGORIAS, CLAVES_CATEGORIA, CLAVES_REQUIEREN_REINICIO, IDS_CATEGORIA, Ajustes, Configuracion
 from .db import BaseDatos, ahora, clasificacion_a_dict
 from .game import NIVELES_REPORTABLES, Juego
@@ -63,42 +63,42 @@ class ModoIn(BaseModel):
 
 
 class CorregirIn(BaseModel):
-    final_id: int
+    final_id: StrictInt  # StrictInt: true/false o "1" se rechazan (pydantic convertía true en 1)
 
 
 class RevisionIn(BaseModel):
     accion: Literal["resolver", "pendiente"]
-    final_id: int | None = None
+    final_id: StrictInt | None = None
 
 
 class PruebaIn(BaseModel):
-    corrida: int
+    corrida: StrictInt = Field(ge=1, le=2)
     modo: Literal["manual", "sistema"]
-    residuo_id: int
-    categoria_asignada: int | None = None
-    tiempo_s: float | None = None
+    residuo_id: StrictInt
+    categoria_asignada: StrictInt | None = Field(None, ge=0, le=2)
+    tiempo_s: float | None = Field(None, ge=0, le=3600, allow_inf_nan=False)
 
 
 class ResiduoIn(BaseModel):
-    nombre: str
-    categoria_real: int
+    nombre: str = Field(min_length=1, max_length=80)
+    categoria_real: StrictInt = Field(ge=0, le=2)
     simulado: bool = False
     usado_en_entrenamiento: bool = False
 
 
 class AdivinarIn(BaseModel):
-    categoria: int
+    categoria: StrictInt
 
 
 class PruebaAprendizajeIn(BaseModel):
-    alias: str
-    ronda: int
-    residuos: list[int]
+    alias: str = Field(min_length=1, max_length=12)
+    ronda: StrictInt = Field(ge=1, le=2)
+    residuos: list[StrictInt] = Field(min_length=1, max_length=50)
 
 
 class BoteIn(BaseModel):
-    capacidad_piezas: int | None = None
-    umbral_aviso: float | None = None
+    capacidad_piezas: StrictInt | None = Field(None, ge=1, le=10000)
+    umbral_aviso: float | None = Field(None, ge=0, le=1, allow_inf_nan=False)
 
 
 class PorVerificarIn(BaseModel):
@@ -107,11 +107,13 @@ class PorVerificarIn(BaseModel):
 
 
 class SimObjetoIn(BaseModel):
-    categoria_real: int | Literal["dudoso"] | None = None
+    # 0/1/2, "dudoso", "foto_mala" (fotos oscuras: prueba la revisión de calidad) o "desconocido" (objeto que
+    # el modelo nunca vio: prueba la detección de objetos desconocidos). Solo simulación.
+    categoria_real: StrictInt | Literal["dudoso", "foto_mala", "desconocido"] | None = None
 
 
 class SimTeclaIn(BaseModel):
-    tecla: str
+    tecla: str = Field(min_length=1, max_length=1)
 
 
 class SimVozIn(BaseModel):
@@ -242,7 +244,8 @@ def get_estadisticas(request: Request, simulado: str = "incluir") -> dict[str, A
     ctx = _ctx(request)
     filtro = _filtro_simulado(simulado)
     filas = ctx.db.consultar(
-        f"SELECT pred_id, final_id FROM clasificaciones WHERE final_id IS NOT NULL AND pred_id IS NOT NULL{filtro}"
+        f"SELECT pred_id, final_id FROM clasificaciones WHERE final_id IS NOT NULL AND pred_id IS NOT NULL "
+        f"AND estado != 'en_proceso'{filtro}"
     )
     matriz = _matriz_vacia()
     for f in filas:
@@ -256,6 +259,8 @@ def get_estadisticas(request: Request, simulado: str = "incluir") -> dict[str, A
     aciertos = sum(matriz[c][c] for c in IDS_CATEGORIA)
     resumen = ctx.db.uno(
         f"SELECT SUM(dudoso) AS dudosos, SUM(corregido) AS corregidos, "
+        f"SUM(CASE WHEN motivo_dudoso = 'desconocido' THEN 1 ELSE 0 END) AS no_reconocidos, "
+        f"SUM(CASE WHEN motivo_dudoso = 'foto_no_valida' THEN 1 ELSE 0 END) AS fotos_no_validas, "
         f"AVG(CASE WHEN estado = 'registrado' THEN tiempo_ciclo_ms END) AS tiempo "
         f"FROM clasificaciones WHERE 1 = 1{filtro}"
     )
@@ -272,6 +277,8 @@ def get_estadisticas(request: Request, simulado: str = "incluir") -> dict[str, A
         "matriz_confusion": {"etiquetas": [0, 1, 2], "filas": "real", "columnas": "predicha", "valores": matriz},
         "dudosos": resumen["dudosos"] or 0,
         "corregidos": resumen["corregidos"] or 0,
+        "no_reconocidos": resumen["no_reconocidos"] or 0,
+        "fotos_no_validas": resumen["fotos_no_validas"] or 0,
         "tiempo_promedio_ms": round(resumen["tiempo"]) if resumen["tiempo"] is not None else None,
         "desviados_por_categoria": desviados,
         "incluye_simulados": simulado != "excluir",
@@ -508,7 +515,10 @@ def post_por_verificar(request: Request, cuerpo: PorVerificarIn) -> dict[str, An
     # Rechazar no borra: mueve a _rechazadas/ para poder revisarlo después
     destino_dir = ctx.ajustes.dir_dataset / (clave if cuerpo.accion == "aprobar" else f"_rechazadas/{clave}")
     destino_dir.mkdir(parents=True, exist_ok=True)
-    shutil.move(str(origen), str(destino_dir / nombre))
+    try:
+        shutil.move(str(origen), str(destino_dir / nombre))
+    except FileNotFoundError:  # otro operador la movió al mismo tiempo
+        raise HTTPException(404, "Esa imagen ya fue revisada") from None
     ctx.db.registrar_evento("info", "api", f"Etiqueta {cuerpo.id}: {cuerpo.accion}")
     pendientes = sum(len(list((ctx.ajustes.dir_dataset / "_por_verificar" / c).glob("*.jpg")))
                      for c in CLAVES_CATEGORIA)
@@ -537,8 +547,8 @@ async def post_sim_objeto(request: Request, cuerpo: SimObjetoIn | None = None) -
     ctx = _ctx(request)
     enlace = _simulador(ctx)
     categoria = cuerpo.categoria_real if cuerpo else None
-    if categoria is not None and categoria not in (0, 1, 2, "dudoso"):
-        raise HTTPException(400, "categoria_real debe ser 0, 1, 2, 'dudoso' o null")
+    if categoria is not None and (isinstance(categoria, bool) or categoria not in (0, 1, 2, *PISTAS_ESPECIALES)):
+        raise HTTPException(400, "categoria_real debe ser 0, 1, 2, 'dudoso', 'foto_mala', 'desconocido' o null")
     if enlace.objeto:
         raise HTTPException(409, "Ya hay un residuo en la bandeja")
     ctx.orq.camara.pista_siguiente = categoria

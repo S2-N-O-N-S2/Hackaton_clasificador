@@ -51,6 +51,23 @@ TIEMPOS = {
     "recuperacion_error_s": 3.0, # tiempo mínimo en ERROR antes de volver al menú si el enlace está bien
 }
 
+# ---------------------------------------------------------------------------
+# Calidad de la foto (camera.py). Los umbrales marcados [COMPLETAR] se ajustan midiendo con la
+# cámara real en la mesa: correr `python tools/probar_camara.py` y ver las métricas de cada foto.
+# ---------------------------------------------------------------------------
+CAMARA = {
+    "vaciar_bufer_s": 0.35,        # se leen y tiran fotogramas este tiempo: el búfer de MSMF/DroidCam guarda fotos viejas
+    "estabilidad_max_s": 1.5,      # tiempo máximo esperando a que la imagen deje de moverse
+    "estabilidad_diferencia": 6.0, # diferencia media (0–255) entre fotogramas seguidos para considerarla quieta [COMPLETAR]
+    "candidatos": 6,               # fotogramas que se toman para elegir los mejores
+    "pausa_candidatos_s": 0.04,    # separación entre candidatos
+    "plana_std": 4.0,              # desviación por canal menor a esto → imagen de un solo color (sin señal)
+    "brillo_min": 35.0,            # brillo medio (0–255) menor a esto → foto oscura [COMPLETAR]
+    "brillo_max": 225.0,           # brillo medio mayor a esto → foto quemada [COMPLETAR]
+    "nitidez_min": 30.0,           # varianza del Laplaciano menor a esto → foto borrosa / movida [COMPLETAR]
+    "reintentos": 1,               # si todas las fotos salen mal, se repite la captura una vez
+}
+
 
 def _env_bool(nombre: str, defecto: bool = False) -> bool:
     valor = os.getenv(nombre)
@@ -135,6 +152,12 @@ def valores_por_defecto() -> dict[str, Any]:
         "tiempo_retro_firme_s": 5,
         "tiempo_retro_media_s": 8,
         "umbral_aviso_bote": 0.80,
+        # Objeto desconocido: qué tan lejos (1.0 = percentil 99 × 1.1 de las fotos de entrenamiento) puede quedar
+        # una foto de todo lo que la IA conoce antes de mandarla a revisión aunque la confianza sea alta.
+        # Menor = más estricto. Con v1 (fotos de internet, muy variadas) 0.85 marca 2.3 % de objetos conocidos
+        # de validación y sí marca ruido / cámara sin señal. [COMPLETAR: recalibrar con fotos propias de la bandeja
+        # usando tools/calibrar_desconocidos.py]
+        "umbral_desconocido": 0.85,
         # Voz (§15): micrófono ("" = predeterminado de Windows, o parte de su nombre, ej. "DroidCam") y
         # segundos que se graba al presionar A (push-to-talk)
         "microfono": "",
@@ -150,24 +173,50 @@ def valores_por_defecto() -> dict[str, Any]:
 CLAVES_REQUIEREN_REINICIO = {"puerto_serial", "indice_camara"}
 
 
-def _validar_umbral(v: Any) -> float:
+def _numero(v: Any) -> float:
+    """Número real finito. Rechaza true/false (en Python True == 1) y NaN/infinito."""
+    if isinstance(v, bool) or v is None:
+        raise ValueError("debe ser un número")
     v = float(v)
+    if v != v or v in (float("inf"), float("-inf")):
+        raise ValueError("debe ser un número finito")
+    return v
+
+
+def _entero(v: Any) -> int:
+    """Entero. Rechaza true/false y decimales (antes 1.9 se convertía en 1 sin avisar)."""
+    n = _numero(v)
+    if n != int(n):
+        raise ValueError("debe ser un número entero")
+    return int(n)
+
+
+def _validar_umbral(v: Any) -> float:
+    v = _numero(v)
     if not 0.0 <= v <= 1.0:
         raise ValueError("debe estar entre 0 y 1")
     return round(v, 4)
 
 
+def _validar_umbral_desconocido(v: Any) -> float:
+    v = _numero(v)
+    if not 0.5 <= v <= 3.0:
+        raise ValueError("debe estar entre 0.5 y 3")
+    return round(v, 3)
+
+
 def _validar_angulo(v: Any) -> int:
-    v = int(v)
+    v = _entero(v)
     if not 0 <= v <= 180:
         raise ValueError("debe estar entre 0 y 180")
     return v
 
 
 def _validar_entero_positivo(v: Any) -> int:
-    v = int(v)
-    if v <= 0:
-        raise ValueError("debe ser mayor que 0")
+    """Tiempos en segundos: de 1 a 600 (10 min). Antes se aceptaba 10^12 s y una revisión no vencía nunca."""
+    v = _entero(v)
+    if not 1 <= v <= 600:
+        raise ValueError("debe estar entre 1 y 600")
     return v
 
 
@@ -244,7 +293,7 @@ def fuente_camara(v: Any) -> int | str:
 def _validar_roi(v: Any) -> list[float]:
     if not isinstance(v, (list, tuple)) or len(v) != 4:
         raise ValueError("debe ser [x, y, ancho, alto] en fracciones de 0 a 1")
-    x, y, ancho, alto = (float(n) for n in v)
+    x, y, ancho, alto = (_numero(n) for n in v)
     if not (0 <= x < 1 and 0 <= y < 1 and 0 < ancho <= 1 and 0 < alto <= 1 and x + ancho <= 1.0001 and y + alto <= 1.0001):
         raise ValueError("la zona debe quedar dentro de la imagen")
     return [round(x, 4), round(y, 4), round(ancho, 4), round(alto, 4)]
@@ -255,6 +304,7 @@ VALIDADORES = {
     "umbral_peligroso": _validar_umbral,
     "umbral_tono_firme": _validar_umbral,
     "umbral_aviso_bote": _validar_umbral,
+    "umbral_desconocido": _validar_umbral_desconocido,
     "modo_por_defecto": _validar_modo,
     "angulos": _validar_angulos,
     "angulo_home": _validar_angulo,

@@ -179,9 +179,9 @@ function crearClasificacion(modo, real, fecha = new Date()) {
   const { valores } = db.config;
   const { pred, p } = generarProbabilidades(real);
   const confianza = p[pred];
-  let motivo = null;
-  if (confianza < valores.umbral_general) motivo = 'confianza_baja';
-  else if (pred !== 2 && p[2] >= valores.umbral_peligroso) motivo = 'riesgo_peligroso';
+  let motivo = null;  // mismo orden que app/model.py: primero el riesgo de peligroso
+  if (pred !== 2 && p[2] >= valores.umbral_peligroso) motivo = 'riesgo_peligroso';
+  else if (confianza < valores.umbral_general) motivo = 'confianza_baja';
   const id = db.siguienteId++;
   return {
     id,
@@ -374,8 +374,20 @@ async function procesarResiduo(modo, categoriaReal) {
   ocupado = true;
   try {
     const inicio = Date.now();
-    const real = categoriaReal ?? Math.floor(Math.random() * 3);
+    const especial = categoriaReal === 'desconocido' || categoriaReal === 'foto_mala' ? categoriaReal : null;
+    const real = especial || categoriaReal === undefined || categoriaReal === null || categoriaReal === 'dudoso'
+      ? Math.floor(Math.random() * 3) : categoriaReal;
     const c = crearClasificacion(modo, real);
+    if (especial === 'desconocido') {
+      // La IA "cree" que sabe (confianza alta), pero la foto no se parece a nada de lo entrenado
+      c.motivo_dudoso = 'desconocido'; c.dudoso = true;
+      alerta('aviso', 'OBJETO_DESCONOCIDO', `Objeto no reconocido (caso #${c.id}): va a revisión`);
+    } else if (especial === 'foto_mala') {
+      c.pred_id = null; c.confianza = null; c.probabilidades = null;
+      c.motivo_dudoso = 'foto_no_valida'; c.dudoso = true;
+      alerta('aviso', 'FOTO_REINTENTO', 'La foto salió oscura: se toma otra foto');
+      alerta('aviso', 'FOTO_NO_VALIDA', 'La foto salió oscura: el residuo va a revisión');
+    }
     c._oculto = modo === 'adivina';
     maquina.caso_actual = c;
     maquina.modo = modo;
@@ -536,6 +548,8 @@ function calcularEstadisticas(simulado) {
     matriz_confusion: { etiquetas: [0, 1, 2], filas: 'real', columnas: 'predicha', valores: matriz },
     dudosos: filtradas.filter((c) => c.dudoso).length,
     corregidos: filtradas.filter((c) => c.corregido).length,
+    no_reconocidos: filtradas.filter((c) => c.motivo_dudoso === 'desconocido').length,
+    fotos_no_validas: filtradas.filter((c) => c.motivo_dudoso === 'foto_no_valida').length,
     tiempo_promedio_ms: tiempos.length ? Math.round(tiempos.reduce((a, b) => a + b, 0) / tiempos.length) : null,
     desviados_por_categoria: desviados,
     incluye_simulados: simulado !== 'excluir',
