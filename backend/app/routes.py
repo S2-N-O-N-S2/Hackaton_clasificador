@@ -12,10 +12,10 @@ from dataclasses import dataclass
 from typing import Any, Literal
 
 from fastapi import APIRouter, Body, HTTPException, Query, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, StrictInt
 
 from .bins import GestorBotes
-from .camera import copiar_a_dataset
+from .camera import PISTAS_ESPECIALES, copiar_a_dataset
 from .config import CATEGORIAS, CLAVES_CATEGORIA, CLAVES_REQUIEREN_REINICIO, IDS_CATEGORIA, Ajustes, Configuracion
 from .db import BaseDatos, ahora, clasificacion_a_dict
 from .game import NIVELES_REPORTABLES, Juego
@@ -105,7 +105,9 @@ class PorVerificarIn(BaseModel):
 
 
 class SimObjetoIn(BaseModel):
-    categoria_real: int | Literal["dudoso"] | None = None
+    # 0/1/2, "dudoso", "foto_mala" (fotos oscuras: prueba la revisión de calidad) o "desconocido" (objeto que
+    # el modelo nunca vio: prueba la detección de objetos desconocidos). Solo simulación.
+    categoria_real: StrictInt | Literal["dudoso", "foto_mala", "desconocido"] | None = None
 
 
 class SimTeclaIn(BaseModel):
@@ -478,8 +480,8 @@ async def post_sim_objeto(request: Request, cuerpo: SimObjetoIn | None = None) -
     ctx = _ctx(request)
     enlace = _simulador(ctx)
     categoria = cuerpo.categoria_real if cuerpo else None
-    if categoria is not None and categoria not in (0, 1, 2, "dudoso"):
-        raise HTTPException(400, "categoria_real debe ser 0, 1, 2, 'dudoso' o null")
+    if categoria is not None and (isinstance(categoria, bool) or categoria not in (0, 1, 2, *PISTAS_ESPECIALES)):
+        raise HTTPException(400, "categoria_real debe ser 0, 1, 2, 'dudoso', 'foto_mala', 'desconocido' o null")
     if enlace.objeto:
         raise HTTPException(409, "Ya hay un residuo en la bandeja")
     ctx.orq.camara.pista_siguiente = categoria

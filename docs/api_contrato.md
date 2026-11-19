@@ -37,7 +37,7 @@
 | `estado` (máquina) | `MENU`, `ESPERA_OBJETO`, `CAPTURA`, `CLASIFICACION`, `ESPERA_ADIVINANZA`, `RETROALIMENTACION`, `REVISION`, `VERIFICAR_BOTE`, `BOTE_LLENO`, `POSICIONAR`, `SOLTAR`, `REGISTRAR`, `ACTUALIZAR_NIVEL`, `HOME`, `PENDIENTE`, `OPERADOR`, `ERROR` |
 | `modo` | `ia`, `adivina`, `null` (todavía no se elige) |
 | `origen` (clasificación) | `camara`, `voz`, `manual`, `teclado`, `panel` |
-| `motivo_dudoso` | `confianza_baja`, `riesgo_peligroso`, `conflicto_voz`, `sin_modelo` (no hay modelo cargado: el sistema no adivina), `null` |
+| `motivo_dudoso` | `confianza_baja`, `riesgo_peligroso`, `conflicto_voz`, `sin_modelo` (no hay modelo cargado: el sistema no adivina), `desconocido` (**agregado**: la foto no se parece a nada de lo entrenado), `foto_no_valida` (**agregado**: la foto salió sin señal, oscura, quemada o borrosa; `pred_id` y `confianza` son `null`), `null` |
 | `estado` (clasificación) | `en_proceso`, `registrado`, `pendiente`, `error` |
 | `nivel_certeza` | `verificada`, `alta`, `media`, `baja` |
 | `fuente_referencia` | `ia`, `operador`, `etiqueta_real` |
@@ -241,7 +241,8 @@ Respuesta de `GET /api/modelo/estado`:
     "roi": [0.0, 0.0, 1.0, 1.0],
     "tiempo_adivinanza_s": 20, "tiempo_revision_s": 30,
     "tiempo_retro_firme_s": 5, "tiempo_retro_media_s": 8,
-    "umbral_aviso_bote": 0.80
+    "umbral_aviso_bote": 0.80,
+    "umbral_desconocido": 0.85
   },
   "categorias": [{"id": 0, "clave": "organica", "nombre": "Orgánica", "color": "verde", "hex": "#2E9E44"}],
   "requieren_reinicio": ["indice_camara", "puerto_serial"]
@@ -400,7 +401,7 @@ El panel **solo muestra** lo que manda el backend. Las reglas de decisión, los 
 
 Con `SIMULACION=1`, el backend se comporta igual en esta API, con estas diferencias:
 - `serial.simulado`, `camara.simulada`, `modelo.simulado` y el campo `simulado` de cada clasificación valen `true`.
-- **`POST /api/sim/objeto`** (**agregado**, solo en simulación) simula que se colocó un residuo, como si llegara `OBJ`. El cuerpo es opcional: `{"categoria_real": 1}`, para forzar la imagen de una carpeta de `sim_images/`.
+- **`POST /api/sim/objeto`** (**agregado**, solo en simulación) simula que se colocó un residuo, como si llegara `OBJ`. El cuerpo es opcional: `{"categoria_real": 1}`, para forzar la imagen de una carpeta de `sim_images/`. También acepta `"dudoso"`, `"foto_mala"` (fotos oscuras: prueba la revisión de calidad) y `"desconocido"` (objeto que el modelo nunca vio). Los booleanos se rechazan con `422`.
 - **`POST /api/sim/tecla`** (**agregado**, solo en simulación): `{"tecla": "1"}` simula una tecla del teclado 4×4.
 - **`POST /api/sim/retirar`** (**agregado**, solo en simulación) simula que el operador retiró el residuo de la bandeja (`LIBRE`).
 - En simulación, el backend usa otra base de datos (`clasificador_sim.db`) para no mezclar datos simulados con reales.
@@ -419,6 +420,9 @@ Mientras el backend no exista, el panel puede trabajar con **datos de ejemplo**:
 | Serial `HOME_OK`, `OK`, `CAL_OK`, `STATUS`, `LIBRE`, `WATCHDOG` | La especificación pide "responder siempre"; `LIBRE` sirve para saber cuándo se retiró el residuo |
 | `POST /api/sim/objeto`, `/api/sim/tecla` y `/api/sim/retirar` | Probar el ciclo completo sin hardware (sección 20.2) |
 | `motivo_dudoso: sin_modelo` y `estado` de la clasificación | Falla segura sin modelo; distinguir casos pendientes o con error |
+| `motivo_dudoso: desconocido` y configuración `umbral_desconocido` (0.5–3) | La IA siempre elige una de las 3 clases, incluso con un objeto que nunca vio: si la foto queda lejos de todo lo entrenado (`models/vN/novedad.json`), va a revisión |
+| `motivo_dudoso: foto_no_valida`; alertas `FOTO_REINTENTO`, `FOTO_NO_VALIDA` y `OBJETO_DESCONOCIDO` | Una foto mala no se clasifica: se repite una vez y, si sigue mala, el residuo va a revisión |
+| `POST /api/sim/objeto` acepta `"foto_mala"` y `"desconocido"` en `categoria_real` | Probar sin hardware la revisión de calidad de la foto y la detección de objetos desconocidos |
 
 ## 9. Historial
 

@@ -160,3 +160,30 @@ def test_control_manual_y_pruebas(cliente):
                                  "categoria_asignada": 1, "tiempo_s": 3.5})
     comp = c.get("/api/pruebas").json()["comparativa"]
     assert comp["manual"]["precision"] == 1.0 and comp["sistema"]["n"] == 0
+
+
+def test_foto_mala_no_se_clasifica_y_va_a_revision(cliente):
+    c, _ = cliente
+    c.post("/api/sim/objeto", json={"categoria_real": "foto_mala"})
+    esperar(lambda: c.get("/api/estado").json()["estado"] == "REVISION")
+    caso = c.get("/api/estado").json()["caso_actual"]
+    assert caso["dudoso"] and caso["motivo_dudoso"] == "foto_no_valida" and caso["pred_id"] is None
+    codigos = [a["codigo"] for a in c.get("/api/estado").json()["alertas"]]
+    assert "FOTO_REINTENTO" in codigos and "FOTO_NO_VALIDA" in codigos
+    assert c.post("/api/revision", json={"accion": "resolver", "final_id": 0}).status_code == 200
+    esperar(lambda: c.get("/api/estado").json()["estado"] == "MENU")
+
+
+def test_objeto_desconocido_va_a_revision_aunque_la_ia_este_segura(cliente):
+    c, _ = cliente
+    c.post("/api/sim/objeto", json={"categoria_real": "desconocido"})
+    esperar(lambda: c.get("/api/estado").json()["estado"] == "REVISION")
+    caso = c.get("/api/estado").json()["caso_actual"]
+    assert caso["dudoso"] and caso["motivo_dudoso"] == "desconocido"
+    assert caso["confianza"] >= 0.70  # la IA "cree" que sabe: por eso hace falta esta regla
+    assert c.post("/api/revision", json={"accion": "pendiente"}).status_code == 200
+
+
+def test_sim_objeto_rechaza_booleanos(cliente):
+    c, _ = cliente
+    assert c.post("/api/sim/objeto", json={"categoria_real": True}).status_code in (400, 422)

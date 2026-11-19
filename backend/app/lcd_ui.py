@@ -90,6 +90,10 @@ def pantalla_revision(motivo: str | None, confianza: float | None) -> list[str]:
         segunda = "Posible peligroso"
     elif motivo == "sin_modelo":
         segunda = "IA no disponible"
+    elif motivo == "desconocido":
+        segunda = "Objeto no reconocido"
+    elif motivo == "foto_no_valida":
+        segunda = "Foto no valida"
     else:
         segunda = f"IA {porcentaje(confianza)} no segura"
     return normalizar(["AYUDA: que es?", segunda, "1:Org 2:Inorg 3:Pel", "C: dejar pendiente"])

@@ -28,8 +28,8 @@ from typing import Any, Callable
 
 from . import lcd_ui
 from .bins import GestorBotes
-from .camera import CamaraBase, ErrorCamara, copiar_a_dataset
-from .config import IDS_CATEGORIA, TIEMPOS, Ajustes, Configuracion
+from .camera import CamaraBase, ErrorCamara, FotoNoValida, copiar_a_dataset
+from .config import CAMARA, IDS_CATEGORIA, TIEMPOS, Ajustes, Configuracion
 from .db import BaseDatos, ahora, clasificacion_a_dict
 from .game import Juego
 from .model import Decision, ModeloBase, ModeloNoDisponible, aplicar_reglas, promediar
@@ -431,26 +431,51 @@ class Orquestador:
         await self._mostrar(lcd_ui.pantalla_procesando())
         await self._cmd_suave("LIGHT:ON")
         await asyncio.sleep(TIEMPOS["luz_ms"] / 1000 * self.f)
+        foto_mala: FotoNoValida | None = None
         try:
-            frames = await self.camara.capturar(TIEMPOS["fotogramas"])
+            # La cámara revisa la calidad (sin señal, oscura, quemada, borrosa). Si todas salen mal se repite;
+            # si siguen mal, el residuo NO se clasifica: va a revisión con motivo "foto_no_valida".
+            for intento in range(int(CAMARA["reintentos"]) + 1):
+                try:
+                    frames = await self.camara.capturar(TIEMPOS["fotogramas"])
+                    foto_mala = None
+                    break
+                except FotoNoValida as error:
+                    foto_mala = error
+                    if intento < int(CAMARA["reintentos"]):
+                        await self._alerta("aviso", "FOTO_REINTENTO", f"{error}: se toma otra foto")
         finally:
             await self._cmd_suave("LIGHT:OFF")
-        foto = self.camara.guardar_foto(frames[len(frames) // 2])
+        if foto_mala is not None:
+            frames = [foto_mala.frame] if foto_mala.frame is not None else []
+        foto = self.camara.guardar_foto(frames[len(frames) // 2]) if frames else None
         self._caso_id = self.db.insertar_clasificacion(
             foto=foto, modo=self.modo, origen="camara", simulado=int(self.simulado),
             modelo_version=self.modelo.version if self.modelo.cargado else None, estado="en_proceso",
         )
-        await self.difusor.emitir("captura", {"clasificacion_id": self._caso_id, "foto": f"/captures/{foto}",
+        await self.difusor.emitir("captura", {"clasificacion_id": self._caso_id,
+                                              "foto": f"/captures/{foto}" if foto else None,
                                               "oculto": self._oculto})
         # --- CLASIFICACION
         await self._transicion(Estado.CLASIFICACION)
+        if foto_mala is not None:
+            await self._alerta("aviso", "FOTO_NO_VALIDA", f"{foto_mala}: el residuo va a revisión")
+            self.db.actualizar_clasificacion(self._caso_id, dudoso=1, motivo_dudoso="foto_no_valida")
+            decision = Decision(None, None, True, "foto_no_valida")
+            if not self._oculto:
+                await self.difusor.emitir("clasificacion", self.caso_actual())
+            return decision
         modelo = self.modelo  # referencia fija: un reentrenamiento puede cambiarlo a medio ciclo
         try:
             # La red neuronal corre en otro hilo para no congelar el servidor (~0.1–0.3 s en CPU)
-            predicciones = await asyncio.get_running_loop().run_in_executor(
-                None, modelo.predecir, frames, self.camara.ultima_pista)
+            predicciones, novedad = await asyncio.get_running_loop().run_in_executor(
+                None, modelo.analizar, frames, self.camara.ultima_pista)
             probs = promediar(predicciones)
-            decision = aplicar_reglas(probs, self.config.get("umbral_general"), self.config.get("umbral_peligroso"))
+            decision = aplicar_reglas(probs, self.config.get("umbral_general"), self.config.get("umbral_peligroso"),
+                                      novedad, self.config.get("umbral_desconocido"))
+            if decision.motivo == "desconocido":
+                await self._alerta("aviso", "OBJETO_DESCONOCIDO",
+                                   f"Objeto no reconocido (caso #{self._caso_id}): va a revisión")
             self.db.actualizar_clasificacion(
                 self._caso_id, pred_id=decision.pred_id, confianza=decision.confianza,
                 p_organica=float(probs[0]), p_inorganica=float(probs[1]), p_peligroso=float(probs[2]),

@@ -51,6 +51,23 @@ TIEMPOS = {
     "recuperacion_error_s": 3.0, # tiempo mínimo en ERROR antes de volver al menú si el enlace está bien
 }
 
+# ---------------------------------------------------------------------------
+# Calidad de la foto (camera.py). Los umbrales marcados [COMPLETAR] se ajustan midiendo con la
+# cámara real en la mesa: correr `python tools/probar_camara.py` y ver las métricas de cada foto.
+# ---------------------------------------------------------------------------
+CAMARA = {
+    "vaciar_bufer_s": 0.35,        # se leen y tiran fotogramas este tiempo: el búfer de MSMF/DroidCam guarda fotos viejas
+    "estabilidad_max_s": 1.5,      # tiempo máximo esperando a que la imagen deje de moverse
+    "estabilidad_diferencia": 6.0, # diferencia media (0–255) entre fotogramas seguidos para considerarla quieta [COMPLETAR]
+    "candidatos": 6,               # fotogramas que se toman para elegir los mejores
+    "pausa_candidatos_s": 0.04,    # separación entre candidatos
+    "plana_std": 4.0,              # desviación por canal menor a esto → imagen de un solo color (sin señal)
+    "brillo_min": 35.0,            # brillo medio (0–255) menor a esto → foto oscura [COMPLETAR]
+    "brillo_max": 225.0,           # brillo medio mayor a esto → foto quemada [COMPLETAR]
+    "nitidez_min": 30.0,           # varianza del Laplaciano menor a esto → foto borrosa / movida [COMPLETAR]
+    "reintentos": 1,               # si todas las fotos salen mal, se repite la captura una vez
+}
+
 
 def _env_bool(nombre: str, defecto: bool = False) -> bool:
     valor = os.getenv(nombre)
@@ -135,6 +152,12 @@ def valores_por_defecto() -> dict[str, Any]:
         "tiempo_retro_firme_s": 5,
         "tiempo_retro_media_s": 8,
         "umbral_aviso_bote": 0.80,
+        # Objeto desconocido: qué tan lejos (1.0 = percentil 99 × 1.1 de las fotos de entrenamiento) puede quedar
+        # una foto de todo lo que la IA conoce antes de mandarla a revisión aunque la confianza sea alta.
+        # Menor = más estricto. Con v1 (fotos de internet, muy variadas) 0.85 marca 2.3 % de objetos conocidos
+        # de validación y sí marca ruido / cámara sin señal. [COMPLETAR: recalibrar con fotos propias de la bandeja
+        # usando tools/calibrar_desconocidos.py]
+        "umbral_desconocido": 0.85,
     }
 
 
@@ -147,6 +170,15 @@ def _validar_umbral(v: Any) -> float:
     if not 0.0 <= v <= 1.0:
         raise ValueError("debe estar entre 0 y 1")
     return round(v, 4)
+
+
+def _validar_umbral_desconocido(v: Any) -> float:
+    if isinstance(v, bool):
+        raise ValueError("debe ser un número entre 0.5 y 3")
+    v = float(v)
+    if not 0.5 <= v <= 3.0:
+        raise ValueError("debe estar entre 0.5 y 3")
+    return round(v, 3)
 
 
 def _validar_angulo(v: Any) -> int:
@@ -212,6 +244,7 @@ VALIDADORES = {
     "umbral_peligroso": _validar_umbral,
     "umbral_tono_firme": _validar_umbral,
     "umbral_aviso_bote": _validar_umbral,
+    "umbral_desconocido": _validar_umbral_desconocido,
     "modo_por_defecto": _validar_modo,
     "angulos": _validar_angulos,
     "angulo_home": _validar_angulo,
