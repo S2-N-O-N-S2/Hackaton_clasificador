@@ -1,0 +1,43 @@
+{
+  "_nota": "Vocabulario de la voz (especificación §15). Editable: agregar \"objeto\": categoría (0 Orgánica, 1 Inorgánica, 2 Peligroso). Escribir las palabras CON acentos (así las reconoce Vosk) y en singular; al comparar se quitan acentos y plurales. Palabras que el modelo de Vosk NO conoce (no las oye; solo sirven al simular con texto): unicel, blíster, tetrapak, popote, brik, pajilla, cubreboca.",
+  "objetos": {
+    "cáscara de plátano": 0, "plátano": 0, "cáscara": 0, "cáscara de huevo": 0, "huevo": 0,
+    "manzana": 0, "naranja": 0, "limón": 0, "mango": 0, "papaya": 0, "sandía": 0, "melón": 0, "uva": 0,
+    "fresa": 0, "piña": 0, "aguacate": 0, "fruta": 0, "verdura": 0, "lechuga": 0, "papa": 0,
+    "zanahoria": 0, "tomate": 0, "jitomate": 0, "cebolla": 0, "pepino": 0, "elote": 0,
+    "tortilla": 0, "pan": 0, "galleta": 0, "arroz": 0, "frijol": 0, "comida": 0, "resto de comida": 0,
+    "café": 0, "té": 0, "hueso": 0, "pollo": 0, "carne": 0, "pescado": 0, "queso": 0,
+    "servilleta": 0, "servilleta con comida": 0, "hoja": 0, "pasto": 0, "flor": 0, "rama": 0,
+    "semilla": 0, "tierra": 0,
+
+    "botella": 1, "botella de plástico": 1, "botella de agua": 1, "pet": 1, "lata": 1, "lata de refresco": 1,
+    "refresco": 1, "cartón": 1, "caja": 1, "caja de jugo": 1, "caja de leche": 1, "papel": 1,
+    "periódico": 1, "revista": 1, "cuaderno": 1, "hoja de papel": 1, "envoltura": 1, "empaque": 1,
+    "bolsa": 1, "bolsa de plástico": 1, "plástico": 1, "vaso": 1, "vaso de plástico": 1, "tapa": 1,
+    "tapón": 1, "sorbete": 1, "pitillo": 1, "poliestireno": 1, "espuma": 1, "corcho": 1,
+    "vidrio": 1, "frasco": 1, "frasco de vidrio": 1, "envase": 1, "aluminio": 1, "papel aluminio": 1,
+    "tenedor": 1, "cuchara": 1, "plato": 1, "yogur": 1, "chicle": 1, "colilla": 1, "cigarro": 1,
+    "unicel": 1, "tetrapak": 1, "popote": 1,
+
+    "pila": 2, "batería": 2, "pila descargada": 2, "medicina": 2, "medicamento": 2,
+    "envase de medicina": 2, "pastilla": 2, "tableta": 2, "cápsula": 2, "blíster": 2, "jeringa": 2,
+    "cubrebocas": 2, "mascarilla": 2, "tapabocas": 2, "guante": 2, "curita": 2, "gasa": 2, "venda": 2,
+    "algodón": 2, "toallita": 2, "pañal": 2, "foco": 2, "termómetro": 2, "aerosol": 2, "pintura": 2,
+    "aceite": 2, "cartucho": 2, "tinta": 2, "cargador": 2, "cable": 2, "celular": 2, "audífono": 2
+  },
+  "categorias": {
+    "orgánica": 0, "orgánico": 0, "composta": 0, "verde": 0,
+    "inorgánica": 1, "inorgánico": 1, "reciclable": 1, "azul": 1,
+    "peligroso": 2, "peligrosa": 2, "tóxico": 2, "tóxica": 2, "gris": 2
+  },
+  "menu": {
+    "usar ia": "ia", "ia": "ia", "inteligencia artificial": "ia", "usar inteligencia artificial": "ia",
+    "adivinar": "adivina", "quiero adivinar": "adivina", "jugar": "adivina", "reto": "adivina",
+    "menú": "menu", "volver": "menu", "cancelar": "menu"
+  },
+  "fuera_de_vosk": ["unicel", "blíster", "tetrapak", "popote"],
+  "relleno": [
+    "es", "son", "un", "una", "unos", "unas", "el", "la", "los", "las", "de", "del", "esto", "eso", "este",
+    "esta", "va", "en", "qué", "dónde", "tiro", "pongo", "echo", "quiero", "mi", "con", "y", "o"
+  ]
+}

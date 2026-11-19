@@ -7,6 +7,7 @@ Errores: EstadoInvalido → 409, ErrorSerial → 503 (manejadores en main.py), V
 
 from __future__ import annotations
 
+import asyncio
 import shutil
 from dataclasses import dataclass
 from typing import Any, Literal
@@ -22,6 +23,7 @@ from .game import NIVELES_REPORTABLES, Juego
 from .model import GestorReentrenamiento
 from .orchestrator import Estado, Orquestador
 from .serial_link import EnlaceSimulado, ErrorSerial
+from .voice import ErrorVoz
 
 router = APIRouter()
 
@@ -112,6 +114,10 @@ class SimTeclaIn(BaseModel):
     tecla: str
 
 
+class SimVozIn(BaseModel):
+    texto: str
+
+
 # ---------------------------------------------------------------------------- estado y modo
 @router.get("/api/estado")
 def get_estado(request: Request) -> dict[str, Any]:
@@ -171,6 +177,47 @@ async def post_revision(request: Request, cuerpo: RevisionIn) -> dict[str, Any]:
     else:
         orq.resolver_revision(None, "panel")
     return {"ok": True, "estado": orq.estado.value}
+
+
+# ---------------------------------------------------------------------------- voz (§15)
+@router.post("/api/voz/escuchar")
+async def post_voz_escuchar(request: Request) -> dict[str, Any]:
+    """Push-to-talk desde el panel (igual que la tecla A): graba `voz_segundos` y actúa. Responde al terminar."""
+    orq = _ctx(request).orq
+    try:
+        return await orq.escuchar_voz()
+    except ErrorVoz as error:
+        raise HTTPException(503, str(error)) from None
+
+
+@router.post("/api/voz/nivel")
+async def post_voz_nivel(request: Request) -> dict[str, Any]:
+    """Graba 1 s del micrófono configurado y dice si llega sonido (diagnóstico)."""
+    voz = _ctx(request).orq.voz
+    if voz.escuchando:
+        raise HTTPException(409, "Ya estoy escuchando")
+    try:
+        return await asyncio.to_thread(voz.nivel, 1.0)
+    except ErrorVoz as error:
+        raise HTTPException(503, str(error)) from None
+
+
+@router.post("/api/voz/decir")
+async def post_voz_decir(request: Request, cuerpo: SimVozIn) -> dict[str, Any]:
+    """Prueba de la voz que HABLA: dice `texto` por las bocinas de la laptop."""
+    voz = _ctx(request).orq.voz
+    if not voz.habla:
+        raise HTTPException(503, voz.locutor.motivo or "La voz que habla está apagada (voz_habla = false)")
+    dicho = await asyncio.to_thread(voz.decir, cuerpo.texto, True)
+    return {"ok": dicho}
+
+
+@router.get("/api/voz/microfonos")
+def get_voz_microfonos(request: Request) -> dict[str, Any]:
+    """Micrófonos disponibles y el configurado (`microfono` en /api/config)."""
+    ctx = _ctx(request)
+    return {"microfonos": ctx.orq.voz.microfonos(), "configurado": ctx.config.get("microfono"),
+            "voz": ctx.orq.voz.estado()}
 
 
 # ---------------------------------------------------------------------------- estadísticas
@@ -495,6 +542,19 @@ async def post_sim_tecla(request: Request, cuerpo: SimTeclaIn) -> dict[str, Any]
     except ValueError as error:
         raise HTTPException(400, str(error)) from None
     return {"ok": True, "simulado": True}
+
+
+@router.post("/api/sim/voz")
+async def post_sim_voz(request: Request, cuerpo: SimVozIn) -> dict[str, Any]:
+    """Simula que alguien DIJO `texto` (sin micrófono): misma interpretación y acciones que la voz real."""
+    ctx = _ctx(request)
+    if not ctx.ajustes.simulacion:
+        raise HTTPException(404, "Solo disponible con SIMULACION=1")
+    try:
+        resultado = await ctx.orq.aplicar_voz(cuerpo.texto)
+    except ErrorVoz as error:
+        raise HTTPException(503, str(error)) from None
+    return {**resultado, "simulado": True}
 
 
 @router.post("/api/sim/retirar")

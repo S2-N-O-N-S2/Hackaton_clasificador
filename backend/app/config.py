@@ -135,6 +135,11 @@ def valores_por_defecto() -> dict[str, Any]:
         "tiempo_retro_firme_s": 5,
         "tiempo_retro_media_s": 8,
         "umbral_aviso_bote": 0.80,
+        # Voz (§15): micrófono ("" = predeterminado de Windows, o parte de su nombre, ej. "DroidCam") y
+        # segundos que se graba al presionar A (push-to-talk)
+        "microfono": "",
+        "voz_segundos": 4,
+        "voz_habla": True,   # el sistema DICE en voz alta la clasificación y el bote (voz de Windows)
     }
 
 
@@ -180,6 +185,27 @@ def _validar_modo(v: Any) -> str:
     return v
 
 
+def _validar_texto_opcional(v: Any) -> str:
+    return "" if v is None else str(v).strip()
+
+
+def _validar_segundos_voz(v: Any) -> float:
+    v = float(v)
+    if not 1 <= v <= 10:
+        raise ValueError("debe estar entre 1 y 10 segundos")
+    return v
+
+
+def _validar_bool(v: Any) -> bool:
+    if isinstance(v, bool):
+        return v
+    if str(v).strip().lower() in ("1", "true", "si", "sí"):
+        return True
+    if str(v).strip().lower() in ("0", "false", "no"):
+        return False
+    raise ValueError("debe ser true o false")
+
+
 def _validar_texto(v: Any) -> str:
     v = str(v).strip()
     if not v:
@@ -222,6 +248,9 @@ VALIDADORES = {
     "tiempo_revision_s": _validar_entero_positivo,
     "tiempo_retro_firme_s": _validar_entero_positivo,
     "tiempo_retro_media_s": _validar_entero_positivo,
+    "microfono": _validar_texto_opcional,
+    "voz_segundos": _validar_segundos_voz,
+    "voz_habla": _validar_bool,
 }
 
 
