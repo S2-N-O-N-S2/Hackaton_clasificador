@@ -103,11 +103,13 @@ def revisar_camaras(max_indices: int) -> bool:
         print(f"{FALLA} opencv-python no instalado; no se pueden probar cámaras.")
         return False
 
+    sys.path.insert(0, str(DIR_BACKEND))
+    from app.camera import abrir_captura, imagen_es_plana  # mismo método que usa el sistema
+
     DIR_CAPTURAS.mkdir(parents=True, exist_ok=True)
     encontradas = 0
     for indice in range(max_indices):
-        # CAP_DSHOW abre más rápido en Windows que el backend por defecto (MSMF).
-        cam = cv2.VideoCapture(indice, cv2.CAP_DSHOW)
+        cam = abrir_captura(indice)  # MSMF (ve DroidCam 7) y, si falla, DirectShow
         try:
             if not cam.isOpened():
                 print(f"  - índice {indice}: no disponible")
@@ -123,6 +125,9 @@ def revisar_camaras(max_indices: int) -> bool:
             destino = DIR_CAPTURAS / f"prueba_camara_{indice}.jpg"
             cv2.imwrite(str(destino), frame)
             print(f"{OK} índice {indice}: {ancho}x{alto} → foto en {destino.relative_to(DIR_BACKEND)}")
+            if imagen_es_plana(frame):
+                print(f"{AVISO}   la imagen es de un solo color: si es DroidCam, no está transmitiendo "
+                      "(abre la app en el celular y presiona Start en DroidCam Client)")
             encontradas += 1
         finally:
             cam.release()

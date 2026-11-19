@@ -24,6 +24,7 @@ La convocatoria permite bibliotecas, tutoriales e IA generativa **con atribució
 |---|---|---|---|---|
 | MobileNetV2 (ImageNet) | Keras Applications (pesos `mobilenet_v2_weights_tf_dim_ordering_tf_kernels_1.0_224_no_top.h5`) | Apache 2.0 | Extractor congelado, sin capa superior y con pooling promedio (Fase 4) | No se modifica: se usa congelada. El equipo entrena solo el clasificador de encima |
 | vosk-model-small-es | alphacephei.com/vosk/models | Apache 2.0 | Reconocimiento de voz offline (Fase 9) | [COMPLETAR] |
+| DroidCam (Dev47Apps): app del celular + DroidCam Client para Windows | [COMPLETAR versión] | Propietaria, gratuita | Usar el celular como cámara cenital (si el equipo la elige) | Solo se usa como fuente de video; no forma parte del código |
 
 ## 3. Tutoriales y código de referencia
 

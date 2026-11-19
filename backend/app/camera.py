@@ -9,6 +9,7 @@ camera.py — Captura de la cámara cenital (OpenCV), guardado de fotos y copia 
 from __future__ import annotations
 
 import asyncio
+import os
 import random
 import shutil
 import threading
@@ -17,8 +18,11 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
-import cv2
-import numpy as np
+# Abre más rápido las cámaras con Media Foundation (MSMF) en Windows; debe ir antes de importar cv2
+os.environ.setdefault("OPENCV_VIDEOIO_MSMF_ENABLE_HW_TRANSFORMS", "0")
+
+import cv2  # noqa: E402
+import numpy as np  # noqa: E402
 
 from .config import CLAVES_CATEGORIA, Ajustes
 
@@ -81,10 +85,26 @@ def copiar_a_dataset(ajustes: Ajustes, nombre_foto: str | None, clase_id: int, v
 # Cámara real
 # ---------------------------------------------------------------------------
 def abrir_captura(fuente: int | str) -> cv2.VideoCapture:
-    """Abre una webcam por índice (DirectShow, rápido en Windows) o un celular por URL (http://IP:4747/video)."""
+    """Abre una cámara por índice o un celular por URL (http://IP:4747/video).
+
+    Por índice se usa Media Foundation (MSMF): ve las webcams USB y también las cámaras virtuales
+    nuevas (DroidCam 7, cámara conectada de Windows 11), que DirectShow no muestra. Si MSMF no
+    puede abrirla, se intenta con DirectShow (DSHOW).
+    """
     if isinstance(fuente, str):
         return cv2.VideoCapture(fuente)
+    captura = cv2.VideoCapture(fuente, cv2.CAP_MSMF)
+    if captura.isOpened():
+        return captura
+    captura.release()
     return cv2.VideoCapture(fuente, cv2.CAP_DSHOW)
+
+
+def imagen_es_plana(frame: np.ndarray, umbral: float = 4.0) -> bool:
+    """True si la imagen es de un solo color (p. ej. la pantalla verde de DroidCam sin señal)."""
+    # Variación de cada canal (B, G, R) por separado: un verde liso tiene canales muy distintos entre
+    # sí, pero cada uno es constante en toda la imagen
+    return float(frame.reshape(-1, frame.shape[-1]).std(axis=0).max()) < umbral
 
 
 class CamaraReal(CamaraBase):
