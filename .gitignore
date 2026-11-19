@@ -1,0 +1,53 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# ===== Node / Vite =====
+node_modules/
+frontend/dist/
+frontend/.vite/
+npm-debug.log*
+yarn-error.log*
+
+# ===== Datos y modelos (pesados; compartir por USB / unidad compartida) =====
+backend/models/*
+!backend/models/README.md
+backend/captures/*
+!backend/captures/README.md
+backend/dataset/**/*.jpg
+backend/dataset/**/*.jpeg
+backend/dataset/**/*.png
+backend/training/cache/
+*.npy
+*.h5
+*.keras
+*.joblib
+*.pkl
+*.zip
+
+# ===== Base de datos local =====
+*.db
+*.sqlite
+*.sqlite3
+
+# ===== Entorno / secretos =====
+.env
+.env.*
+
+# ===== Sistema / editores =====
+Thumbs.db
+desktop.ini
+.DS_Store
+.vscode/
+.idea/
+
+# ===== CAD (temporales de SolidWorks) =====
+~$*
+*.bak
