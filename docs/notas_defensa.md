@@ -17,3 +17,8 @@
 - **Validación honesta:** separamos entrenamiento y validación POR OBJETO físico (`StratifiedGroupKFold`), no por foto. Si el mismo plátano estuviera en las dos partes, la validación sería trampa. El modelo publicado no vio ninguna foto de validación.
 - **Confianza no es garantía:** por eso existen los umbrales. `evaluate.py` muestra, con datos, cuántos casos van a revisión con cada umbral y cuánto mejora la precisión de los aceptados.
 - **Reentrenamiento seguro:** la versión nueva solo se activa si no empeora la precisión de validación, y las etiquetas de usuarios esperan la aprobación del operador en `_por_verificar/`.
+
+## Fase 5 — Integración
+- **Calibración empírica:** el ángulo del servo no es la posición del bote en el disco (θ = D − φ, más las tolerancias de armado). Lo calibramos soltando un residuo real y viendo que caiga en el centro de la boca. El valor queda en la configuración del backend y en la EEPROM del Arduino, y el backend lo resincroniza cada vez que el Arduino se conecta.
+- **Diagnóstico con datos:** cada ciclo guarda cuánto tardó cada etapa (`tiempos_etapas`), y la tabla `eventos` registra cada transición con su hora. Si algo se atora, sabemos en qué etapa sin adivinar.
+- **Integración por bloques:** primero el firmware solo, luego el control manual, la calibración, el ciclo sin IA, las fallas seguras y al final la IA. Así cada falla queda aislada en un bloque.

@@ -335,6 +335,7 @@ class EnlaceSimulado(EnlaceBase):
         self._abierto = True
         self.conectado = True
         self._responder("READY", 0.05)
+        self._avisar(CONECTADO)  # igual que el enlace real: el orquestador sincroniza los ángulos
 
     # --- utilidades
     def _responder(self, texto: str, segundos: float = 0.005) -> None:
