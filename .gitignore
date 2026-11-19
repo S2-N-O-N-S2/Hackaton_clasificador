@@ -21,7 +21,7 @@ backend/models/*
 !backend/models/README.md
 # Las versiones entrenadas (models/v1, v2…) sí se suben: pesan ~350 KB y así la laptop de la demo
 # no tiene que reentrenar (se activan con tools/registrar_modelo.py). La caché de embeddings sigue fuera.
-!backend/models/v*/
+!backend/models/v[0-9]*/
 backend/captures/*
 !backend/captures/README.md
 backend/dataset/**/*.jpg
@@ -35,8 +35,8 @@ backend/training/cache/
 *.pkl
 *.zip
 # ...salvo los de las versiones entrenadas (ver arriba)
-!backend/models/v*/*.joblib
-!backend/models/v*/*.keras
+!backend/models/v[0-9]*/*.joblib
+!backend/models/v[0-9]*/*.keras
 
 # ===== Base de datos local =====
 *.db

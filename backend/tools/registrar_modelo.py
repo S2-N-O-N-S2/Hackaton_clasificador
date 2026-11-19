@@ -72,7 +72,7 @@ def revisar_carpeta(carpeta: Path) -> dict:
 def listar(dir_modelos: Path, db: BaseDatos) -> None:
     en_db = {f["version"]: f for f in db.consultar(
         "SELECT version, fecha, n_imagenes, precision_val, activo FROM modelos ORDER BY fecha")}
-    carpetas = sorted(p.name for p in dir_modelos.glob("v*") if p.is_dir())
+    carpetas = sorted(p.name for p in dir_modelos.glob("v*") if p.is_dir() and p.name[1:].isdigit())
     print(f"{'Versión':<9}{'Carpeta':<9}{'En la BD':<10}{'Activa':<8}Precisión val.")
     for version in sorted(set(carpetas) | set(en_db), key=lambda v: int(v[1:]) if v[1:].isdigit() else 0):
         fila = en_db.get(version)
