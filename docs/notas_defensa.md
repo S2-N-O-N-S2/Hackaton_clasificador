@@ -22,3 +22,8 @@
 - **Calibración empírica:** el ángulo del servo no es la posición del bote en el disco (θ = D − φ, más las tolerancias de armado). Lo calibramos soltando un residuo real y viendo que caiga en el centro de la boca. El valor queda en la configuración del backend y en la EEPROM del Arduino, y el backend lo resincroniza cada vez que el Arduino se conecta.
 - **Diagnóstico con datos:** cada ciclo guarda cuánto tardó cada etapa (`tiempos_etapas`), y la tabla `eventos` registra cada transición con su hora. Si algo se atora, sabemos en qué etapa sin adivinar.
 - **Integración por bloques:** primero el firmware solo, luego el control manual, la calibración, el ciclo sin IA, las fallas seguras y al final la IA. Así cada falla queda aislada en un bloque.
+
+## Voz (Fase 9)
+- **Offline y push-to-talk:** "La voz corre en la laptop con Vosk, sin internet. Solo escucha cuando se presiona A: así no reacciona al ruido del evento ni graba conversaciones."
+- **Gramática restringida:** "El modelo pequeño de Vosk se equivoca con vocabulario libre. En cada estado solo puede reconocer las palabras útiles (en revisión, ~150 objetos y categorías; en el juego, solo las tres categorías), y eso sube mucho la precisión."
+- **La voz no manda sobre la seguridad:** "Si alguien dice 'botella' y la cámara ve algo orgánico, el sistema no adivina: el caso va a revisión (`conflicto_voz`). Y lo que se resuelve por voz va a `_por_verificar`, no directo al entrenamiento."

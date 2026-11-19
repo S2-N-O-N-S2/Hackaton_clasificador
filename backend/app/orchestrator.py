@@ -10,6 +10,12 @@ Caso dudoso:
 Falla (serial, cámara, error interno):
     cualquier estado → ERROR (trampilla cerrada, disco a HOME, LED rojo, alerta) → MENU al recuperarse
 
+Voz (§15, push-to-talk con la tecla A o el botón del panel):
+    MENU / ESPERA_OBJETO → "usar IA" / "adivinar" eligen el modo; "¿dónde tiro esta lata?" responde en la LCD,
+                           muestra el bote y deja una PISTA: si luego se coloca el residuo y la cámara opina
+                           distinto, el caso va a REVISION (motivo conflicto_voz).
+    REVISION             → "es una cáscara de plátano" resuelve el caso (origen = voz, foto a _por_verificar/).
+
 Estados preparados para fases siguientes (existen y se registran, pero hoy "pasan de largo"):
     ESPERA_ADIVINANZA / RETROALIMENTACION (Fase 8) y BOTE_LLENO (Fase 7).
 
@@ -34,7 +40,7 @@ from .db import BaseDatos, ahora, clasificacion_a_dict
 from .game import Juego
 from .model import Decision, ModeloBase, ModeloNoDisponible, aplicar_reglas, promediar
 from .serial_link import CONECTADO, DESCONECTADO, EnlaceBase, ErrorSerial, Mensaje, TimeoutSerial
-from .voice import Voz
+from .voice import ErrorVoz, Intencion, Voz
 
 log = logging.getLogger("orquestador")
 
@@ -61,6 +67,8 @@ class Estado(str, Enum):
 
 ESTADOS_EN_REPOSO = {Estado.MENU, Estado.ESPERA_OBJETO, Estado.OPERADOR}
 ESTADOS_CONTROL_MANUAL = {Estado.MENU, Estado.OPERADOR, Estado.ERROR}
+ESTADOS_VOZ = {Estado.MENU, Estado.ESPERA_OBJETO, Estado.REVISION}  # dónde sirve hablar
+PISTA_VOZ_S = 60  # la pista de voz ("¿dónde tiro…?") vale para el siguiente residuo durante 60 s
 
 
 class EstadoInvalido(Exception):
@@ -133,6 +141,8 @@ class Orquestador:
         self._t_error: float | None = None
         self._espera_humana_s = 0.0
         self._marcas: list[tuple[str, float]] = []  # (estado, instante) durante el ciclo actual
+        self._pista_voz: tuple[int, str | None, float] | None = None  # (categoría, objeto, instante)
+        self._tarea_mostrar_bote: asyncio.Task | None = None
 
     # ================================================================ ciclo de vida
     async def iniciar(self) -> None:
@@ -146,6 +156,8 @@ class Orquestador:
             self._lanzar(self._calentar_modelo())
         if not self.camara.disponible:
             await self._alerta("error", "CAMARA_NO_DISPONIBLE", "No se pudo abrir la cámara")
+        if self.voz.disponible:  # carga Vosk en segundo plano (~1–2 s)
+            self._lanzar(self._calentar_voz())
         if self.enlace.conectado:
             await self._entrar_menu()
         else:
@@ -168,6 +180,14 @@ class Orquestador:
         except Exception as error:  # noqa: BLE001 — sin modelo el sistema no adivina
             self.modelo = ModeloNoDisponible(f"No se pudo preparar el modelo: {error}")
             await self._alerta("error", "MODELO_NO_CARGADO", str(error))
+
+    async def _calentar_voz(self) -> None:
+        """Carga el modelo de Vosk antes de la primera vez que alguien habla (~1–2 s)."""
+        try:
+            await asyncio.get_running_loop().run_in_executor(None, self.voz.calentar)
+            self.db.registrar_evento("info", "voz", "Vosk listo")
+        except Exception as error:  # noqa: BLE001 — sin voz el sistema sigue (teclado y panel)
+            await self._alerta("aviso", "VOZ_NO_DISPONIBLE", f"No se pudo cargar Vosk: {error}")
 
     def cambiar_modelo(self, nuevo: ModeloBase) -> None:
         """Activa un modelo recién entrenado. Los ciclos siguientes ya lo usan."""
@@ -282,6 +302,8 @@ class Orquestador:
                 await self._alerta("error", "ARDUINO_REINICIADO", "El Arduino se reinició durante un ciclo")
         elif tipo == "OBJ":
             self._bandeja_libre.clear()
+            if self._tarea_mostrar_bote and not self._tarea_mostrar_bote.done():
+                await asyncio.wait({self._tarea_mostrar_bote})  # el disco termina de mostrar el bote
             if self.estado in (Estado.MENU, Estado.ESPERA_OBJETO) and not self.ciclo_activo:
                 self._iniciar_ciclo()
             elif self.ciclo_activo:
@@ -308,6 +330,9 @@ class Orquestador:
 
     async def _manejar_tecla(self, tecla: str) -> None:
         """Significado de cada tecla según el estado (§9, tabla del teclado)."""
+        if tecla == "A" and self.estado in ESTADOS_VOZ:  # push-to-talk (§15)
+            self._lanzar(self._escuchar_seguro())
+            return
         if self.estado == Estado.MENU:
             if tecla == "1":
                 await self.seleccionar_modo("ia")
@@ -356,6 +381,107 @@ class Orquestador:
         if final_id is not None and final_id not in IDS_CATEGORIA:
             raise ValueError("final_id debe ser 0, 1 o 2")
         self._resolucion.set_result((final_id, origen))
+
+    # ================================================================ voz (§15)
+    def _contexto_voz(self) -> str:
+        if self.estado == Estado.REVISION:
+            return "revision"
+        if self.estado == Estado.ESPERA_ADIVINANZA:
+            return "adivinanza"
+        if self.estado in (Estado.MENU, Estado.ESPERA_OBJETO):
+            return "menu"
+        raise EstadoInvalido(f"La voz no se usa en {self.estado.value}")
+
+    async def escuchar_voz(self) -> dict[str, Any]:
+        """Push-to-talk: graba unos segundos, reconoce con Vosk y actúa. Devuelve lo que entendió."""
+        contexto = self._contexto_voz()
+        if not self.voz.disponible:
+            await self._alerta("aviso", "VOZ_NO_DISPONIBLE", self.voz.motivo or "Voz no disponible")
+            raise ErrorVoz(self.voz.motivo or "Voz no disponible")
+        if self.voz.escuchando:
+            raise EstadoInvalido("Ya estoy escuchando")
+        segundos = float(self.config.get("voz_segundos"))
+        pantalla_previa = self.lcd
+        await self.difusor.emitir("voz", {"fase": "escuchando", "segundos": segundos, "contexto": contexto})
+        await self._mostrar(lcd_ui.pantalla_escuchando(segundos))
+        try:
+            texto = await asyncio.get_running_loop().run_in_executor(None, self.voz.escuchar, contexto, segundos)
+        except ErrorVoz as error:
+            await self.difusor.emitir("voz", {"fase": "error", "mensaje": str(error)})
+            await self._alerta("aviso", "VOZ_NO_DISPONIBLE", str(error))
+            await self._mostrar(pantalla_previa)
+            raise
+        if self._contexto_voz() != contexto:  # mientras hablaba, el estado cambió (ej. 30 s de revisión)
+            return {"fase": "reconocido", "contexto": contexto, "texto_crudo": texto, "accion": "ignorado"}
+        return await self.aplicar_voz(texto, pantalla_previa)
+
+    async def _escuchar_seguro(self) -> None:
+        """Para la tecla A: igual que escuchar_voz, pero los errores ya se avisaron con una alerta."""
+        try:
+            await self.escuchar_voz()
+        except (ErrorVoz, EstadoInvalido):
+            pass
+
+    async def aplicar_voz(self, texto: str, pantalla_previa: list[str] | None = None) -> dict[str, Any]:
+        """Interpreta el texto según el estado y actúa. También lo usa la simulación (POST /api/sim/voz)."""
+        contexto = self._contexto_voz()
+        intencion = self.voz.interpretar(texto, contexto)
+        self.db.registrar_evento("info", "voz", f"[{contexto}] '{texto}' -> {intencion.tipo} {intencion.valor}")
+        accion = await self._actuar_voz(intencion, contexto, pantalla_previa or self.lcd)
+        resultado = {"fase": "reconocido", "contexto": contexto, "texto_crudo": texto,
+                     "intencion": intencion.a_dict(), "accion": accion}
+        await self.difusor.emitir("voz", resultado)
+        return resultado
+
+    async def _actuar_voz(self, intencion: Intencion, contexto: str, pantalla_previa: list[str]) -> str:
+        if intencion.tipo not in ("modo", "categoria"):
+            # §15 caso 3: "No reconocí el objeto" y el caso sigue igual (en revisión, si lo estaba)
+            await self._mostrar(lcd_ui.pantalla_voz_no_reconocida(intencion.texto))
+            self._lanzar(self._restaurar_lcd(pantalla_previa, self.estado))
+            return "no_reconocido"
+        if intencion.tipo == "modo":  # §15 caso 4: menú por voz
+            if intencion.valor == "menu" and self.estado == Estado.ESPERA_OBJETO:
+                await self.seleccionar_modo("menu")
+                return "modo_menu"
+            if intencion.valor in ("ia", "adivina") and self.estado == Estado.MENU:
+                await self.seleccionar_modo(intencion.valor)
+                return f"modo_{intencion.valor}"
+            return "ignorado"
+        categoria = int(intencion.valor)
+        if contexto == "revision":  # §15 caso 1: resolver el dudoso
+            await self._mostrar(lcd_ui.pantalla_voz_entendida(intencion.objeto, categoria))
+            self.resolver_revision(categoria, "voz")
+            return "revision_resuelta"
+        # §15 caso 2 sin residuo: responder, mostrar el bote y guardar la pista para el siguiente residuo
+        self._pista_voz = (categoria, intencion.objeto, time.monotonic())
+        await self._mostrar(lcd_ui.pantalla_voz_entendida(intencion.objeto, categoria))
+        self._lanzar(self._restaurar_lcd(pantalla_previa, self.estado, segundos=4))
+        if self.estado == Estado.MENU and self.enlace.conectado and not self.ciclo_activo:
+            if not (self._tarea_mostrar_bote and not self._tarea_mostrar_bote.done()):
+                self._tarea_mostrar_bote = asyncio.create_task(self._mostrar_bote(categoria))
+        return "respuesta_bote"
+
+    async def _mostrar_bote(self, categoria: int) -> None:
+        """Gira el disco para que la persona vea en qué bote va y regresa a HOME. Nunca abre la trampilla."""
+        try:
+            await self._cmd(f"POS:{categoria}", ("POS_OK",), TIEMPOS["timeout_pos_s"])
+            await asyncio.sleep(3 * self.f)
+            await self._cmd("HOME", ("HOME_OK",), TIEMPOS["timeout_pos_s"])
+        except ErrorSerial as error:
+            log.warning("No se pudo mostrar el bote: %s", error)
+
+    async def _restaurar_lcd(self, pantalla: list[str], estado: Estado, segundos: float = 2.5) -> None:
+        """Después de un mensaje de voz, regresa la pantalla anterior si el estado no cambió."""
+        await asyncio.sleep(segundos * self.f)
+        if self.estado == estado:
+            await self._mostrar(pantalla)
+
+    def _tomar_pista_voz(self) -> tuple[int, str | None] | None:
+        """La pista se usa una sola vez y caduca a los PISTA_VOZ_S segundos."""
+        pista, self._pista_voz = self._pista_voz, None
+        if pista and time.monotonic() - pista[2] <= PISTA_VOZ_S * self.f:
+            return pista[0], pista[1]
+        return None
 
     def notificar_vaciado(self) -> None:
         """Lo llama la API al vaciar un bote: si un residuo esperaba (BOTE_LLENO), el ciclo sigue."""
@@ -426,6 +552,7 @@ class Orquestador:
         self.modo = self.modo or self.config.get("modo_por_defecto")
         try:
             decision = await self._capturar_y_clasificar()
+            decision = self._fusionar_voz(decision)
             if self.modo == "adivina":
                 # Fase 8: aquí se espera la adivinanza (resultado oculto hasta que el usuario responda)
                 await self._transicion(Estado.ESPERA_ADIVINANZA, "Fase 8 pendiente: pasa de largo")
@@ -508,6 +635,19 @@ class Orquestador:
         if not self._oculto:
             await self.difusor.emitir("clasificacion", self.caso_actual())
         return decision
+
+    def _fusionar_voz(self, decision: Decision) -> Decision:
+        """§15 caso 2: si antes dijeron qué era y la cámara opina distinto, NO se adivina: va a revisión."""
+        pista = self._tomar_pista_voz()
+        if pista is None or self.modo == "adivina" or decision.dudoso or decision.pred_id is None:
+            return decision
+        categoria, objeto = pista
+        if categoria == decision.pred_id:
+            self.db.registrar_evento("info", "voz", f"La voz ('{objeto}') confirma a la cámara ({categoria})")
+            return decision
+        self.db.registrar_evento("aviso", "voz", f"Conflicto: voz '{objeto}' = {categoria}, cámara = {decision.pred_id}")
+        self.db.actualizar_clasificacion(self._caso_id, dudoso=1, motivo_dudoso="conflicto_voz")
+        return Decision(decision.pred_id, decision.confianza, True, "conflicto_voz")
 
     async def _revision(self, decision: Decision) -> tuple[int | None, str | None]:
         """REVISION: el residuo NO cae. Se espera la decisión del panel o del teclado (30 s)."""

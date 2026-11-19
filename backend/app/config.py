@@ -158,6 +158,10 @@ def valores_por_defecto() -> dict[str, Any]:
         # de validación y sí marca ruido / cámara sin señal. [COMPLETAR: recalibrar con fotos propias de la bandeja
         # usando tools/calibrar_desconocidos.py]
         "umbral_desconocido": 0.85,
+        # Voz (§15): micrófono ("" = predeterminado de Windows, o parte de su nombre, ej. "DroidCam") y
+        # segundos que se graba al presionar A (push-to-talk)
+        "microfono": "",
+        "voz_segundos": 4,
     }
 
 
@@ -229,6 +233,17 @@ def _validar_modo(v: Any) -> str:
     return v
 
 
+def _validar_texto_opcional(v: Any) -> str:
+    return "" if v is None else str(v).strip()
+
+
+def _validar_segundos_voz(v: Any) -> float:
+    v = float(v)
+    if not 1 <= v <= 10:
+        raise ValueError("debe estar entre 1 y 10 segundos")
+    return v
+
+
 def _validar_texto(v: Any) -> str:
     v = str(v).strip()
     if not v:
@@ -272,6 +287,8 @@ VALIDADORES = {
     "tiempo_revision_s": _validar_entero_positivo,
     "tiempo_retro_firme_s": _validar_entero_positivo,
     "tiempo_retro_media_s": _validar_entero_positivo,
+    "microfono": _validar_texto_opcional,
+    "voz_segundos": _validar_segundos_voz,
 }
 
 

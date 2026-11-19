@@ -88,6 +88,8 @@ def pantalla_resultado(categoria_id: int, confianza: float | None, origen: str =
 def pantalla_revision(motivo: str | None, confianza: float | None) -> list[str]:
     if motivo == "riesgo_peligroso":
         segunda = "Posible peligroso"
+    elif motivo == "conflicto_voz":
+        segunda = "Voz y camara difieren"
     elif motivo == "sin_modelo":
         segunda = "IA no disponible"
     elif motivo == "desconocido":
@@ -96,7 +98,7 @@ def pantalla_revision(motivo: str | None, confianza: float | None) -> list[str]:
         segunda = "Foto no valida"
     else:
         segunda = f"IA {porcentaje(confianza)} no segura"
-    return normalizar(["AYUDA: que es?", segunda, "1:Org 2:Inorg 3:Pel", "C: dejar pendiente"])
+    return normalizar(["AYUDA: que es?", segunda, "1:Org 2:Inorg 3:Pel", "A:hablar C:pendiente"])
 
 
 def pantalla_pendiente() -> list[str]:
@@ -109,3 +111,19 @@ def pantalla_operador() -> list[str]:
 
 def pantalla_error(mensaje: str) -> list[str]:
     return normalizar(["FALLA - SISTEMA", "DETENIDO (seguro)", mensaje, "Avise al operador"])
+
+
+# ---------------------------------------------------------------------------
+# Voz (§15)
+# ---------------------------------------------------------------------------
+def pantalla_escuchando(segundos: float) -> list[str]:
+    return normalizar(["ESCUCHANDO...", f"Habla ahora ({segundos:g} s)", "Ej: cascara de", "platano"])
+
+
+def pantalla_voz_entendida(objeto: str | None, categoria_id: int) -> list[str]:
+    return normalizar([f"Entendi: {(objeto or '').upper()}", f"Va en {NOMBRES_LCD[categoria_id]}",
+                       f"(bote {COLORES_LCD[categoria_id]})", ""])
+
+
+def pantalla_voz_no_reconocida(texto: str) -> list[str]:
+    return normalizar(["No reconoci el", "objeto", f"Oi: {texto}" if texto else "No oi nada", "A: repetir"])
