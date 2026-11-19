@@ -107,4 +107,5 @@ export const api = {
   simObjeto: (categoriaReal) =>
     pedir('POST', '/api/sim/objeto', categoriaReal === undefined ? {} : { categoria_real: categoriaReal }),
   simTecla: (tecla) => pedir('POST', '/api/sim/tecla', { tecla }),
+  simRetirar: () => pedir('POST', '/api/sim/retirar', {}), // como si llegara LIBRE (contrato v1.1)
 };

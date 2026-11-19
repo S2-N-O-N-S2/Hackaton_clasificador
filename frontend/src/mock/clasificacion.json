@@ -3,7 +3,11 @@
   "fecha_hora": "2026-11-19T10:32:05",
   "foto": "/captures/20261119_103205.jpg",
   "modo": "ia",
-  "probabilidades": {"organica": 0.821, "inorganica": 0.120, "peligroso": 0.059},
+  "probabilidades": {
+    "organica": 0.821,
+    "inorganica": 0.12,
+    "peligroso": 0.059
+  },
   "pred_id": 0,
   "confianza": 0.821,
   "dudoso": false,
@@ -15,5 +19,6 @@
   "tiempo_ciclo_ms": 3120,
   "drop_confirmado": true,
   "bote_id": 0,
-  "simulado": true
+  "simulado": true,
+  "estado": "registrado"
 }

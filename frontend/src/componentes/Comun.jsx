@@ -98,6 +98,9 @@ export function NivelBote({ bote, compacto = false }) {
         <strong>{bote.nombre}</strong>
         <span className="atenuado">({bote.color})</span>
         <Estimado />
+        {bote.capacidad_calibrada === false && (
+          <span className="rotulo rotulo-aviso" title="La capacidad todavía no se ha medido (especificación 13.2)">capacidad sin calibrar</span>
+        )}
       </div>
       <Barra
         valor={bote.nivel}
@@ -205,6 +208,14 @@ export const TEXTO_MOTIVO = {
   confianza_baja: 'La confianza es menor que el umbral',
   riesgo_peligroso: 'Podría ser peligroso: no se arriesga',
   conflicto_voz: 'La voz y la cámara no coinciden',
+  sin_modelo: 'No hay modelo cargado: el sistema no adivina',
+};
+
+// Estado de una clasificación (contrato v1.1). "registrado" no se rotula.
+export const TEXTO_ESTADO_CLASIFICACION = {
+  en_proceso: 'en proceso',
+  pendiente: 'pendiente',
+  error: 'error',
 };
 
 // Las tres categorías como botones grandes.

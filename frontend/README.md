@@ -16,6 +16,12 @@ npm run build            # versión optimizada en frontend/dist/
 Abrir `http://localhost:5173`. Desde un celular **en la misma red**: `http://<IP-de-la-laptop>:5173`
 (la IP se ve con `ipconfig`, en "Dirección IPv4"). Si Windows pregunta por el firewall, permitir el acceso en **redes privadas**.
 
+Para el celular, el **backend** también debe escuchar en la red (por defecto uvicorn solo atiende a `127.0.0.1`):
+
+```powershell
+cd backend; .\.venv\Scripts\Activate.ps1; $env:SIMULACION="1"; uvicorn app.main:app --host 0.0.0.0 --port 8000
+```
+
 ## Configuración
 
 Todo está en `src/config.js`:

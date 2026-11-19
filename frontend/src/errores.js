@@ -18,6 +18,7 @@ export function mensajeDeError(datos, status) {
     404: 'No existe',
     409: 'Acción no permitida en el estado actual',
     422: 'Valor fuera de rango',
+    501: 'Todavía no está implementado en el backend',
     503: 'Hardware no disponible',
   };
   return porCodigo[status] || `Error ${status}`;

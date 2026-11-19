@@ -1,5 +1,22 @@
 {
-  "activo": "v2", "entrenando": false, "progreso": null,
-  "ultimo_resultado": {"version": "v3", "precision_val": 0.91, "precision_anterior": 0.89, "activado": true, "mensaje": "v3 activado: no empeoró"},
-  "versiones": [{"version": "v2", "fecha": "2026-11-19T15:00:00", "n_imagenes": 150, "precision_val": 0.89, "activo": true}]
+  "activo": "v2",
+  "entrenando": false,
+  "progreso": null,
+  "mensaje": null,
+  "ultimo_resultado": {
+    "version": "v3",
+    "precision_val": 0.91,
+    "precision_anterior": 0.89,
+    "activado": true,
+    "mensaje": "v3 activado: no empeoró"
+  },
+  "versiones": [
+    {
+      "version": "v2",
+      "fecha": "2026-11-19T15:00:00",
+      "n_imagenes": 150,
+      "precision_val": 0.89,
+      "activo": true
+    }
+  ]
 }

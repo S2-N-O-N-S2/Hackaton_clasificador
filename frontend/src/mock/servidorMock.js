@@ -201,6 +201,7 @@ function crearClasificacion(modo, real, fecha = new Date()) {
     drop_confirmado: null,
     bote_id: null,
     simulado: true,
+    estado: 'en_proceso',
     _real: real,
     _esperaHumanaMs: 0,
   };
@@ -396,7 +397,9 @@ async function procesarResiduo(modo, categoriaReal) {
       destino = await faseRevision(c);
       if (destino === null) {
         transicion('PENDIENTE', 'Revisión pendiente: un operador retira el residuo');
-        await esperar(2500);
+        c.estado = 'pendiente';
+        await Promise.race([esperarAccion('retirar'), esperar(8000)]);  // /api/sim/retirar o 8 s
+        if (esperaAccion && esperaAccion.tipo === 'retirar') esperaAccion = null;
         db.clasificaciones.unshift(c);
         emitir('registrado', vistaPublica(c));
         volverAlMenu();
@@ -427,6 +430,7 @@ async function procesarResiduo(modo, categoriaReal) {
 
     transicion('REGISTRAR', 'Registrando');
     c.tiempo_ciclo_ms = Date.now() - inicio - c._esperaHumanaMs;  // solo tiempo de máquina
+    c.estado = 'registrado';
     c._oculto = false;
     db.clasificaciones.unshift(c);
     emitir('registrado', vistaPublica(c));
@@ -464,6 +468,7 @@ function revisarCicloAutomatico() {
     c.tiempo_ciclo_ms = 2800 + Math.round(Math.random() * 800);
     c.drop_confirmado = true;
     c.bote_id = c.final_id;
+    c.estado = 'registrado';
     db.clasificaciones.unshift(c);
   }
   db.clasificaciones.push(ejemplo);
@@ -568,6 +573,7 @@ async function reentrenarSimulado() {
   db.modelo.entrenando = true;
   for (let p = 0.2; p <= 1.0001; p += 0.2) {
     db.modelo.progreso = redondear(p);
+    db.modelo.mensaje = `Entrenando (SIMULADO): ${Math.round(p * 100)} %`;
     emitir('modelo', db.modelo);
     await esperar(800);
   }
@@ -587,7 +593,9 @@ async function reentrenarSimulado() {
   };
   db.modelo.entrenando = false;
   db.modelo.progreso = null;
+  db.modelo.mensaje = db.modelo.ultimo_resultado.mensaje;
   emitir('modelo', db.modelo);
+  if (activado) alerta('info', 'MODELO_ACTIVADO', `Modelo ${version} activado (SIMULADO)`);
 }
 
 // Teclado simulado: imita lo que haría el orquestador con cada tecla (solo para probar el panel).
@@ -732,6 +740,10 @@ async function atender(metodo, rutaCompleta, cuerpo) {
         else if (k === 'angulos') {
           Object.values(valor).forEach((a) => exigir(esAngulo(a), 422, 'Los ángulos van de 0 a 180'));
         } else if (k === 'angulo_home') exigir(esAngulo(valor), 422, 'El ángulo va de 0 a 180');
+        else if (k === 'roi') {
+          exigir(Array.isArray(valor) && valor.length === 4 && valor.every(esFraccion), 422, 'roi: 4 fracciones entre 0 y 1');
+          exigir(valor[2] > 0 && valor[3] > 0 && valor[0] + valor[2] <= 1 && valor[1] + valor[3] <= 1, 422, 'roi: la zona se sale de la imagen');
+        }
         else if (k === 'modo_por_defecto') exigir(['ia', 'adivina'].includes(valor), 422, 'modo inválido');
         else if (k.startsWith('tiempo_')) exigir(Number.isInteger(valor) && valor > 0, 422, `${k} debe ser un entero positivo`);
         else exigir(k in v, 422, `Clave desconocida: ${k}`);
@@ -835,6 +847,11 @@ async function atender(metodo, rutaCompleta, cuerpo) {
     exigir(!ocupado, 409, 'Hay un residuo en proceso');
     ultimaActividad = Date.now();
     procesarResiduo(maquina.modo || db.config.valores.modo_por_defecto, cuerpo.categoria_real);
+    return { ok: true };
+  }
+  if (metodo === 'POST' && ruta === '/api/sim/retirar') {
+    // Equivale a que el Arduino mande LIBRE: solo importa en PENDIENTE (y en BOTE_LLENO en el backend real).
+    if (esperaAccion && esperaAccion.tipo === 'retirar') esperaAccion.resolver({ retirado: true });
     return { ok: true };
   }
   if (metodo === 'POST' && ruta === '/api/sim/tecla') {

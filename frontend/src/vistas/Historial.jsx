@@ -4,7 +4,9 @@ import { api, urlFoto } from '../api.js';
 import { useEnVivo } from '../estado.jsx';
 import { NOMBRE_ORIGEN, categoria } from '../categorias.js';
 import { HISTORIAL_POR_PAGINA } from '../config.js';
-import { Categoria, ChipRevision, MensajeError, Simulado, fechaHora, pct, useAccion, useDatos } from '../componentes/Comun.jsx';
+import {
+  Categoria, ChipRevision, MensajeError, Simulado, TEXTO_ESTADO_CLASIFICACION, fechaHora, pct, useAccion, useDatos,
+} from '../componentes/Comun.jsx';
 
 function Fila({ c, alCorregir }) {
   const [abierto, setAbierto] = useState(false);
@@ -20,7 +22,12 @@ function Fila({ c, alCorregir }) {
       <td>{c.foto && <img className="miniatura" src={urlFoto(c.foto)} alt={`Foto #${c.id}`} loading="lazy" />}</td>
       <td>{c.oculto ? '(oculto)' : <Categoria id={c.pred_id} />} {c.dudoso && <ChipRevision />}</td>
       <td>{pct(c.confianza)}</td>
-      <td><Categoria id={c.final_id} vacio="Pendiente" /></td>
+      <td>
+        <Categoria id={c.final_id} vacio="Pendiente" />
+        {TEXTO_ESTADO_CLASIFICACION[c.estado] && (
+          <span className={`rotulo ${c.estado === 'error' ? 'rotulo-error' : 'rotulo-aviso'}`}>{TEXTO_ESTADO_CLASIFICACION[c.estado]}</span>
+        )}
+      </td>
       <td>{NOMBRE_ORIGEN[c.origen] || c.origen}</td>
       <td>{c.corregido ? 'Sí' : 'No'}</td>
       <td><Simulado si={!!c.simulado} /></td>

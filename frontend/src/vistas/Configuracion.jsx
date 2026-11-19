@@ -98,6 +98,41 @@ function Calibracion({ config, alGuardar }) {
   );
 }
 
+// Zona de interés de la cámara (contrato v1.2): [x, y, ancho, alto] en fracciones de la imagen.
+function ZonaDeInteres({ config, alGuardar }) {
+  const [roi, setRoi] = useState(config.valores.roi || [0, 0, 1, 1]);
+  const { ejecutar, ocupado, error } = useAccion();
+  useEffect(() => { setRoi(config.valores.roi || [0, 0, 1, 1]); }, [config]);
+  if (!config.valores.roi) return null;   // backend sin ROI (contrato < 1.2)
+  const nombres = ['x (izquierda)', 'y (arriba)', 'ancho', 'alto'];
+
+  async function guardar(e) {
+    e.preventDefault();
+    const r = await ejecutar(() => api.guardarConfig({ roi: roi.map(Number) }));
+    if (r) alGuardar(r);
+  }
+  return (
+    <Tarjeta titulo="Zona de interés de la cámara (ROI)">
+      <form className="formulario rejilla-campos" onSubmit={guardar}>
+        {nombres.map((n, i) => (
+          <label key={n}>{n} (0–1)
+            <input type="number" step="0.01" min="0" max="1" value={roi[i]}
+              onChange={(e) => setRoi(roi.map((v, j) => (j === i ? e.target.value : v)))} />
+          </label>
+        ))}
+        <div className="roi-vista" aria-label="Vista previa de la zona">
+          <div className="roi-zona" style={{
+            left: `${roi[0] * 100}%`, top: `${roi[1] * 100}%`, width: `${roi[2] * 100}%`, height: `${roi[3] * 100}%`,
+          }} />
+        </div>
+        <div><button type="submit" className="boton-principal" disabled={ocupado}>Guardar zona</button></div>
+      </form>
+      <MensajeError error={error} />
+      <p className="atenuado pie">La IA solo mira el rectángulo verde: recorta el fondo fuera de la bandeja.</p>
+    </Tarjeta>
+  );
+}
+
 function Capacidades() {
   const { botes } = useEnVivo();
   const [valores, setValores] = useState({});
@@ -131,7 +166,8 @@ function Modelo() {
   const r = modelo.ultimo_resultado;
   return (
     <Tarjeta titulo="Modelo de IA">
-      <p>Activo: <strong>{modelo.activo}</strong></p>
+      <p>Activo: <strong>{modelo.activo ?? 'ninguno'}</strong></p>
+      {modelo.mensaje && <p className="atenuado">{modelo.mensaje}</p>}
       {modelo.entrenando ? (
         <p>Reentrenando… {modelo.progreso !== null ? pct(modelo.progreso) : ''}</p>
       ) : (
@@ -228,6 +264,9 @@ function Simulacion() {
             onClick={() => ejecutar(() => api.simObjeto(id))}>{categoria(id).nombre}</button>
         ))}
       </div>
+      <button type="button" className="boton-secundario" disabled={ocupado} onClick={() => ejecutar(() => api.simRetirar())}>
+        Retirar el residuo de la bandeja (LIBRE)
+      </button>
       <p>Teclado 4×4 simulado:</p>
       <div className="teclado">
         {teclas.map((t) => (
@@ -254,6 +293,7 @@ export default function Configuracion() {
         <div className="rejilla-2">
           <Umbrales config={valores} alGuardar={setActual} />
           <Calibracion config={valores} alGuardar={setActual} />
+          <ZonaDeInteres config={valores} alGuardar={setActual} />
           <Capacidades />
           <Modelo />
           <PorVerificar />
@@ -261,7 +301,10 @@ export default function Configuracion() {
         </div>
       )}
       {valores && (
-        <p className="atenuado pie">Puerto serial: {valores.valores.puerto_serial} · cámara índice {valores.valores.indice_camara} (se cambian en el backend).</p>
+        <p className="atenuado pie">
+          Puerto serial: {valores.valores.puerto_serial} · cámara: {String(valores.valores.indice_camara)} (índice o URL del celular).
+          {valores.requieren_reinicio?.length > 0 && ` Cambiar ${valores.requieren_reinicio.join(' o ')} requiere reiniciar el backend.`}
+        </p>
       )}
     </div>
   );
