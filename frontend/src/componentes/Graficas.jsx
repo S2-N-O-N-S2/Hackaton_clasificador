@@ -1,6 +1,91 @@
 // Gráficas hechas con CSS y SVG propios (sin bibliotecas).
-import { categoria } from '../categorias.js';
+import { useEffect, useRef, useState } from 'react';
+import { CATEGORIAS, categoria } from '../categorias.js';
 import { pct } from './Comun.jsx';
+
+// ---- Carrusel (dibujo) ----
+// Disco con los 3 botes; la trampilla está arriba. Solo es una ilustración: gira para dejar bajo la trampilla
+// el bote de la categoría que mandó el backend (cada bote ocupa 120°). Sin categoría queda entre dos botes (HOME).
+const punto = (r, grados) => {
+  const a = (grados * Math.PI) / 180;
+  return [r * Math.sin(a), -r * Math.cos(a)];
+};
+function rutaSector(centro, R = 92, r = 34, medio = 58) {
+  const [x1, y1] = punto(R, centro - medio);
+  const [x2, y2] = punto(R, centro + medio);
+  const [x3, y3] = punto(r, centro + medio);
+  const [x4, y4] = punto(r, centro - medio);
+  return `M${x1} ${y1} A${R} ${R} 0 0 1 ${x2} ${y2} L${x3} ${y3} A${r} ${r} 0 0 0 ${x4} ${y4} Z`;
+}
+
+// `residuo`: 'ninguno' | 'en_bandeja' | 'cayendo'. Lo decide la vista a partir del estado que manda el backend.
+export function Carrusel({ categoriaId, residuo = 'ninguno', pie }) {
+  const id = categoriaId === null || categoriaId === undefined ? null : Number(categoriaId);
+  const destino = id === null ? -60 : -id * 120;
+  // Gira por el camino más corto desde donde quedó la vez anterior.
+  const giro = useRef(destino);
+  const delta = ((((destino - giro.current) % 360) + 540) % 360) - 180;
+  giro.current += delta;
+  const rot = giro.current;
+  // SOLTAR puede durar menos que la animación: la caída se mantiene visible al menos 0.9 s (solo dibujo).
+  const [caidaVisible, setCaidaVisible] = useState(false);
+  const temporizador = useRef(null);
+  useEffect(() => {
+    if (residuo !== 'cayendo') return;
+    setCaidaVisible(true);
+    clearTimeout(temporizador.current);
+    temporizador.current = setTimeout(() => setCaidaVisible(false), 900);
+  }, [residuo]);
+  useEffect(() => () => clearTimeout(temporizador.current), []);
+  const cayendo = residuo === 'cayendo' || caidaVisible;
+  return (
+    <figure className="carrusel">
+      <svg viewBox="-110 -130 220 240" role="img"
+        aria-label={id === null ? 'Carrusel en HOME' : `Carrusel: bote ${categoria(id)?.nombre} bajo la trampilla`}>
+        {/* Disco: arranca y frena suave, como la rampa del servo en el firmware. */}
+        <g className="carrusel-disco" style={{ transform: `rotate(${rot}deg)` }}>
+          {CATEGORIAS.map((c) => {
+            const [tx, ty] = punto(80, c.id * 120);
+            const apagado = id !== null && id !== c.id;
+            return (
+              <g key={c.id}>
+                <path d={rutaSector(c.id * 120)} fill={c.hex}
+                  className={`carrusel-sector ${apagado ? 'apagado' : ''} ${cayendo && id === c.id ? 'impacto' : ''}`} />
+                <text x={tx} y={ty + 4} textAnchor="middle" className={`carrusel-texto carrusel-etiqueta ${apagado ? 'apagado' : ''}`}
+                  style={{ transform: `rotate(${-rot}deg)` }}>{c.nombre}</text>
+              </g>
+            );
+          })}
+        </g>
+        <circle r="30" className="carrusel-centro" />
+        <text y="4" textAnchor="middle" className="carrusel-centro-texto">{id === null ? 'HOME' : 'bote'}</text>
+
+        {/* Bandeja con trampilla de dos hojas (vista desde arriba), fija sobre el disco. */}
+        <g className={`carrusel-bandeja ${cayendo ? 'abierta' : ''}`}>
+          <rect x="-15" y="-70" width="30" height="30" rx="3" className="bandeja-hueco" />
+          <rect x="-15" y="-70" width="15" height="30" className="bandeja-hoja hoja-izq" />
+          <rect x="0" y="-70" width="15" height="30" className="bandeja-hoja hoja-der" />
+          {(residuo !== 'ninguno' || cayendo) && (
+            <rect x="-7" y="-62" width="14" height="14" rx="4" className={`bandeja-residuo ${cayendo ? 'cayendo' : ''}`} />
+          )}
+        </g>
+        <polygon points="0,-94 -11,-112 11,-112" className="carrusel-trampilla" />
+        <text y="-118" textAnchor="middle" className="carrusel-trampilla-texto">trampilla</text>
+      </svg>
+      {pie && <figcaption>{pie}</figcaption>}
+    </figure>
+  );
+}
+
+// Logotipo: el mismo disco, pequeño y quieto.
+export function Logotipo() {
+  return (
+    <svg className="marca-logo" viewBox="-100 -100 200 200" aria-hidden="true">
+      {CATEGORIAS.map((c) => <path key={c.id} d={rutaSector(c.id * 120, 96, 30, 56)} fill={c.hex} />)}
+      <circle r="18" fill="#F1F5F3" />
+    </svg>
+  );
+}
 
 // Matriz de confusión: filas = categoría real, columnas = predicha (o adivinanza).
 export function MatrizConfusion({ matriz, titulo = 'Matriz de confusión', columnas = 'Predicha' }) {

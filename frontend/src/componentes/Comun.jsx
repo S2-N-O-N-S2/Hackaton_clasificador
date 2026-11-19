@@ -102,13 +102,36 @@ export function NivelBote({ bote, compacto = false }) {
           <span className="rotulo rotulo-aviso" title="La capacidad todavía no se ha medido (especificación 13.2)">capacidad sin calibrar</span>
         )}
       </div>
-      <Barra
-        valor={bote.nivel}
-        color={COLOR_ESTADO_BOTE[bote.estado] || '#999'}
-        marca={bote.umbral_aviso}
-        alto={compacto ? 22 : 30}
-        texto={`${pct(bote.nivel)} · ${bote.piezas_actuales}/${bote.capacidad_piezas} piezas`}
-      />
+      {compacto ? (
+        <Barra
+          valor={bote.nivel}
+          color={COLOR_ESTADO_BOTE[bote.estado] || '#999'}
+          marca={bote.umbral_aviso}
+          alto={22}
+          texto={`${pct(bote.nivel)} · ${bote.piezas_actuales}/${bote.capacidad_piezas} piezas`}
+        />
+      ) : (
+        // Bote dibujado: se llena con el nivel que manda el backend; la línea punteada es el umbral de aviso.
+        <div className="bote-cuerpo">
+          <div className="bote-figura" aria-hidden="true">
+            <div className="bote-tapa" style={{ background: c ? c.hex : '#999' }} />
+            <div className="bote-vaso">
+              <div className="bote-relleno" style={{
+                height: `${Math.max(0, Math.min(1, bote.nivel || 0)) * 100}%`,
+                // Normal: color de su categoría; casi lleno / lleno: naranja / rojo.
+                background: bote.estado === 'normal' && c ? c.hex : (COLOR_ESTADO_BOTE[bote.estado] || '#999'),
+              }} />
+              {bote.umbral_aviso !== null && bote.umbral_aviso !== undefined && (
+                <div className="bote-umbral" style={{ bottom: `${bote.umbral_aviso * 100}%` }} />
+              )}
+            </div>
+          </div>
+          <div>
+            <div className="bote-cifra">{pct(bote.nivel)}</div>
+            <div>{bote.piezas_actuales}/{bote.capacidad_piezas} piezas</div>
+          </div>
+        </div>
+      )}
       <div className="nivel-bote-estado" style={{ color: COLOR_ESTADO_BOTE[bote.estado] }}>
         {NOMBRE_ESTADO_BOTE[bote.estado] || bote.estado}
         {bote.no_confirmadas > 0 && <span className="atenuado"> · {bote.no_confirmadas} sin confirmar</span>}
@@ -127,9 +150,10 @@ export function Foto({ foto, simulado, alt = 'Foto capturada' }) {
   );
 }
 
-export function Tarjeta({ titulo, extra, children, className = '' }) {
+// `tapa`: color de la franja superior (tarjetas principales), como la tapa de un bote.
+export function Tarjeta({ titulo, extra, children, className = '', tapa }) {
   return (
-    <section className={`tarjeta ${className}`}>
+    <section className={`tarjeta ${tapa ? 'tarjeta-tapa' : ''} ${className}`} style={tapa ? { '--tapa': tapa } : undefined}>
       {(titulo || extra) && (
         <header className="tarjeta-titulo">
           <h2>{titulo}</h2>

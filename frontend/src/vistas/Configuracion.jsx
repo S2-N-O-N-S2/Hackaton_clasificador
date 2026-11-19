@@ -176,6 +176,7 @@ function Modelo() {
         </button>
       )}
       {r && <p className={r.activado ? 'texto-ok' : 'texto-error'}>{r.mensaje} (validación {pct(r.precision_val, 1)} vs. {pct(r.precision_anterior, 1)})</p>}
+      <div className="tabla-desplazable">
       <table className="tabla">
         <thead><tr><th>Versión</th><th>Fecha</th><th>Imágenes</th><th>Precisión val.</th><th>Activa</th></tr></thead>
         <tbody>
@@ -184,6 +185,7 @@ function Modelo() {
           ))}
         </tbody>
       </table>
+      </div>
       <MensajeError error={error} />
       <p className="atenuado pie">El nuevo modelo solo se activa si su precisión de validación no empeora.</p>
     </Tarjeta>

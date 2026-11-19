@@ -34,7 +34,7 @@ function PantallaRetro({ retro, estado }) {
   const ref = categoria(retro.categoria_referencia);
   const enPantalla = estado === 'RETROALIMENTACION';
   return (
-    <div className={`retro retro-${colorRetro(retro)}`}>
+    <div className={`retro retro-${colorRetro(retro)} llegada-suave`}>
       <div className="retro-titulo">{retro.titulo}</div>
       <div className="retro-datos">
         <div>
@@ -52,7 +52,7 @@ function PantallaRetro({ retro, estado }) {
         </div>
       </div>
       {retro.explicacion_larga && <p className="retro-explicacion">{retro.explicacion_larga}</p>}
-      {retro.dato_categoria && <p className="retro-dato">💡 {retro.dato_categoria}</p>}
+      {retro.dato_categoria && <p className="retro-dato">Dato: {retro.dato_categoria}</p>}
       {retro.recalificada && <p className="retro-dato">El operador te dio la razón: la adivinanza se recalificó como correcta.</p>}
       {enPantalla && (
         <div className="retro-acciones">
@@ -85,7 +85,7 @@ export default function Juego() {
     contenido = (
       <div className="juego-pregunta">
         <h1 className="titulo-grande">¿A qué bote va?</h1>
-        {segundos !== null && <div className="cuenta-grande">{segundos}</div>}
+        {segundos !== null && <div className={`cuenta-grande tic ${segundos <= 3 ? 'urgente' : ''}`} key={segundos}>{segundos}</div>}
         <BotonesCategoria deshabilitado={ocupado} alElegir={(id) => ejecutar(() => api.adivinar(id))} />
       </div>
     );
@@ -111,7 +111,9 @@ export default function Juego() {
         <p>Adivina en qué bote va cada residuo. Si fallas, te explicamos por qué.</p>
         <button type="button" className="boton-menu boton-adivina" disabled={ocupado || !libre}
           onClick={() => ejecutar(() => api.elegirModo('adivina'))}>
-          <span className="tecla">2</span> Jugar
+          <span className="tecla">2</span>
+          <span>Jugar</span>
+          <small>Adivina antes que la IA</small>
         </button>
         {!libre && <p className="atenuado">Espera a que termine el residuo actual.</p>}
       </div>
@@ -123,7 +125,7 @@ export default function Juego() {
       <Marcador sesion={sesion} retro={retro} />
       {contenido}
       <MensajeError error={error} />
-      <Tarjeta titulo="Cómo se califica">
+      <Tarjeta titulo="Cómo se califica" className="tarjeta-nota">
         <p className="atenuado">
           Si la IA está muy segura (≥ umbral de tono firme) el resultado es firme: verde o rojo. Si su certeza es media,
           el tono es prudente (amarillo) y puedes reportar que crees que se equivocó. Si la IA tampoco está segura,

@@ -1,11 +1,16 @@
 // En vivo: última foto, resultado de la IA, estado de la máquina, revisión y botes.
 import { api } from '../api.js';
 import { useCuentaRegresiva, useEnVivo } from '../estado.jsx';
-import { NOMBRE_ESTADO, NOMBRE_ORIGEN } from '../categorias.js';
+import { NOMBRE_ESTADO, NOMBRE_ORIGEN, REVISION, categoria } from '../categorias.js';
+import { Carrusel } from '../componentes/Graficas.jsx';
 import {
   Barra, BotonesCategoria, Categoria, ChipRevision, Foto, MensajeError, NivelBote, Probabilidades,
   Simulado, Tarjeta, TEXTO_MOTIVO, hora, pct, useAccion, useDatos,
 } from '../componentes/Comun.jsx';
+
+const EN_BOTE = ['POSICIONAR', 'SOLTAR', 'REGISTRAR', 'ACTUALIZAR_NIVEL'];
+const EN_BANDEJA = ['CAPTURA', 'CLASIFICACION', 'ESPERA_ADIVINANZA', 'RETROALIMENTACION', 'REVISION', 'VERIFICAR_BOTE',
+  'BOTE_LLENO', 'POSICIONAR', 'PENDIENTE'];
 
 function Resultado({ caso, umbrales }) {
   if (!caso) return <p className="atenuado">Esperando el primer residuo…</p>;
@@ -14,7 +19,8 @@ function Resultado({ caso, umbrales }) {
   }
   return (
     <div className="resultado">
-      <div className="resultado-principal">
+      {/* key = id del caso: al llegar una clasificación nueva la placa "cae" por la trampilla (una sola vez). */}
+      <div className="resultado-principal llegada" key={caso.id}>
         <span className="atenuado">La IA dice</span>
         <Categoria id={caso.pred_id} grande />
         {caso.dudoso && <ChipRevision />}
@@ -69,22 +75,36 @@ export default function EnVivo() {
   const caso = maquina?.caso_actual || ultimaClasificacion;
   const foto = caso?.foto || captura?.foto;
   const enRevision = maquina?.estado === 'REVISION';
+  const estado = maquina?.estado;
+  // Solo para dibujar, siguiendo el estado que manda el backend (como se mueve la máquina real):
+  // el disco sale de HOME al POSICIONAR y vuelve en HOME; el residuo está en la bandeja hasta SOLTAR.
+  const idCarrusel = EN_BOTE.includes(estado) && caso && !caso.oculto ? (caso.final_id ?? null) : null;
+  const residuo = estado === 'SOLTAR' ? 'cayendo' : EN_BANDEJA.includes(estado) ? 'en_bandeja' : 'ninguno';
+  const efectoFoto = estado === 'CAPTURA' ? 'disparo' : estado === 'CLASIFICACION' ? 'analizando' : '';
+  const tapaResultado = caso?.oculto ? undefined : caso?.dudoso ? REVISION.hex : categoria(caso?.pred_id)?.hex;
 
   return (
     <div className="vista-en-vivo">
       <div className="rejilla-en-vivo">
         <Tarjeta titulo="Última foto" extra={caso && <span className="atenuado">#{caso.id} · {hora(caso.fecha_hora)}</span>}>
-          <Foto foto={foto} simulado={caso?.simulado} />
+          {/* Flash al tomar la foto y línea de escaneo mientras la IA clasifica. */}
+          <div className={`foto-marco ${efectoFoto}`}>
+            <div className="llegada-suave" key={foto || 'sin-foto'}>
+              <Foto foto={foto} simulado={caso?.simulado} />
+            </div>
+          </div>
         </Tarjeta>
 
-        <Tarjeta titulo="Resultado" extra={<Simulado si={!!caso?.simulado} />}>
+        <Tarjeta titulo="Resultado" tapa={tapaResultado} extra={<Simulado si={!!caso?.simulado} />}>
           <Resultado caso={caso} umbrales={umbrales} />
         </Tarjeta>
 
-        <Tarjeta titulo="Estado de la máquina">
+        <Tarjeta titulo="Estado de la máquina" tapa="#23332E">
           <div className="estado-grande">{NOMBRE_ESTADO[maquina?.estado] || '—'}</div>
           <p className="mensaje-maquina">{maquina?.mensaje}</p>
           {segundos !== null && <p className="cuenta-chica">Quedan {segundos} s</p>}
+          <Carrusel categoriaId={idCarrusel} residuo={residuo}
+            pie={idCarrusel === null ? 'Disco en HOME' : `Bote ${categoria(idCarrusel)?.color} bajo la trampilla`} />
           {maquina && (
             <ul className="lista-hardware">
               <li>Arduino: {maquina.serial?.conectado ? `conectado (${maquina.serial.puerto})` : 'DESCONECTADO'} <Simulado si={!!maquina.serial?.simulado} /></li>
