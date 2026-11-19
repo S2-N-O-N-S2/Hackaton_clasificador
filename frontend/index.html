@@ -3,8 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#1f2937" />
+    <meta name="theme-color" content="#0E7C86" />
     <title>Clasificador de residuos</title>
+    <!-- App instalable en el celular (PWA): ver docs/app_movil.md -->
+    <link rel="manifest" href="/manifest.webmanifest" />
+    <link rel="icon" type="image/png" href="/iconos/icono-192.png" />
+    <link rel="apple-touch-icon" href="/iconos/apple-touch-icon.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-title" content="Clasificador" />
+    <script>
+      // El service worker solo existe en páginas "seguras" (localhost o HTTPS); en http://IP se omite sin error.
+      if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+      }
+    </script>
   </head>
   <body>
     <div id="raiz"></div>
