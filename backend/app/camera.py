@@ -80,8 +80,15 @@ def copiar_a_dataset(ajustes: Ajustes, nombre_foto: str | None, clase_id: int, v
 # ---------------------------------------------------------------------------
 # Cámara real
 # ---------------------------------------------------------------------------
+def abrir_captura(fuente: int | str) -> cv2.VideoCapture:
+    """Abre una webcam por índice (DirectShow, rápido en Windows) o un celular por URL (http://IP:4747/video)."""
+    if isinstance(fuente, str):
+        return cv2.VideoCapture(fuente)
+    return cv2.VideoCapture(fuente, cv2.CAP_DSHOW)
+
+
 class CamaraReal(CamaraBase):
-    def __init__(self, ajustes: Ajustes, indice: int) -> None:
+    def __init__(self, ajustes: Ajustes, indice: int | str) -> None:
         super().__init__(ajustes)
         self.indice = indice
         self._cap: cv2.VideoCapture | None = None
@@ -89,7 +96,7 @@ class CamaraReal(CamaraBase):
         self.ultimo_error: str | None = None
 
     def _abrir(self) -> None:
-        cap = cv2.VideoCapture(self.indice, cv2.CAP_DSHOW)  # DSHOW abre más rápido en Windows
+        cap = abrir_captura(self.indice)
         if not cap.isOpened():
             cap.release()
             raise ErrorCamara(f"No se pudo abrir la cámara {self.indice}")

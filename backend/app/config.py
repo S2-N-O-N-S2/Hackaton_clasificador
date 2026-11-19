@@ -121,7 +121,11 @@ def valores_por_defecto() -> dict[str, Any]:
         "angulos": {"0": 170, "1": 90, "2": 10},
         "angulo_home": 90,
         "puerto_serial": os.getenv("PUERTO_SERIAL", "AUTO"),   # "AUTO" = detectar el Arduino (CH340/Arduino)
-        "indice_camara": int(os.getenv("INDICE_CAMARA", "0")),
+        # Índice de OpenCV (0, 1, ...) o URL de un celular por Wi-Fi (http://IP:4747/video)
+        "indice_camara": fuente_camara(os.getenv("INDICE_CAMARA", "0")),
+        # Zona de interés de la foto [x, y, ancho, alto] en fracciones (0–1). Se recorta igual al
+        # entrenar y al clasificar; cada modelo guarda la ROI con la que se entrenó.
+        "roi": [0.0, 0.0, 1.0, 1.0],
         "tiempo_adivinanza_s": 20,
         "tiempo_revision_s": 30,
         "tiempo_retro_firme_s": 5,
@@ -179,11 +183,24 @@ def _validar_texto(v: Any) -> str:
     return v
 
 
-def _validar_indice(v: Any) -> int:
-    v = int(v)
-    if v < 0:
-        raise ValueError("debe ser 0 o mayor")
-    return v
+def fuente_camara(v: Any) -> int | str:
+    """Acepta un índice de OpenCV ('1' → 1) o una URL de video (http://, https://, rtsp://)."""
+    texto = str(v).strip()
+    if texto.lower().startswith(("http://", "https://", "rtsp://")):
+        return texto
+    indice = int(texto)
+    if indice < 0:
+        raise ValueError("debe ser 0 o mayor, o una URL http://...")
+    return indice
+
+
+def _validar_roi(v: Any) -> list[float]:
+    if not isinstance(v, (list, tuple)) or len(v) != 4:
+        raise ValueError("debe ser [x, y, ancho, alto] en fracciones de 0 a 1")
+    x, y, ancho, alto = (float(n) for n in v)
+    if not (0 <= x < 1 and 0 <= y < 1 and 0 < ancho <= 1 and 0 < alto <= 1 and x + ancho <= 1.0001 and y + alto <= 1.0001):
+        raise ValueError("la zona debe quedar dentro de la imagen")
+    return [round(x, 4), round(y, 4), round(ancho, 4), round(alto, 4)]
 
 
 VALIDADORES = {
@@ -195,7 +212,8 @@ VALIDADORES = {
     "angulos": _validar_angulos,
     "angulo_home": _validar_angulo,
     "puerto_serial": _validar_texto,
-    "indice_camara": _validar_indice,
+    "indice_camara": fuente_camara,
+    "roi": _validar_roi,
     "tiempo_adivinanza_s": _validar_entero_positivo,
     "tiempo_revision_s": _validar_entero_positivo,
     "tiempo_retro_firme_s": _validar_entero_positivo,
