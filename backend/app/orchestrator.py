@@ -40,6 +40,7 @@ from .db import BaseDatos, ahora, clasificacion_a_dict
 from .game import Juego
 from .model import Decision, ModeloBase, ModeloNoDisponible, aplicar_reglas, promediar
 from .serial_link import CONECTADO, DESCONECTADO, EnlaceBase, ErrorSerial, Mensaje, TimeoutSerial
+from . import tts
 from .voice import ErrorVoz, Intencion, Voz
 
 log = logging.getLogger("orquestador")
@@ -156,6 +157,8 @@ class Orquestador:
             await self._alerta("error", "CAMARA_NO_DISPONIBLE", "No se pudo abrir la cámara")
         if self.voz.disponible:  # carga Vosk en segundo plano (~1–2 s)
             self._lanzar(self._calentar_voz())
+        if self.voz.locutor.activo:  # abre la voz de Windows en segundo plano (~2 s)
+            self._lanzar(asyncio.to_thread(self.voz.locutor.calentar))
         if self.enlace.conectado:
             await self._entrar_menu()
         else:
@@ -169,6 +172,7 @@ class Orquestador:
                 tarea.cancel()
         await self.enlace.cerrar()
         self.camara.cerrar()
+        self.voz.cerrar()
 
     async def _calentar_modelo(self) -> None:
         """Carga TensorFlow y MobileNetV2 antes del primer residuo (tarda unos segundos)."""
@@ -239,6 +243,11 @@ class Orquestador:
         self.alertas.append(alerta)
         self.db.registrar_evento(nivel, "orquestador", f"[{codigo}] {mensaje}")
         await self.difusor.emitir("alerta", alerta)
+
+    def _hablar(self, texto: str, interrumpir: bool = False) -> None:
+        """El sistema lo dice en voz alta (si `voz_habla` está activo). No espera a que termine."""
+        if self.voz.habla:
+            self._lanzar(asyncio.to_thread(self.voz.decir, texto, interrumpir))
 
     def _lanzar(self, corrutina) -> None:
         tarea = asyncio.create_task(corrutina)
@@ -358,6 +367,7 @@ class Orquestador:
         self.lcd = lcd_ui.pantalla_espera_objeto(modo)
         await self._transicion(Estado.ESPERA_OBJETO, f"Modo {modo}")
         await self._mostrar(self.lcd)
+        self._hablar(tts.FRASES_MODO[modo], interrumpir=True)
         await self.difusor.emitir("modo", {"modo": modo})
 
     async def entrar_operador(self) -> None:
@@ -429,6 +439,7 @@ class Orquestador:
         if intencion.tipo not in ("modo", "categoria"):
             # §15 caso 3: "No reconocí el objeto" y el caso sigue igual (en revisión, si lo estaba)
             await self._mostrar(lcd_ui.pantalla_voz_no_reconocida(intencion.texto))
+            self._hablar(tts.FRASE_NO_RECONOCIDO, interrumpir=True)
             self._lanzar(self._restaurar_lcd(pantalla_previa, self.estado))
             return "no_reconocido"
         if intencion.tipo == "modo":  # §15 caso 4: menú por voz
@@ -447,6 +458,7 @@ class Orquestador:
         # §15 caso 2 sin residuo: responder, mostrar el bote y guardar la pista para el siguiente residuo
         self._pista_voz = (categoria, intencion.objeto, time.monotonic())
         await self._mostrar(lcd_ui.pantalla_voz_entendida(intencion.objeto, categoria))
+        self._hablar(tts.frase_objeto(intencion.objeto, categoria), interrumpir=True)
         self._lanzar(self._restaurar_lcd(pantalla_previa, self.estado, segundos=4))
         if self.estado == Estado.MENU and self.enlace.conectado and not self.ciclo_activo:
             if not (self._tarea_mostrar_bote and not self._tarea_mostrar_bote.done()):
@@ -611,6 +623,7 @@ class Orquestador:
         self._fin_cuenta = time.monotonic() + limite
         await self._transicion(Estado.REVISION, decision.motivo)
         await self._mostrar(lcd_ui.pantalla_revision(decision.motivo, decision.confianza), led="AMARILLO")
+        self._hablar(tts.frase_revision(decision.motivo), interrumpir=True)
         await self.difusor.emitir("revision", {"clasificacion": self.caso_actual(), "motivo": decision.motivo,
                                                "tiempo_limite_s": self.config.get("tiempo_revision_s")})
         inicio = time.monotonic()
@@ -635,6 +648,7 @@ class Orquestador:
         await self._transicion(Estado.PENDIENTE, "Revisión pendiente: retire el residuo")
         await self._alerta("aviso", "REVISION_PENDIENTE", f"Caso #{self._caso_id} sin resolver")
         await self._mostrar(lcd_ui.pantalla_pendiente(), led="AMARILLO")
+        self._hablar(tts.FRASE_PENDIENTE, interrumpir=True)
         try:
             await asyncio.wait_for(self._bandeja_libre.wait(), TIEMPOS["espera_libre_s"] * self.f)
         except asyncio.TimeoutError:
@@ -679,6 +693,7 @@ class Orquestador:
         await self.difusor.emitir("registrado", self.caso_actual())
         confianza = decision.confianza if origen == "camara" else None
         await self._mostrar(lcd_ui.pantalla_resultado(final_id, confianza, origen), led="VERDE")
+        self._hablar(tts.frase_resultado(final_id, confianza, origen), interrumpir=True)
 
         # --- ACTUALIZAR_NIVEL (nivel ESTIMADO por conteo)
         await self._transicion(Estado.ACTUALIZAR_NIVEL)
@@ -750,6 +765,7 @@ class Orquestador:
             self._t_error = time.monotonic()
             await self._transicion(Estado.ERROR, mensaje)
             await self._mostrar(lcd_ui.pantalla_error(codigo), led="ROJO")
+            self._hablar(tts.FRASE_FALLA, interrumpir=True)
             if self.enlace.conectado:
                 await self._cmd("HOME", ("HOME_OK",), TIEMPOS["timeout_pos_s"])
         except Exception as segundo:  # noqa: BLE001 — la falla segura no debe tirar el servidor

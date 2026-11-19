@@ -91,7 +91,24 @@
       <input id="seg" type="number" min="1" max="10" step="0.5" style="width:90px">
       <button class="sec" type="button" id="guardar-seg">Guardar</button>
     </div>
-    <p class="ayuda">"DroidCam" usa el micrófono del celular de la cámara (más cerca del residuo).</p>
+    <div class="fila">
+      <button class="sec" type="button" id="nivel">Medir nivel (1 s)</button>
+      <span id="nivel-txt" class="ayuda" style="margin:0"></span>
+    </div>
+    <p class="ayuda">"DroidCam" usa el micrófono del celular de la cámara (más cerca del residuo). Si el nivel sale en
+      SILENCIO TOTAL, activa el audio en DroidCam (ver la ayuda abajo).</p>
+  </section>
+
+  <section class="tarjeta">
+    <h2>Voz que habla</h2>
+    <div class="fila">
+      <label><input type="checkbox" id="habla"> El sistema dice la clasificación y el bote</label>
+    </div>
+    <div class="fila">
+      <input id="decir" type="text" value="Es inorgánica. Va en el bote azul.">
+      <button class="sec" type="button" id="decir-btn">🔊 Decir</button>
+    </div>
+    <p class="ayuda" id="habla-txt">Usa la voz en español de Windows, por las bocinas de la laptop.</p>
   </section>
 
   <section class="tarjeta">
@@ -111,6 +128,15 @@
       <b>En revisión:</b> <code>es una cáscara de plátano</code> <code>una pila</code> <code>es inorgánico</code><br>
       Con la cámara real, "dudoso" depende de lo que vea la IA: pon algo raro frente a la cámara.
     </p>
+  </section>
+
+  <section class="tarjeta ancha">
+    <h2>Si el micrófono del celular (DroidCam) no se oye</h2>
+    <ol class="ayuda" style="margin:0;padding-left:20px;line-height:1.6">
+      <li>En la app de DroidCam <b>en la PC</b>: activa <b>Audio</b> (casilla "Audio" junto a Video, o en Opciones → Audio) y vuelve a dar <b>Start</b>.</li>
+      <li>En el <b>celular</b>: permite a DroidCam usar el micrófono (Ajustes → Apps → DroidCam → Permisos → Micrófono).</li>
+      <li>Aquí arriba elige <b>Micrófono (DroidCam Audio)</b>, presiona <b>Usar este</b> y luego <b>Medir nivel</b> mientras hablas: debe decir "Bien: llega sonido".</li>
+    </ol>
   </section>
 
   <section class="tarjeta ancha">
@@ -178,6 +204,9 @@
         PUEDE_HABLAR.has(e.estado) ? "🎤 Presiona y habla" : `🎤 Espera (${e.estado})`;
     }
     if (!v.disponible && v.motivo) aviso(v.motivo);
+    if (document.activeElement !== $("habla")) $("habla").checked = !!v.habla;
+    $("habla-txt").textContent = v.voz_sintetica ? `Voz: ${v.voz_sintetica}, por las bocinas de la laptop.`
+      : (v.motivo_habla || "Usa la voz en español de Windows, por las bocinas de la laptop.");
   }
 
   async function refrescar() {
@@ -240,6 +269,17 @@
   document.querySelectorAll("[data-tecla]").forEach((b) => b.addEventListener("click", async () => {
     try { await api("POST", "/api/sim/tecla", { tecla: b.dataset.tecla }); aviso(""); } catch (err) { aviso(err.message); }
   }));
+
+  $("nivel").addEventListener("click", async () => {
+    $("nivel-txt").textContent = "Escuchando 1 s… habla ahora";
+    try { const n = await api("POST", "/api/voz/nivel"); $("nivel-txt").textContent = `${n.veredicto} (nivel ${n.rms}, pico ${n.pico}) · ${n.microfono}`; }
+    catch (err) { $("nivel-txt").textContent = "Error: " + err.message; }
+  });
+  $("habla").addEventListener("change", () =>
+    guardar({ voz_habla: $("habla").checked }, $("habla").checked ? "El sistema hablará los resultados." : "El sistema se quedará callado."));
+  $("decir-btn").addEventListener("click", async () => {
+    try { await api("POST", "/api/voz/decir", { texto: $("decir").value }); aviso(""); } catch (err) { aviso(err.message); }
+  });
 
   cargarMicrofonos();
   refrescar();

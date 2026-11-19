@@ -25,6 +25,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from .tts import Locutor
+
 log = logging.getLogger("voz")
 
 TASA_VOSK = 16000
@@ -161,6 +163,8 @@ class Voz:
                 self.motivo = f"No se pudo leer keywords.json: {error}"
         self._ruta_modelo = (ajustes.dir_modelos / NOMBRE_MODELO) if ajustes is not None else None
         self.disponible = self._revisar()
+        # Voz que HABLA. En las pruebas automáticas (SIM_RAPIDO=1) se queda callada.
+        self.locutor = Locutor(activo=ajustes is not None and not getattr(ajustes, "sim_rapido", False))
 
     def _revisar(self) -> bool:
         if self.vocabulario is None:
@@ -180,7 +184,21 @@ class Voz:
 
     def estado(self) -> dict[str, Any]:
         return {"disponible": self.disponible, "escuchando": self.escuchando, "motivo": self.motivo,
-                "microfono": (self._config.get("microfono") if self._config else "") or "predeterminado"}
+                "microfono": (self._config.get("microfono") if self._config else "") or "predeterminado",
+                "habla": self.habla, "voz_sintetica": self.locutor.nombre_voz,
+                "motivo_habla": self.locutor.motivo}
+
+    @property
+    def habla(self) -> bool:
+        """True si el sistema dice los resultados en voz alta (configuración `voz_habla` y voz de Windows)."""
+        return bool(self.locutor.disponible and (self._config.get("voz_habla") if self._config else True))
+
+    def decir(self, texto: str, interrumpir: bool = False) -> bool:
+        """BLOQUEANTE la primera vez (~2 s al abrir la voz de Windows): llamarlo en otro hilo."""
+        return self.locutor.decir(texto, interrumpir) if self.habla else False
+
+    def cerrar(self) -> None:
+        self.locutor.cerrar()
 
     def interpretar(self, texto: str, contexto: str) -> Intencion:
         if self.vocabulario is None:
@@ -211,6 +229,32 @@ class Voz:
         except Exception as error:  # noqa: BLE001 — sin audio: lista vacía
             log.warning("No se pudieron listar los micrófonos: %s", error)
             return []
+
+    def nivel(self, segundos: float = 1.0) -> dict[str, Any]:
+        """BLOQUEANTE: graba `segundos` del micrófono configurado y mide qué tan fuerte llega el sonido.
+        Sirve para saber si un micrófono (por ejemplo DroidCam) realmente manda audio o solo silencio."""
+        try:
+            import numpy as np
+            import sounddevice as sd
+
+            dispositivo = self._dispositivo(self._config.get("microfono") if self._config else "")
+            info = sd.query_devices(dispositivo, "input")
+            tasa = int(info["default_samplerate"])
+            audio = sd.rec(int(segundos * tasa), samplerate=tasa, channels=1, dtype="int16", device=dispositivo)
+            sd.wait()
+            rms = float(np.sqrt(np.mean(audio.astype(np.float64) ** 2)))
+            pico = int(np.abs(audio).max())
+        except ErrorVoz:
+            raise
+        except Exception as error:  # noqa: BLE001 — frontera con el hardware de audio
+            raise ErrorVoz(f"Error de audio: {error}") from error
+        if pico <= 2:
+            veredicto = "SILENCIO TOTAL: este micrófono no manda audio (¿DroidCam sin audio activado?)"
+        elif rms < 30:
+            veredicto = "Muy bajo: acércate o sube el volumen del micrófono en Windows"
+        else:
+            veredicto = "Bien: llega sonido"
+        return {"microfono": info["name"], "rms": round(rms, 1), "pico": pico, "veredicto": veredicto}
 
     @staticmethod
     def _dispositivo(preferido: Any) -> Any:

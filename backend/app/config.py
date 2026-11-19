@@ -139,6 +139,7 @@ def valores_por_defecto() -> dict[str, Any]:
         # segundos que se graba al presionar A (push-to-talk)
         "microfono": "",
         "voz_segundos": 4,
+        "voz_habla": True,   # el sistema DICE en voz alta la clasificación y el bote (voz de Windows)
     }
 
 
@@ -195,6 +196,16 @@ def _validar_segundos_voz(v: Any) -> float:
     return v
 
 
+def _validar_bool(v: Any) -> bool:
+    if isinstance(v, bool):
+        return v
+    if str(v).strip().lower() in ("1", "true", "si", "sí"):
+        return True
+    if str(v).strip().lower() in ("0", "false", "no"):
+        return False
+    raise ValueError("debe ser true o false")
+
+
 def _validar_texto(v: Any) -> str:
     v = str(v).strip()
     if not v:
@@ -239,6 +250,7 @@ VALIDADORES = {
     "tiempo_retro_media_s": _validar_entero_positivo,
     "microfono": _validar_texto_opcional,
     "voz_segundos": _validar_segundos_voz,
+    "voz_habla": _validar_bool,
 }
 
 

@@ -7,6 +7,7 @@ Errores: EstadoInvalido → 409, ErrorSerial → 503 (manejadores en main.py), V
 
 from __future__ import annotations
 
+import asyncio
 import shutil
 from dataclasses import dataclass
 from typing import Any, Literal
@@ -187,6 +188,28 @@ async def post_voz_escuchar(request: Request) -> dict[str, Any]:
         return await orq.escuchar_voz()
     except ErrorVoz as error:
         raise HTTPException(503, str(error)) from None
+
+
+@router.post("/api/voz/nivel")
+async def post_voz_nivel(request: Request) -> dict[str, Any]:
+    """Graba 1 s del micrófono configurado y dice si llega sonido (diagnóstico)."""
+    voz = _ctx(request).orq.voz
+    if voz.escuchando:
+        raise HTTPException(409, "Ya estoy escuchando")
+    try:
+        return await asyncio.to_thread(voz.nivel, 1.0)
+    except ErrorVoz as error:
+        raise HTTPException(503, str(error)) from None
+
+
+@router.post("/api/voz/decir")
+async def post_voz_decir(request: Request, cuerpo: SimVozIn) -> dict[str, Any]:
+    """Prueba de la voz que HABLA: dice `texto` por las bocinas de la laptop."""
+    voz = _ctx(request).orq.voz
+    if not voz.habla:
+        raise HTTPException(503, voz.locutor.motivo or "La voz que habla está apagada (voz_habla = false)")
+    dicho = await asyncio.to_thread(voz.decir, cuerpo.texto, True)
+    return {"ok": dicho}
 
 
 @router.get("/api/voz/microfonos")

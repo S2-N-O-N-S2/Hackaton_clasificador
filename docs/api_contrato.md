@@ -1,6 +1,6 @@
 # Contrato de interfaces — Backend ↔ Panel ↔ Arduino
 
-> **Versión 1.4 — 2026-11-19.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
+> **Versión 1.5 — 2026-11-19.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
 > Detalla las secciones 9 y 17 de `docs/ESPECIFICACION.md`. Si este contrato y la especificación se contradicen, manda la especificación: avisen y corrijan este archivo.
 > **Nadie cambia este archivo sin avisar a la otra persona.** Cada cambio sube la versión y se anota en la sección 9 ("Historial").
 
@@ -142,7 +142,8 @@ Códigos: `SERIAL_CONECTADO`, `SERIAL_DESCONECTADO`, `ERROR_SERIAL`, `ARDUINO_RE
   "serial": {"conectado": true, "puerto": "SIMULADO", "simulado": true},
   "camara": {"disponible": true, "indice": 0, "simulada": true},
   "modelo": {"cargado": true, "version": "sim", "simulado": true},
-  "voz": {"disponible": true, "escuchando": false, "motivo": null, "microfono": "predeterminado"},
+  "voz": {"disponible": true, "escuchando": false, "motivo": null, "microfono": "predeterminado",
+          "habla": true, "voz_sintetica": "Microsoft Helena Desktop", "motivo_habla": null},
   "caso_actual": null,
   "cuenta_regresiva_s": null,
   "mensaje": "Coloca un residuo o elige un modo",
@@ -242,7 +243,7 @@ Respuesta de `GET /api/modelo/estado`:
     "tiempo_adivinanza_s": 20, "tiempo_revision_s": 30,
     "tiempo_retro_firme_s": 5, "tiempo_retro_media_s": 8,
     "umbral_aviso_bote": 0.80,
-    "microfono": "", "voz_segundos": 4
+    "microfono": "", "voz_segundos": 4, "voz_habla": true
   },
   "categorias": [{"id": 0, "clave": "organica", "nombre": "Orgánica", "color": "verde", "hex": "#2E9E44"}],
   "requieren_reinicio": ["indice_camara", "puerto_serial"]
@@ -330,7 +331,15 @@ Qué hace cada `accion`:
 - `respuesta_bote`: en `MENU` o `ESPERA_OBJETO` ("¿dónde tiro esta lata?"): la LCD responde, el disco **muestra** el bote (POS y HOME, sin DROP) y queda una **pista** de 60 s. Si luego se coloca un residuo y la cámara opina otra categoría, el caso va a `REVISION` con `motivo_dudoso = conflicto_voz`.
 - `no_reconocido`: la LCD dice "No reconoci el objeto"; el caso sigue igual.
 
-Configuración: `microfono` (`""` = predeterminado de Windows, o parte del nombre, por ejemplo `"DroidCam"`) y `voz_segundos` (1–10).
+Configuración: `microfono` (`""` = predeterminado de Windows, o parte del nombre, por ejemplo `"DroidCam"`), `voz_segundos` (1–10) y `voz_habla` (`true`/`false`).
+
+| Endpoint (diagnóstico) | Cuerpo | Respuesta |
+|---|---|---|
+| `GET /api/voz/microfonos` | — | `{"microfonos": [{"indice": 2, "nombre": "Micrófono (DroidCam Audio)", "predeterminado": false}], "configurado": "", "voz": {…}}` |
+| `POST /api/voz/nivel` | — | Graba 1 s del micrófono configurado: `{"microfono": "…", "rms": 1315.7, "pico": 11449, "veredicto": "Bien: llega sonido"}` (o "SILENCIO TOTAL…") |
+| `POST /api/voz/decir` | `{"texto": "Va en el bote azul."}` | `{"ok": true}`. `503` si la voz que habla está apagada o no hay voz en español en Windows |
+
+**El sistema habla** (si `voz_habla` es `true`; voz en español de Windows, sin internet): al soltar el residuo dice la categoría, la certeza y el bote ("Es inorgánica, con 92 por ciento de certeza. Va en el bote azul."); al entrar a revisión pide ayuda; responde las preguntas de voz, el cambio de modo, el pendiente y las fallas.
 
 ### 3.13 Archivos
 `GET /captures/{archivo}` → `image/jpeg`.
@@ -443,6 +452,7 @@ Mientras el backend no exista, el panel puede trabajar con **datos de ejemplo**:
 | Versión | Fecha | Quién | Cambio |
 |---|---|---|---|
 | 1.0 | 2026-11-19 | Persona A (generado con Claude Code) | Versión inicial |
+| 1.5 | 2026-11-19 | Persona A (generado con Claude Code) | Voz que habla (texto a voz de Windows): `voz_habla` en la configuración, `estado.voz.habla` / `voz_sintetica` / `motivo_habla`, `POST /api/voz/decir`; diagnóstico del micrófono: `GET /api/voz/microfonos` y `POST /api/voz/nivel`. Página de prueba en `/prueba/voz`. **Avisar a la Persona B** (puede agregar en Configuración el interruptor "El sistema habla" y el selector de micrófono). |
 | 1.4 | 2026-11-19 | Persona A (generado con Claude Code) | Fase 9 adelantada en simulación (voz): `POST /api/voz/escuchar`, `POST /api/sim/voz`, evento WebSocket `voz`, `estado.voz` con `escuchando`/`motivo`/`microfono`, configuración `microfono` y `voz_segundos`, tecla **A** = hablar. **Avisar a la Persona B:** el panel puede agregar un botón 🎤 que llame a `POST /api/voz/escuchar` y mostrar el evento `voz`. |
 | 1.3 | 2026-11-19 | Persona A (generado con Claude Code) | Fase 5: campo `tiempos_etapas` en Clasificacion; el backend manda los 3 `CAL` al conectarse; alerta `CAL_NO_SINCRONIZADA`. **Avisar a la Persona B** (el firmware debe responder `CAL_OK` rápido justo después de `READY`). |
 | 1.2 | 2026-11-19 | Persona A (generado con Claude Code) | Fase 4: `roi` en la configuración (`[x, y, ancho, alto]` en fracciones), `indice_camara` acepta también una URL (celular), `mensaje` en `GET /api/modelo/estado`, alerta `MODELO_ACTIVADO`. `POST /api/modelo/reentrenar` ya funciona (antes `501`). **Avisar a la Persona B.** |
