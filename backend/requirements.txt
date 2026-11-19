@@ -1,0 +1,30 @@
+# Dependencias del backend — Cyber Insanos · Reto 1
+# Requiere Python 3.12 (TensorFlow 2.21 NO tiene ruedas para Python 3.14).
+# Instalar dentro de backend/.venv:
+#   py -3.12 -m venv .venv ; .\.venv\Scripts\Activate.ps1 ; python -m pip install -r requirements.txt
+# Tras instalar, congelar versiones exactas en requirements.lock.txt (pip freeze) para que
+# todas las laptops del equipo usen lo mismo.
+
+# --- Servidor / orquestador ---
+fastapi>=0.115            # API REST + WebSocket
+uvicorn[standard]>=0.30   # servidor ASGI; [standard] incluye 'websockets' (necesario para /ws/eventos)
+
+# --- Visión ---
+opencv-python>=4.10       # captura de cámara, recorte, guardado de fotos (~50 MB)
+numpy>=1.26
+
+# --- IA ---
+tensorflow==2.21.*        # MobileNetV2 preentrenado (Keras 3 incluido). Descarga GRANDE (~350 MB + deps). En Windows nativo corre en CPU.
+scikit-learn>=1.5         # LogisticRegression sobre los embeddings (incluye joblib para guardar el modelo)
+matplotlib>=3.8           # JUSTIFICACIÓN: imagen PNG de la matriz de confusión (evaluate.py, sección 14.2)
+
+# --- Serial ---
+pyserial>=3.5             # enlace con el Arduino UNO
+
+# --- Voz offline ---
+vosk>=0.3.45              # reconocimiento de voz local (el modelo en español se descarga aparte, ~40 MB)
+sounddevice>=0.4          # JUSTIFICACIÓN: captura del micrófono para Vosk (push-to-talk). La rueda de Windows trae PortAudio.
+
+# --- Pruebas ---
+pytest>=8
+httpx>=0.27               # JUSTIFICACIÓN: requerido por fastapi.testclient para probar la API con pytest

@@ -6,7 +6,17 @@ La convocatoria permite bibliotecas, tutoriales e IA generativa **con atribució
 
 | Recurso | Versión | Licencia | Uso en el proyecto | Archivos donde se usa |
 |---|---|---|---|---|
-| [COMPLETAR en la Fase 0] | | | | |
+| Python | 3.12.10 | PSF | Lenguaje del backend (TensorFlow requiere ≤ 3.13) | `backend/` |
+| FastAPI + uvicorn[standard] | ver `requirements.lock.txt` | MIT / BSD | API REST y WebSocket | `backend/app/` |
+| OpenCV (opencv-python) | ver lock | Apache 2.0 | Cámara y procesamiento de imagen | `camera.py`, `tools/verificar_hardware.py` |
+| NumPy | ver lock | BSD | Arreglos numéricos | backend |
+| TensorFlow / Keras | 2.21 | Apache 2.0 | MobileNetV2 como extractor | `model.py`, `training/` |
+| scikit-learn | ver lock | BSD | LogisticRegression | `training/train.py`, `model.py` |
+| matplotlib | ver lock | PSF-like | PNG de la matriz de confusión | `training/evaluate.py` |
+| pyserial | 3.5 | BSD | Serial con el Arduino | `serial_link.py`, `tools/verificar_hardware.py` |
+| vosk | 0.3.45 | Apache 2.0 | Voz offline | `voice.py` |
+| sounddevice | ver lock | MIT | Captura de micrófono para Vosk | `voice.py` |
+| pytest, httpx | ver lock | MIT / BSD | Pruebas | `backend/tests/` |
 
 ## 2. Modelos preentrenados
 
@@ -26,6 +36,7 @@ La convocatoria permite bibliotecas, tutoriales e IA generativa **con atribució
 | Herramienta | Fase / archivo | Qué generó | Qué revisó o modificó el equipo |
 |---|---|---|---|
 | Claude Code (Anthropic) | Inicio: estructura de carpetas, README, plantillas de `bitacora.md`, `recursos_externos.md`, `.gitignore` | Estructura y textos iniciales | [COMPLETAR] |
+| Claude Code (Anthropic) | Fase 0: `requirements.txt`, `tools/verificar_hardware.py`, `tools/calcular_par.py`, `docs/mediciones.md` | Scripts y fórmulas de geometría y par (fricción + inercia, factor de seguridad 2) | [COMPLETAR: el equipo debe revisar las fórmulas y llenar las mediciones] |
 
 ## 5. Fuentes de contenido (explicaciones del modo Adivina)
 
