@@ -1,0 +1,72 @@
+// Botes (especificación 13): nivel ESTIMADO por conteo de piezas, vaciado e historial.
+import { api } from '../api.js';
+import { useEnVivo } from '../estado.jsx';
+import { categoria } from '../categorias.js';
+import { Estimado, MensajeError, NivelBote, Tarjeta, fechaHora, useAccion, useDatos } from '../componentes/Comun.jsx';
+
+export default function Botes() {
+  const { botes, versiones } = useEnVivo();
+  const datos = useDatos(() => api.botes(), [versiones.historial]);
+  const { ejecutar, ocupado, error } = useAccion();
+  const lista = botes || datos.datos?.botes || [];
+
+  async function vaciar(b) {
+    if (!window.confirm(`¿Confirmas que el bote ${b.color} (${b.nombre}) ya se vació?`)) return;
+    const r = await ejecutar(() => api.vaciarBote(b.id));
+    if (r) datos.recargar();
+  }
+
+  return (
+    <div className="vista">
+      <h1>Botes <Estimado /></h1>
+      <p className="atenuado">No hay sensor de nivel: el llenado se estima contando las piezas depositadas contra una capacidad calibrada.</p>
+      <MensajeError error={error || datos.error} />
+      <div className="rejilla-3">
+        {lista.map((b) => (
+          <Tarjeta key={b.id} titulo={b.nombre} className={`tarjeta-bote ${b.bloqueado ? 'bloqueado' : ''}`}>
+            <NivelBote bote={b} />
+            <ul className="lista-datos">
+              <li>Capacidad calibrada: <strong>{b.capacidad_piezas}</strong> piezas</li>
+              <li>Aviso al <strong>{Math.round(b.umbral_aviso * 100)} %</strong></li>
+              <li>Último vaciado: {fechaHora(b.ultimo_vaciado)}</li>
+              {b.bloqueado && <li className="texto-error">Bloqueado: no se suelta nada aquí hasta vaciarlo.</li>}
+            </ul>
+            <button type="button" className="boton-principal" disabled={ocupado} onClick={() => vaciar(b)}>
+              Marcar como vaciado
+            </button>
+          </Tarjeta>
+        ))}
+      </div>
+
+      <div className="rejilla-2">
+        <Tarjeta titulo="Residuos desviados de la basura mezclada">
+          {datos.datos ? (
+            <ul className="lista-datos">
+              {[0, 1, 2].map((id) => (
+                <li key={id}><span style={{ color: categoria(id).hex }}>■</span> {categoria(id).nombre}: <strong>{datos.datos.desviados_por_categoria?.[id] ?? 0}</strong></li>
+              ))}
+            </ul>
+          ) : <p className="atenuado">Cargando…</p>}
+        </Tarjeta>
+        <Tarjeta titulo="Historial de vaciados">
+          {datos.datos?.vaciados?.length ? (
+            <table className="tabla">
+              <thead><tr><th>Fecha</th><th>Bote</th><th>Piezas</th><th>Origen</th></tr></thead>
+              <tbody>
+                {datos.datos.vaciados.map((v) => (
+                  <tr key={v.id}>
+                    <td>{fechaHora(v.fecha_hora)}</td>
+                    <td>{categoria(v.bote_id)?.nombre}</td>
+                    <td>{v.piezas_al_vaciar}</td>
+                    <td>{v.origen}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : <p className="atenuado">Sin vaciados registrados.</p>}
+        </Tarjeta>
+      </div>
+      <p className="atenuado pie">La capacidad de cada bote se ajusta en Configuración.</p>
+    </div>
+  );
+}

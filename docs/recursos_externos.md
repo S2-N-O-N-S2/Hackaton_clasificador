@@ -17,6 +17,8 @@ La convocatoria permite bibliotecas, tutoriales e IA generativa **con atribució
 | vosk | 0.3.45 | Apache 2.0 | Voz offline | `voice.py` |
 | sounddevice | ver lock | MIT | Captura de micrófono para Vosk | `voice.py` |
 | pytest, httpx | ver lock | MIT / BSD | Pruebas | `backend/tests/` |
+| React / react-dom | 18.3.1 | MIT | Interfaz del panel | `frontend/src/` |
+| Vite + @vitejs/plugin-react | 6.4.6 / 4.7.0 | MIT | Servidor de desarrollo y compilación del panel | `frontend/` |
 
 ## 2. Modelos preentrenados
 
