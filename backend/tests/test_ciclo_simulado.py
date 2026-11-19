@@ -22,6 +22,18 @@ def cliente(tmp_path, monkeypatch):
         yield c, tmp_path
 
 
+def copiar_como_en_modo_real(monkeypatch):
+    """La simulación nunca copia fotos al dataset (son falsas). Para probar la RUTA de copia (panel → dataset,
+    teclado → _por_verificar) se hace la copia como en modo real."""
+    import dataclasses
+
+    import app.orchestrator as orq
+    from app.camera import copiar_a_dataset
+
+    monkeypatch.setattr(orq, "copiar_a_dataset", lambda ajustes, *a, **k: copiar_a_dataset(
+        dataclasses.replace(ajustes, simulacion=False), *a, **k))
+
+
 def esperar(condicion, limite=5.0):
     fin = time.time() + limite
     while time.time() < fin:
@@ -61,8 +73,9 @@ def test_ciclo_ia_completo_registra_y_emite(cliente):
     assert stats["muestra"] == 1 and stats["matriz_confusion"]["valores"][1][1] == 1
 
 
-def test_dudoso_va_a_revision_y_el_panel_lo_resuelve(cliente):
+def test_dudoso_va_a_revision_y_el_panel_lo_resuelve(cliente, monkeypatch):
     c, tmp = cliente
+    copiar_como_en_modo_real(monkeypatch)
     c.post("/api/sim/objeto", json={"categoria_real": "dudoso"})
     esperar(lambda: c.get("/api/estado").json()["estado"] == "REVISION")
     estado = c.get("/api/estado").json()
@@ -78,8 +91,9 @@ def test_dudoso_va_a_revision_y_el_panel_lo_resuelve(cliente):
     assert (tmp / "dataset" / "organica" / caso["foto"].split("/")[-1]).exists()
 
 
-def test_dudoso_resuelto_por_teclado_va_a_por_verificar(cliente):
+def test_dudoso_resuelto_por_teclado_va_a_por_verificar(cliente, monkeypatch):
     c, tmp = cliente
+    copiar_como_en_modo_real(monkeypatch)
     c.post("/api/sim/objeto", json={"categoria_real": "dudoso"})
     esperar(lambda: c.get("/api/estado").json()["estado"] == "REVISION")
     c.post("/api/sim/tecla", json={"tecla": "3"})

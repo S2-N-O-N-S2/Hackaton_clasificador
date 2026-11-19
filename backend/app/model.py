@@ -258,8 +258,8 @@ def version_activa(db) -> str | None:
 
 
 def cargar_modelo(ajustes: Ajustes, db, extractor: ExtractorMobileNet | None = None) -> ModeloBase:
-    """SIMULACION=1 → simulado. Si no, la versión marcada como activa en la tabla `modelos`."""
-    if ajustes.simulacion:
+    """SIMULACION=1 → simulado (salvo SIM_IA_REAL=1). Si no, la versión activa en la tabla `modelos`."""
+    if ajustes.simulacion and not ajustes.ia_real:
         return ModeloSimulado()
     version = version_activa(db)
     if version is None:

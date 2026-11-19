@@ -230,3 +230,55 @@ def test_revisar_dataset_exige_dos_objetos(tmp_path):
     crear_dataset(tmp_path, objetos_por_clase=1)
     errores, _, _ = revisar(tmp_path)
     assert sum("al menos 2" in e for e in errores) == 3
+
+
+# ----------------------------------------------------------------------------- SIM_IA_REAL
+def test_sim_ia_real_usa_modelo_real(tmp_path, monkeypatch):
+    """SIMULACION=1 + SIM_IA_REAL=1 → el modelo NO es el simulado: usa la versión activa (o avisa que no hay)."""
+    from app.config import cargar_ajustes
+    from app.model import ModeloNoDisponible, ModeloSimulado, cargar_modelo
+
+    monkeypatch.setenv("SIMULACION", "1")
+    monkeypatch.setenv("DIR_MODELOS", str(tmp_path / "models"))
+    monkeypatch.delenv("SIM_IA_REAL", raising=False)
+    db = BaseDatos(tmp_path / "s.db")
+    assert isinstance(cargar_modelo(cargar_ajustes(), db), ModeloSimulado)
+
+    monkeypatch.setenv("SIM_IA_REAL", "1")
+    ajustes = cargar_ajustes()
+    assert ajustes.ia_real and ajustes.factor_tiempo == 1.0
+    assert isinstance(cargar_modelo(ajustes, db), ModeloNoDisponible)  # sin versión registrada
+
+    crear_dataset(tmp_path / "dataset")
+    train.entrenar(tmp_path / "dataset", tmp_path / "models", db, extractor=ExtractorFalso())
+    modelo = cargar_modelo(ajustes, db, ExtractorFalso())
+    assert isinstance(modelo, ModeloReal) and not modelo.simulado
+
+
+def test_sim_ia_real_se_ignora_sin_simulacion(monkeypatch):
+    from app.config import cargar_ajustes
+
+    monkeypatch.setenv("SIMULACION", "0")
+    monkeypatch.setenv("SIM_IA_REAL", "1")
+    assert cargar_ajustes().ia_real is False
+
+
+def test_simulacion_no_copia_fotos_al_dataset(tmp_path, monkeypatch):
+    from app.camera import copiar_a_dataset
+    from app.config import cargar_ajustes
+
+    monkeypatch.setenv("DIR_CAPTURAS", str(tmp_path / "captures"))
+    monkeypatch.setenv("DIR_DATASET", str(tmp_path / "dataset"))
+    (tmp_path / "captures").mkdir()
+    cv2.imwrite(str(tmp_path / "captures" / "f.jpg"), np.zeros((10, 10, 3), np.uint8))
+
+    monkeypatch.setenv("SIMULACION", "1")
+    monkeypatch.delenv("SIM_IA_REAL", raising=False)
+    assert copiar_a_dataset(cargar_ajustes(), "f.jpg", 0, verificado=True) is None  # foto falsa: nunca
+
+    monkeypatch.setenv("SIM_IA_REAL", "1")
+    destino = copiar_a_dataset(cargar_ajustes(), "f.jpg", 0, verificado=True)
+    assert destino == tmp_path / "dataset" / "_por_verificar" / "organica" / "f.jpg"  # foto real, caso simulado
+
+    monkeypatch.setenv("SIMULACION", "0")
+    assert copiar_a_dataset(cargar_ajustes(), "f.jpg", 0, verificado=True) == tmp_path / "dataset" / "organica" / "f.jpg"

@@ -213,3 +213,56 @@ python -m training.evaluate
 ```powershell
 python tools\probar_modelo_vivo.py
 ```
+
+---
+
+## Prompt 4 — Probar el firmware con el hardware real (antes de la Fase 5)
+
+**Contexto:** el firmware (`firmware/clasificador_uno/clasificador_uno.ino`) ya está en `main`, pero **solo se revisó leyendo el código: nunca se ha compilado ni cargado en un Arduino.** El backend y la IA (modelo v1) ya funcionan. Este paso deja el Arduino listo para conectarlo al backend (Fase 5, `docs/integracion_fase5.md`).
+
+**Material:** Arduino UNO, MG996R (disco), SG90 (trampilla), fuente regulada de 5.5–6.0 V y ≥ 3 A, capacitor de 1000 µF, LCD 20×4 I2C, teclado 4×4, 2 FC-51, LEDs (verde, amarillo y rojo) con 220–330 Ω, TIP120 con 1 kΩ, tira LED y multímetro.
+
+**Cableado:** `docs/diagrama_electrico.md` §1 y §2. **Los servos NUNCA van al 5 V del Arduino**: fuente externa + tierra común + capacitor (franja − a GND).
+
+**Orden recomendado (por partes, para aislar fallas):**
+1. Sin servos: LCD (con el escáner I2C), LEDs, teclado y sensores.
+2. Servo del disco con la fuente externa.
+3. Servo de la trampilla.
+4. Todo junto, con el disco y los botes montados (si ya existen).
+
+### Prompt para Claude Code (Persona B)
+
+```
+Soy la Persona B (firmware y panel; lee docs/prompts_persona_b.md, "Prompt 4"). Ya tengo el hardware para probar el
+firmware de verdad. Lee CLAUDE.md, docs/diagrama_electrico.md, docs/prueba_firmware.md, docs/api_contrato.md §5 y
+firmware/clasificador_uno/clasificador_uno.ino. Solo puedes editar firmware/, docs/diagrama_electrico.md,
+docs/prueba_firmware.md y agregar filas al final de docs/bitacora.md. No toques backend/ ni frontend/.
+No hagas git add, commit ni push.
+
+Guíame paso a paso, UNO a la vez, esperando a que te diga qué pasó:
+1. Revisar el cableado contra docs/diagrama_electrico.md §1 (te describo o te mando foto de lo que tengo).
+   Antes de energizar: continuidad de la GND común (medición 3) y polaridad del capacitor y de los LEDs.
+2. Cargar firmware/escaner_i2c/escaner_i2c.ino y, según la dirección que salga, ajustar LCD_DIRECCION.
+3. Compilar y cargar firmware/clasificador_uno/clasificador_uno.ino (placa Arduino UNO). Si hay errores de
+   compilación, corrígelos sin cambiar el protocolo del contrato.
+4. Probar desde el Monitor Serial (115200, "Nueva línea") la lista de docs/prueba_firmware.md §2, por partes:
+   primero READY, PING, STATUS, LCD, LCD_SCROLL, LED, LIGHT, KEY (cada tecla del teclado: si salen cambiadas, ajustar el
+   mapa de teclas o el orden de los cables) y OBJ/LIBRE con los FC-51 (ajustar su potenciómetro);
+   después POS:0/1/2, ANG, HOME, CAL y DROP (DROP_OK con un objeto que caiga, DROP_TIMEOUT sin objeto);
+   ERR:OCUPADO mandando POS mientras gira; WATCHDOG (15 s sin comandos).
+5. Ajustar con el mecanismo armado: ANG_TRAMPILLA_CERRADA / ANG_TRAMPILLA_ABIERTA y PASO_DISCO_MS (más grande =
+   más suave). Si PASO_DISCO_MS pasa de 30, avisar a la Persona A: el backend espera máximo 6 s por cada giro
+   (timeout_pos_s en backend/app/config.py).
+   Los ángulos de los botes NO se editan en el código: se calibran en la Fase 5 con tools/calibrar_angulos.py.
+6. Mediciones con el multímetro de docs/diagrama_electrico.md §4 (1a, 1b, 2 y 3). Anota SOLO valores medidos de
+   verdad; si algo no se midió, déjalo como [COMPLETAR]. Si 1b < 4.8 V, ayúdame a diagnosticarlo.
+7. Falla diagnosticable (docs/diagrama_electrico.md §5), solo con el SG90 y menos de un minuto. Anotar lo observado
+   (READY inesperado, voltaje mínimo medido) y la solución.
+8. Actualizar los [COMPLETAR] de docs/diagrama_electrico.md y docs/prueba_firmware.md con lo medido, y agregar una fila
+   en docs/bitacora.md (hora, qué se probó, problemas, solución).
+Al final dame un resumen: qué comandos pasaron, qué se cambió en el firmware y qué falta, y proponme el mensaje de commit
+"fase 2: firmware probado con hardware". Recuérdame CERRAR el Monitor Serial antes de conectar el backend.
+```
+
+### Al terminar, se juntan A y B (Fase 5)
+La Persona A conecta el Arduino a la laptop de la demo y sigue `docs/integracion_fase5.md` desde el **Bloque 1**. La calibración de ángulos (Bloque 3) conviene hacerla juntos: uno mueve el disco con `tools\calibrar_angulos.py` y el otro revisa dónde cae el residuo.

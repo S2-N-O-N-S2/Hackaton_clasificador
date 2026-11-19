@@ -121,7 +121,8 @@ def main() -> int:
     db = BaseDatos(ajustes.ruta_db)
     print(f"Base de datos: {ajustes.ruta_db}")
     if ajustes.simulacion:
-        print("AVISO: SIMULACION=1 → esta es la base de simulación y el backend usará un modelo simulado.")
+        print("AVISO: SIMULACION=1 → esta es la base de SIMULACIÓN. El backend solo usa este registro con "
+              "SIM_IA_REAL=1 (Arduino simulado + cámara e IA reales); con SIMULACION=1 sola usa un modelo simulado.")
     if args.listar or not args.version:
         listar(ajustes.dir_modelos, db)
         return 0

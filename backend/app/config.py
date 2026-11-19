@@ -76,6 +76,9 @@ class Ajustes:
     dir_sim_imagenes: Path
     dir_datos: Path
     baudios: int = 115200
+    # SIM_IA_REAL=1 (solo junto con SIMULACION=1): el Arduino sigue simulado, pero la cámara y el modelo
+    # son los REALES. Sirve para probar la IA desde el panel sin hardware. Los casos se guardan como simulados.
+    ia_real: bool = False
 
     @property
     def factor_tiempo(self) -> float:
@@ -91,6 +94,7 @@ def cargar_ajustes() -> Ajustes:
     ajustes = Ajustes(
         simulacion=simulacion,
         sim_rapido=_env_bool("SIM_RAPIDO"),
+        ia_real=simulacion and _env_bool("SIM_IA_REAL"),
         ruta_db=_env_ruta("RUTA_DB", db_por_defecto),
         dir_capturas=_env_ruta("DIR_CAPTURAS", DIR_BACKEND / "captures"),
         dir_dataset=_env_ruta("DIR_DATASET", DIR_BACKEND / "dataset"),

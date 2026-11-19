@@ -40,12 +40,14 @@ def crear_app() -> FastAPI:
     async def ciclo_de_vida(app: FastAPI):
         db = BaseDatos(ajustes.ruta_db)
         config = Configuracion(db)
-        if ajustes.simulacion:
+        if ajustes.simulacion and not ajustes.ia_real:
             camara = CamaraSimulada(ajustes)
+        else:
+            camara = CamaraReal(ajustes, config.get("indice_camara"))
+        if ajustes.simulacion:
             def crear_enlace(cb):
                 return EnlaceSimulado(cb, ajustes.factor_tiempo)
         else:
-            camara = CamaraReal(ajustes, config.get("indice_camara"))
             def crear_enlace(cb):
                 return EnlaceReal(cb, config.get("puerto_serial"), ajustes.baudios)
         botes = GestorBotes(db, config.get("umbral_aviso_bote"))

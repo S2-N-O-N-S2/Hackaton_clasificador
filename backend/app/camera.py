@@ -67,9 +67,16 @@ def copiar_a_dataset(ajustes: Ajustes, nombre_foto: str | None, clase_id: int, v
 
     verificado=True  (operador desde el panel)  → dataset/<clase>/
     verificado=False (usuario: voz o teclado)   → dataset/_por_verificar/<clase>/
+
+    En simulación las fotos son FALSAS: nunca entran al dataset. Con SIM_IA_REAL=1 la foto sí es de la cámara
+    real, pero el caso es simulado, así que va siempre a _por_verificar/ (alguien la revisa antes de entrenar).
     """
     if not nombre_foto:
         return None
+    if ajustes.simulacion and not ajustes.ia_real:
+        return None
+    if ajustes.simulacion:
+        verificado = False
     origen = ajustes.dir_capturas / nombre_foto
     if not origen.exists():
         return None
