@@ -19,6 +19,7 @@ from .camera import copiar_a_dataset
 from .config import CATEGORIAS, CLAVES_CATEGORIA, CLAVES_REQUIEREN_REINICIO, IDS_CATEGORIA, Ajustes, Configuracion
 from .db import BaseDatos, ahora, clasificacion_a_dict
 from .game import NIVELES_REPORTABLES, Juego
+from .model import GestorReentrenamiento
 from .orchestrator import Estado, Orquestador
 from .serial_link import EnlaceSimulado, ErrorSerial
 
@@ -33,6 +34,7 @@ class Contexto:
     orq: Orquestador
     botes: GestorBotes
     juego: Juego
+    reentrenamiento: GestorReentrenamiento
 
 
 def _ctx(request: Request) -> Contexto:
@@ -285,16 +287,18 @@ def post_residuo(request: Request, cuerpo: ResiduoIn) -> dict[str, Any]:
 @router.get("/api/modelo/estado")
 def get_modelo_estado(request: Request) -> dict[str, Any]:
     ctx = _ctx(request)
-    versiones = ctx.db.consultar("SELECT * FROM modelos ORDER BY fecha DESC")
-    for v in versiones:
-        v["activo"] = bool(v["activo"])
-    return {"activo": ctx.orq.modelo.version, "entrenando": False, "progreso": None,
-            "ultimo_resultado": None, "versiones": versiones}
+    return ctx.reentrenamiento.estado(ctx.orq.modelo.version)
 
 
-@router.post("/api/modelo/reentrenar")
-def post_reentrenar() -> None:
-    raise _no_implementado(4)
+@router.post("/api/modelo/reentrenar", status_code=202)
+async def post_reentrenar(request: Request) -> dict[str, Any]:
+    ctx = _ctx(request)
+    try:
+        await ctx.reentrenamiento.iniciar()
+    except RuntimeError as error:
+        raise HTTPException(409, str(error)) from None
+    ctx.db.registrar_evento("info", "api", "Reentrenamiento solicitado desde el panel")
+    return {"estado": "en_curso"}
 
 
 # ---------------------------------------------------------------------------- configuración

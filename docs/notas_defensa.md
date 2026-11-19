@@ -10,4 +10,10 @@
 - **Falla segura:** cualquier error de serial, cámara o código lleva al estado ERROR. Ahí el disco va a HOME, la trampilla queda cerrada, se enciende el LED rojo y aparece una alerta en el panel. El supervisor regresa al MENU cuando el enlace vuelve. Lo probamos arrancando sin Arduino.
 - **Modo simulación:** con `SIMULACION=1` el ciclo completo corre sin hardware. Todo dato generado así queda marcado `simulado = 1` y va a una base de datos separada (`clasificador_sim.db`). Nunca se mezcla con las mediciones reales.
 - **Tiempo de máquina:** `tiempo_ciclo_ms` descuenta el tiempo que se esperó a una persona en revisión, así que el promedio del reto mide solo al sistema.
-- **Cambio en vivo propuesto:** subir `UMBRAL_GENERAL` de 0.60 a 0.80 desde el panel (`PUT /api/config`), o editar `aplicar_reglas()` en `backend/app/model.py`. Un residuo que antes se aceptaba ahora va a revisión.
+- **Cambio en vivo propuesto (Fase 3):** subir `UMBRAL_GENERAL` de 0.60 a 0.80 desde el panel (`PUT /api/config`), o editar `aplicar_reglas()` en `backend/app/model.py`. Un residuo que antes se aceptaba ahora va a revisión.
+
+## Fase 4 — IA
+- **Transfer learning:** con 40–60 fotos por clase no se puede entrenar una red desde cero. Usamos MobileNetV2 preentrenada y congelada como extractor (1280 números por foto) y encima entrenamos una regresión logística. Entrena en segundos en CPU y es fácil de explicar.
+- **Validación honesta:** separamos entrenamiento y validación POR OBJETO físico (`StratifiedGroupKFold`), no por foto. Si el mismo plátano estuviera en las dos partes, la validación sería trampa. El modelo publicado no vio ninguna foto de validación.
+- **Confianza no es garantía:** por eso existen los umbrales. `evaluate.py` muestra, con datos, cuántos casos van a revisión con cada umbral y cuánto mejora la precisión de los aceptados.
+- **Reentrenamiento seguro:** la versión nueva solo se activa si no empeora la precisión de validación, y las etiquetas de usuarios esperan la aprobación del operador en `_por_verificar/`.

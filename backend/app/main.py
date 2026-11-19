@@ -24,7 +24,7 @@ from .camera import CamaraReal, CamaraSimulada
 from .config import Configuracion, cargar_ajustes
 from .db import BaseDatos
 from .game import Juego
-from .model import cargar_modelo
+from .model import ExtractorMobileNet, GestorReentrenamiento, cargar_modelo
 from .orchestrator import Difusor, EstadoInvalido, Orquestador
 from .routes import Contexto, router
 from .serial_link import EnlaceReal, EnlaceSimulado, ErrorSerial
@@ -50,9 +50,17 @@ def crear_app() -> FastAPI:
                 return EnlaceReal(cb, config.get("puerto_serial"), ajustes.baudios)
         botes = GestorBotes(db, config.get("umbral_aviso_bote"))
         juego = Juego(db)
-        orq = Orquestador(ajustes, config, db, camara, cargar_modelo(ajustes), botes, juego, Voz(), Difusor(),
-                          crear_enlace)
-        app.state.ctx = Contexto(ajustes=ajustes, config=config, db=db, orq=orq, botes=botes, juego=juego)
+        extractor = ExtractorMobileNet()  # se carga solo cuando se usa (TensorFlow tarda en importar)
+        orq = Orquestador(ajustes, config, db, camara, cargar_modelo(ajustes, db, extractor), botes, juego, Voz(),
+                          Difusor(), crear_enlace)
+
+        async def avisar_modelo() -> None:
+            await orq.difusor.emitir("modelo", reentrenamiento.estado(orq.modelo.version))
+
+        reentrenamiento = GestorReentrenamiento(ajustes, db, lambda: config.get("roi"), extractor,
+                                                avisar_modelo, orq.cambiar_modelo)
+        app.state.ctx = Contexto(ajustes=ajustes, config=config, db=db, orq=orq, botes=botes, juego=juego,
+                                 reentrenamiento=reentrenamiento)
         await orq.iniciar()
         try:
             yield

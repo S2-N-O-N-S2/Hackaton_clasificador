@@ -1,6 +1,6 @@
 # Contrato de interfaces — Backend ↔ Panel ↔ Arduino
 
-> **Versión 1.1 — 2026-11-19.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
+> **Versión 1.2 — 2026-11-19.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
 > Detalla las secciones 9 y 17 de `docs/ESPECIFICACION.md`. Si este contrato y la especificación se contradicen, manda la especificación: avisen y corrijan este archivo.
 > **Nadie cambia este archivo sin avisar a la otra persona.** Cada cambio sube la versión y se anota en la sección 9 ("Historial").
 
@@ -122,7 +122,7 @@
 ```json
 {"nivel": "error", "codigo": "SERIAL_DESCONECTADO", "mensaje": "Se perdió el enlace con el Arduino", "fecha_hora": "2026-11-19T10:40:00"}
 ```
-Códigos: `SERIAL_CONECTADO`, `SERIAL_DESCONECTADO`, `ERROR_SERIAL`, `ARDUINO_REINICIADO`, `WATCHDOG`, `CAMARA_NO_DISPONIBLE`, `MODELO_NO_CARGADO`, `POS_TIMEOUT`, `DROP_TIMEOUT`, `BOTE_CASI_LLENO`, `BOTE_LLENO`, `REVISION_PENDIENTE`, `RESIDUO_NO_RETIRADO`, `ERROR_INTERNO`, `RECUPERADO`, `VOZ_NO_DISPONIBLE`.
+Códigos: `SERIAL_CONECTADO`, `SERIAL_DESCONECTADO`, `ERROR_SERIAL`, `ARDUINO_REINICIADO`, `WATCHDOG`, `CAMARA_NO_DISPONIBLE`, `MODELO_NO_CARGADO`, `POS_TIMEOUT`, `DROP_TIMEOUT`, `BOTE_CASI_LLENO`, `BOTE_LLENO`, `REVISION_PENDIENTE`, `RESIDUO_NO_RETIRADO`, `ERROR_INTERNO`, `RECUPERADO`, `MODELO_ACTIVADO`, `VOZ_NO_DISPONIBLE`.
 
 ---
 
@@ -221,7 +221,7 @@ La "categoría real" es `final_id`, que es la corrección si la hubo. Los casos 
 Respuesta de `GET /api/modelo/estado`:
 ```json
 {
-  "activo": "v2", "entrenando": false, "progreso": null,
+  "activo": "v2", "entrenando": false, "progreso": null, "mensaje": null,
   "ultimo_resultado": {"version": "v3", "precision_val": 0.91, "precision_anterior": 0.89, "activado": true, "mensaje": "v3 activado: no empeoró"},
   "versiones": [{"version": "v2", "fecha": "2026-11-19T15:00:00", "n_imagenes": 150, "precision_val": 0.89, "activo": true}]
 }
@@ -236,6 +236,7 @@ Respuesta de `GET /api/modelo/estado`:
     "modo_por_defecto": "ia",
     "angulos": {"0": 170, "1": 90, "2": 10}, "angulo_home": 90,
     "puerto_serial": "COM5", "indice_camara": 0,
+    "roi": [0.0, 0.0, 1.0, 1.0],
     "tiempo_adivinanza_s": 20, "tiempo_revision_s": 30,
     "tiempo_retro_firme_s": 5, "tiempo_retro_media_s": 8,
     "umbral_aviso_bote": 0.80
@@ -421,4 +422,5 @@ Mientras el backend no exista, el panel puede trabajar con **datos de ejemplo**:
 | Versión | Fecha | Quién | Cambio |
 |---|---|---|---|
 | 1.0 | 2026-11-19 | Persona A (generado con Claude Code) | Versión inicial |
+| 1.2 | 2026-11-19 | Persona A (generado con Claude Code) | Fase 4: `roi` en la configuración (`[x, y, ancho, alto]` en fracciones), `indice_camara` acepta también una URL (celular), `mensaje` en `GET /api/modelo/estado`, alerta `MODELO_ACTIVADO`. `POST /api/modelo/reentrenar` ya funciona (antes `501`). **Avisar a la Persona B.** |
 | 1.1 | 2026-11-19 | Persona A (generado con Claude Code) | Al implementar la Fase 3: `sin_modelo`, campo `estado` en Clasificacion, `capacidad_calibrada` en Bote, `requieren_reinicio` en la configuración, código `501`, `/api/sim/retirar` y lista completa de códigos de alerta. **Avisar a la Persona B.** |

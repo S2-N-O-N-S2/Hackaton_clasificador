@@ -32,7 +32,7 @@ from .camera import CamaraBase, ErrorCamara, copiar_a_dataset
 from .config import IDS_CATEGORIA, TIEMPOS, Ajustes, Configuracion
 from .db import BaseDatos, ahora, clasificacion_a_dict
 from .game import Juego
-from .model import Decision, ErrorModelo, ModeloBase, aplicar_reglas, promediar
+from .model import Decision, ModeloBase, ModeloNoDisponible, aplicar_reglas, promediar
 from .serial_link import CONECTADO, DESCONECTADO, EnlaceBase, ErrorSerial, Mensaje, TimeoutSerial
 from .voice import Voz
 
@@ -139,6 +139,8 @@ class Orquestador:
         await self.camara.iniciar()
         if not self.modelo.cargado:
             await self._alerta("aviso", "MODELO_NO_CARGADO", self.modelo.motivo_no_cargado or "Sin modelo")
+        else:
+            self._lanzar(self._calentar_modelo())
         if not self.camara.disponible:
             await self._alerta("error", "CAMARA_NO_DISPONIBLE", "No se pudo abrir la cámara")
         if self.enlace.conectado:
@@ -154,6 +156,21 @@ class Orquestador:
                 tarea.cancel()
         await self.enlace.cerrar()
         self.camara.cerrar()
+
+    async def _calentar_modelo(self) -> None:
+        """Carga TensorFlow y MobileNetV2 antes del primer residuo (tarda unos segundos)."""
+        try:
+            await asyncio.get_running_loop().run_in_executor(None, self.modelo.calentar)
+            self.db.registrar_evento("info", "modelo", f"Modelo {self.modelo.version} listo")
+        except Exception as error:  # noqa: BLE001 — sin modelo el sistema no adivina
+            self.modelo = ModeloNoDisponible(f"No se pudo preparar el modelo: {error}")
+            await self._alerta("error", "MODELO_NO_CARGADO", str(error))
+
+    def cambiar_modelo(self, nuevo: ModeloBase) -> None:
+        """Activa un modelo recién entrenado. Los ciclos siguientes ya lo usan."""
+        self.modelo = nuevo
+        self.db.registrar_evento("info", "modelo", f"Modelo activo: {nuevo.version}")
+        self._lanzar(self._alerta("info", "MODELO_ACTIVADO", f"Modelo {nuevo.version} activado"))
 
     @property
     def ciclo_activo(self) -> bool:
@@ -406,23 +423,26 @@ class Orquestador:
         foto = self.camara.guardar_foto(frames[len(frames) // 2])
         self._caso_id = self.db.insertar_clasificacion(
             foto=foto, modo=self.modo, origen="camara", simulado=int(self.simulado),
-            modelo_version=self.modelo.version, estado="en_proceso",
+            modelo_version=self.modelo.version if self.modelo.cargado else None, estado="en_proceso",
         )
         await self.difusor.emitir("captura", {"clasificacion_id": self._caso_id, "foto": f"/captures/{foto}",
                                               "oculto": self._oculto})
         # --- CLASIFICACION
         await self._transicion(Estado.CLASIFICACION)
+        modelo = self.modelo  # referencia fija: un reentrenamiento puede cambiarlo a medio ciclo
         try:
-            probs = promediar(self.modelo.predecir(frames, self.camara.ultima_pista))
+            # La red neuronal corre en otro hilo para no congelar el servidor (~0.1–0.3 s en CPU)
+            predicciones = await asyncio.get_running_loop().run_in_executor(
+                None, modelo.predecir, frames, self.camara.ultima_pista)
+            probs = promediar(predicciones)
             decision = aplicar_reglas(probs, self.config.get("umbral_general"), self.config.get("umbral_peligroso"))
             self.db.actualizar_clasificacion(
                 self._caso_id, pred_id=decision.pred_id, confianza=decision.confianza,
                 p_organica=float(probs[0]), p_inorganica=float(probs[1]), p_peligroso=float(probs[2]),
                 dudoso=int(decision.dudoso), motivo_dudoso=decision.motivo,
             )
-        except ErrorModelo as error:
-            # Sin modelo el sistema NO adivina: el caso va a revisión
-            await self._alerta("error", "MODELO_NO_CARGADO", str(error))
+        except Exception as error:  # noqa: BLE001 — sin modelo (o si falla) el sistema NO adivina: revisión
+            await self._alerta("error", "MODELO_NO_CARGADO", str(error) or type(error).__name__)
             decision = Decision(None, None, True, "sin_modelo")
             self.db.actualizar_clasificacion(self._caso_id, dudoso=1, motivo_dudoso="sin_modelo")
         if not self._oculto:
