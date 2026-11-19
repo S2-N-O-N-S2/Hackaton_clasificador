@@ -11,6 +11,7 @@ const CAMPOS = [
   { clave: 'umbral_peligroso', nombre: 'Umbral de peligroso (0–1)', tipo: 'fraccion' },
   { clave: 'umbral_tono_firme', nombre: 'Umbral de tono firme (0–1)', tipo: 'fraccion' },
   { clave: 'umbral_aviso_bote', nombre: 'Aviso de bote casi lleno (0–1)', tipo: 'fraccion' },
+  { clave: 'umbral_desconocido', nombre: 'Objeto desconocido (0.5–3; menor = más estricto)', tipo: 'decimal' },
   { clave: 'tiempo_adivinanza_s', nombre: 'Tiempo para adivinar (s)', tipo: 'entero' },
   { clave: 'tiempo_revision_s', nombre: 'Tiempo de revisión (s)', tipo: 'entero' },
   { clave: 'tiempo_retro_firme_s', nombre: 'Retroalimentación firme (s)', tipo: 'entero' },
@@ -265,6 +266,10 @@ function Simulacion() {
           <BotonCategoria key={id} id={id} disabled={ocupado}
             onClick={() => ejecutar(() => api.simObjeto(id), { ok: `Residuo simulado: ${categoria(id).nombre}` })} />
         ))}
+        <button type="button" className="boton-secundario" disabled={ocupado}
+          onClick={() => ejecutar(() => api.simObjeto('desconocido'), { ok: 'Objeto desconocido simulado' })}>Objeto desconocido</button>
+        <button type="button" className="boton-secundario" disabled={ocupado}
+          onClick={() => ejecutar(() => api.simObjeto('foto_mala'), { ok: 'Foto mala simulada' })}>Foto mala</button>
       </div>
       <button type="button" className="boton-secundario" disabled={ocupado} onClick={() => ejecutar(() => api.simRetirar(), { ok: 'Bandeja libre' })}>
         Retirar el residuo de la bandeja (LIBRE)

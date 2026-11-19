@@ -351,6 +351,14 @@ def entrenar(dir_dataset: Path, dir_modelos: Path, db=None, cabeza: str = "logis
     etiquetas = {"clases": list(IDS_CATEGORIA), "nombres": CLAVES_CATEGORIA, "cabeza": cabeza, "roi": roi,
                  "extractor": getattr(extractor, "nombre", "desconocido"), "entrada": [224, 224, 3]}
     (destino / "labels.json").write_text(json.dumps(etiquetas, indent=2, ensure_ascii=False), encoding="utf-8")
+    # Objetos desconocidos: centro y límite de cada clase con las fotos ORIGINALES de entrenamiento
+    from app.model import calcular_novedad, puntaje_novedad
+    originales = [k for k, (_, variante) in enumerate(trabajos_ent) if variante == 0]
+    novedad = calcular_novedad(x_ent[originales], y_ent[originales])
+    (destino / "novedad.json").write_text(json.dumps(novedad), encoding="utf-8")
+    from app.config import valores_por_defecto
+    limite_desconocido = valores_por_defecto()["umbral_desconocido"]
+    fuera_val = sum(puntaje_novedad(x_val[k:k + 1], novedad) > limite_desconocido for k in range(len(x_val)))
     (destino / "split.json").write_text(json.dumps({
         "entrenamiento": [muestras[i].relativa for i in idx_ent],
         "validacion": [muestras[i].relativa for i in idx_val],
@@ -362,6 +370,8 @@ def entrenar(dir_dataset: Path, dir_modelos: Path, db=None, cabeza: str = "logis
         "objetos_entrenamiento": len({muestras[i].objeto for i in idx_ent}),
         "objetos_validacion": len({muestras[i].objeto for i in idx_val}),
         "entrenamiento": m_ent, "validacion": m_val,
+        # Fotos de validación (objetos conocidos) que la regla de "desconocido" mandaría a revisión
+        "validacion_marcadas_desconocido": {"n": int(fuera_val), "de": len(x_val)},
         "nota": "Separación por objeto físico; el modelo guardado se entrenó solo con la parte de entrenamiento.",
     }
     (destino / "metricas.json").write_text(json.dumps(info, indent=2, ensure_ascii=False), encoding="utf-8")

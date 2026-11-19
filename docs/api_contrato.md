@@ -1,6 +1,6 @@
 # Contrato de interfaces — Backend ↔ Panel ↔ Arduino
 
-> **Versión 1.5 — 2026-11-19.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
+> **Versión 1.4 — 2026-11-19.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
 > Detalla las secciones 9 y 17 de `docs/ESPECIFICACION.md`. Si este contrato y la especificación se contradicen, manda la especificación: avisen y corrijan este archivo.
 > **Nadie cambia este archivo sin avisar a la otra persona.** Cada cambio sube la versión y se anota en la sección 9 ("Historial").
 
@@ -37,7 +37,7 @@
 | `estado` (máquina) | `MENU`, `ESPERA_OBJETO`, `CAPTURA`, `CLASIFICACION`, `ESPERA_ADIVINANZA`, `RETROALIMENTACION`, `REVISION`, `VERIFICAR_BOTE`, `BOTE_LLENO`, `POSICIONAR`, `SOLTAR`, `REGISTRAR`, `ACTUALIZAR_NIVEL`, `HOME`, `PENDIENTE`, `OPERADOR`, `ERROR` |
 | `modo` | `ia`, `adivina`, `null` (todavía no se elige) |
 | `origen` (clasificación) | `camara`, `voz`, `manual`, `teclado`, `panel` |
-| `motivo_dudoso` | `confianza_baja`, `riesgo_peligroso`, `conflicto_voz`, `sin_modelo` (no hay modelo cargado: el sistema no adivina), `null` |
+| `motivo_dudoso` | `confianza_baja`, `riesgo_peligroso`, `conflicto_voz`, `sin_modelo` (no hay modelo cargado: el sistema no adivina), `desconocido` (**agregado**: la foto no se parece a nada de lo entrenado), `foto_no_valida` (**agregado**: la foto salió sin señal, oscura, quemada o borrosa; `pred_id` y `confianza` son `null`), `null` |
 | `estado` (clasificación) | `en_proceso`, `registrado`, `pendiente`, `error` |
 | `nivel_certeza` | `verificada`, `alta`, `media`, `baja` |
 | `fuente_referencia` | `ia`, `operador`, `etiqueta_real` |
@@ -142,8 +142,7 @@ Códigos: `SERIAL_CONECTADO`, `SERIAL_DESCONECTADO`, `ERROR_SERIAL`, `ARDUINO_RE
   "serial": {"conectado": true, "puerto": "SIMULADO", "simulado": true},
   "camara": {"disponible": true, "indice": 0, "simulada": true},
   "modelo": {"cargado": true, "version": "sim", "simulado": true},
-  "voz": {"disponible": true, "escuchando": false, "motivo": null, "microfono": "predeterminado",
-          "habla": true, "voz_sintetica": "Microsoft Helena Desktop", "motivo_habla": null},
+  "voz": {"disponible": true, "escuchando": false, "motivo": null, "microfono": "predeterminado"},
   "caso_actual": null,
   "cuenta_regresiva_s": null,
   "mensaje": "Coloca un residuo o elige un modo",
@@ -193,6 +192,8 @@ Si la resuelve el panel, es una decisión del operador: la foto va directo a `da
   "tasa_acierto": 0.897,
   "matriz_confusion": {"etiquetas": [0, 1, 2], "filas": "real", "columnas": "predicha", "valores": [[18, 1, 1], [2, 22, 1], [0, 1, 12]]},
   "dudosos": 6,
+  "no_reconocidos": 2,
+  "fotos_no_validas": 1,
   "corregidos": 6,
   "tiempo_promedio_ms": 3240,
   "desviados_por_categoria": {"0": 20, "1": 25, "2": 13},
@@ -243,7 +244,8 @@ Respuesta de `GET /api/modelo/estado`:
     "tiempo_adivinanza_s": 20, "tiempo_revision_s": 30,
     "tiempo_retro_firme_s": 5, "tiempo_retro_media_s": 8,
     "umbral_aviso_bote": 0.80,
-    "microfono": "", "voz_segundos": 4, "voz_habla": true
+    "umbral_desconocido": 0.85,
+    "microfono": "", "voz_segundos": 4
   },
   "categorias": [{"id": 0, "clave": "organica", "nombre": "Orgánica", "color": "verde", "hex": "#2E9E44"}],
   "requieren_reinicio": ["indice_camara", "puerto_serial"]
@@ -331,15 +333,7 @@ Qué hace cada `accion`:
 - `respuesta_bote`: en `MENU` o `ESPERA_OBJETO` ("¿dónde tiro esta lata?"): la LCD responde, el disco **muestra** el bote (POS y HOME, sin DROP) y queda una **pista** de 60 s. Si luego se coloca un residuo y la cámara opina otra categoría, el caso va a `REVISION` con `motivo_dudoso = conflicto_voz`.
 - `no_reconocido`: la LCD dice "No reconoci el objeto"; el caso sigue igual.
 
-Configuración: `microfono` (`""` = predeterminado de Windows, o parte del nombre, por ejemplo `"DroidCam"`), `voz_segundos` (1–10) y `voz_habla` (`true`/`false`).
-
-| Endpoint (diagnóstico) | Cuerpo | Respuesta |
-|---|---|---|
-| `GET /api/voz/microfonos` | — | `{"microfonos": [{"indice": 2, "nombre": "Micrófono (DroidCam Audio)", "predeterminado": false}], "configurado": "", "voz": {…}}` |
-| `POST /api/voz/nivel` | — | Graba 1 s del micrófono configurado: `{"microfono": "…", "rms": 1315.7, "pico": 11449, "veredicto": "Bien: llega sonido"}` (o "SILENCIO TOTAL…") |
-| `POST /api/voz/decir` | `{"texto": "Va en el bote azul."}` | `{"ok": true}`. `503` si la voz que habla está apagada o no hay voz en español en Windows |
-
-**El sistema habla** (si `voz_habla` es `true`; voz en español de Windows, sin internet): al soltar el residuo dice la categoría, la certeza y el bote ("Es inorgánica, con 92 por ciento de certeza. Va en el bote azul."); al entrar a revisión pide ayuda; responde las preguntas de voz, el cambio de modo, el pendiente y las fallas.
+Configuración: `microfono` (`""` = predeterminado de Windows, o parte del nombre, por ejemplo `"DroidCam"`) y `voz_segundos` (1–10).
 
 ### 3.13 Archivos
 `GET /captures/{archivo}` → `image/jpeg`.
@@ -424,7 +418,7 @@ El panel **solo muestra** lo que manda el backend. Las reglas de decisión, los 
 
 Con `SIMULACION=1`, el backend se comporta igual en esta API, con estas diferencias:
 - `serial.simulado`, `camara.simulada`, `modelo.simulado` y el campo `simulado` de cada clasificación valen `true`.
-- **`POST /api/sim/objeto`** (**agregado**, solo en simulación) simula que se colocó un residuo, como si llegara `OBJ`. El cuerpo es opcional: `{"categoria_real": 1}`, para forzar la imagen de una carpeta de `sim_images/`.
+- **`POST /api/sim/objeto`** (**agregado**, solo en simulación) simula que se colocó un residuo, como si llegara `OBJ`. El cuerpo es opcional: `{"categoria_real": 1}`, para forzar la imagen de una carpeta de `sim_images/`. También acepta `"dudoso"`, `"foto_mala"` (fotos oscuras: prueba la revisión de calidad) y `"desconocido"` (objeto que el modelo nunca vio). Los booleanos se rechazan con `422`.
 - **`POST /api/sim/tecla`** (**agregado**, solo en simulación): `{"tecla": "1"}` simula una tecla del teclado 4×4.
 - **`POST /api/sim/retirar`** (**agregado**, solo en simulación) simula que el operador retiró el residuo de la bandeja (`LIBRE`).
 - **`POST /api/sim/voz`** (**agregado**, solo en simulación): `{"texto": "es una cáscara de plátano"}` simula que alguien lo **dijo** (sin micrófono). Responde igual que `POST /api/voz/escuchar` más `"simulado": true`.
@@ -445,6 +439,9 @@ Mientras el backend no exista, el panel puede trabajar con **datos de ejemplo**:
 | Serial `HOME_OK`, `OK`, `CAL_OK`, `STATUS`, `LIBRE`, `WATCHDOG` | La especificación pide "responder siempre"; `LIBRE` sirve para saber cuándo se retiró el residuo |
 | `POST /api/sim/objeto`, `/api/sim/tecla` y `/api/sim/retirar` | Probar el ciclo completo sin hardware (sección 20.2) |
 | `motivo_dudoso: sin_modelo` y `estado` de la clasificación | Falla segura sin modelo; distinguir casos pendientes o con error |
+| `motivo_dudoso: desconocido` y configuración `umbral_desconocido` (0.5–3) | La IA siempre elige una de las 3 clases, incluso con un objeto que nunca vio: si la foto queda lejos de todo lo entrenado (`models/vN/novedad.json`), va a revisión |
+| `motivo_dudoso: foto_no_valida`; alertas `FOTO_REINTENTO`, `FOTO_NO_VALIDA` y `OBJETO_DESCONOCIDO` | Una foto mala no se clasifica: se repite una vez y, si sigue mala, el residuo va a revisión |
+| `POST /api/sim/objeto` acepta `"foto_mala"` y `"desconocido"` en `categoria_real` | Probar sin hardware la revisión de calidad de la foto y la detección de objetos desconocidos |
 | `POST /api/voz/escuchar`, `POST /api/sim/voz`, evento `voz` | Botón de micrófono en el panel y prueba de la voz sin micrófono (Fase 9) |
 
 ## 9. Historial
@@ -452,7 +449,6 @@ Mientras el backend no exista, el panel puede trabajar con **datos de ejemplo**:
 | Versión | Fecha | Quién | Cambio |
 |---|---|---|---|
 | 1.0 | 2026-11-19 | Persona A (generado con Claude Code) | Versión inicial |
-| 1.5 | 2026-11-19 | Persona A (generado con Claude Code) | Voz que habla (texto a voz de Windows): `voz_habla` en la configuración, `estado.voz.habla` / `voz_sintetica` / `motivo_habla`, `POST /api/voz/decir`; diagnóstico del micrófono: `GET /api/voz/microfonos` y `POST /api/voz/nivel`. Página de prueba en `/prueba/voz`. **Avisar a la Persona B** (puede agregar en Configuración el interruptor "El sistema habla" y el selector de micrófono). |
 | 1.4 | 2026-11-19 | Persona A (generado con Claude Code) | Fase 9 adelantada en simulación (voz): `POST /api/voz/escuchar`, `POST /api/sim/voz`, evento WebSocket `voz`, `estado.voz` con `escuchando`/`motivo`/`microfono`, configuración `microfono` y `voz_segundos`, tecla **A** = hablar. **Avisar a la Persona B:** el panel puede agregar un botón 🎤 que llame a `POST /api/voz/escuchar` y mostrar el evento `voz`. |
 | 1.3 | 2026-11-19 | Persona A (generado con Claude Code) | Fase 5: campo `tiempos_etapas` en Clasificacion; el backend manda los 3 `CAL` al conectarse; alerta `CAL_NO_SINCRONIZADA`. **Avisar a la Persona B** (el firmware debe responder `CAL_OK` rápido justo después de `READY`). |
 | 1.2 | 2026-11-19 | Persona A (generado con Claude Code) | Fase 4: `roi` en la configuración (`[x, y, ancho, alto]` en fracciones), `indice_camara` acepta también una URL (celular), `mensaje` en `GET /api/modelo/estado`, alerta `MODELO_ACTIVADO`. `POST /api/modelo/reentrenar` ya funciona (antes `501`). **Avisar a la Persona B.** |

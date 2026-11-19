@@ -34,13 +34,12 @@ from typing import Any, Callable
 
 from . import lcd_ui
 from .bins import GestorBotes
-from .camera import CamaraBase, ErrorCamara, copiar_a_dataset
-from .config import IDS_CATEGORIA, TIEMPOS, Ajustes, Configuracion
+from .camera import CamaraBase, ErrorCamara, FotoNoValida, copiar_a_dataset
+from .config import CAMARA, IDS_CATEGORIA, TIEMPOS, Ajustes, Configuracion
 from .db import BaseDatos, ahora, clasificacion_a_dict
 from .game import Juego
 from .model import Decision, ModeloBase, ModeloNoDisponible, aplicar_reglas, promediar
 from .serial_link import CONECTADO, DESCONECTADO, EnlaceBase, ErrorSerial, Mensaje, TimeoutSerial
-from . import tts
 from .voice import ErrorVoz, Intencion, Voz
 
 log = logging.getLogger("orquestador")
@@ -135,6 +134,8 @@ class Orquestador:
         self._tareas: set[asyncio.Task] = set()
         self._resolucion: asyncio.Future | None = None
         self._bandeja_libre = asyncio.Event()
+        # OBJ que llegó mientras otro ciclo terminaba (auditoría): se procesa al volver al menú
+        self._objeto_esperando = False
         self._vaciado = asyncio.Event()
         self._fin_cuenta: float | None = None
         self._t_error: float | None = None
@@ -157,8 +158,6 @@ class Orquestador:
             await self._alerta("error", "CAMARA_NO_DISPONIBLE", "No se pudo abrir la cámara")
         if self.voz.disponible:  # carga Vosk en segundo plano (~1–2 s)
             self._lanzar(self._calentar_voz())
-        if self.voz.locutor.activo:  # abre la voz de Windows en segundo plano (~2 s)
-            self._lanzar(asyncio.to_thread(self.voz.locutor.calentar))
         if self.enlace.conectado:
             await self._entrar_menu()
         else:
@@ -312,11 +311,17 @@ class Orquestador:
             if self._tarea_mostrar_bote and not self._tarea_mostrar_bote.done():
                 await asyncio.wait({self._tarea_mostrar_bote})  # el disco termina de mostrar el bote
             if self.estado in (Estado.MENU, Estado.ESPERA_OBJETO) and not self.ciclo_activo:
-                self._tarea_ciclo = asyncio.create_task(self._ciclo())
+                self._iniciar_ciclo()
+            elif self.ciclo_activo:
+                # El firmware manda OBJ una sola vez (flanco): si se ignora, el residuo se queda en la bandeja
+                # sin clasificar para siempre. Se recuerda y se procesa en cuanto el ciclo actual termine.
+                self._objeto_esperando = True
+                self.db.registrar_evento("aviso", "serial", f"OBJ durante {self.estado.value}: se procesa al terminar")
             else:
                 self.db.registrar_evento("aviso", "serial", f"OBJ ignorado en {self.estado.value}")
         elif tipo == "LIBRE":
             self._bandeja_libre.set()
+            self._objeto_esperando = False
         elif tipo == "KEY" and mensaje.args:
             tecla = mensaje.args[0]
             await self.difusor.emitir("tecla", {"tecla": tecla})
@@ -439,7 +444,6 @@ class Orquestador:
         if intencion.tipo not in ("modo", "categoria"):
             # §15 caso 3: "No reconocí el objeto" y el caso sigue igual (en revisión, si lo estaba)
             await self._mostrar(lcd_ui.pantalla_voz_no_reconocida(intencion.texto))
-            self._hablar(tts.FRASE_NO_RECONOCIDO, interrumpir=True)
             self._lanzar(self._restaurar_lcd(pantalla_previa, self.estado))
             return "no_reconocido"
         if intencion.tipo == "modo":  # §15 caso 4: menú por voz
@@ -458,7 +462,6 @@ class Orquestador:
         # §15 caso 2 sin residuo: responder, mostrar el bote y guardar la pista para el siguiente residuo
         self._pista_voz = (categoria, intencion.objeto, time.monotonic())
         await self._mostrar(lcd_ui.pantalla_voz_entendida(intencion.objeto, categoria))
-        self._hablar(tts.frase_objeto(intencion.objeto, categoria), interrumpir=True)
         self._lanzar(self._restaurar_lcd(pantalla_previa, self.estado, segundos=4))
         if self.estado == Estado.MENU and self.enlace.conectado and not self.ciclo_activo:
             if not (self._tarea_mostrar_bote and not self._tarea_mostrar_bote.done()):
@@ -537,6 +540,18 @@ class Orquestador:
         return respuesta
 
     # ================================================================ el ciclo
+    def _iniciar_ciclo(self) -> None:
+        self._objeto_esperando = False
+        self._tarea_ciclo = asyncio.create_task(self._ciclo())
+        self._tarea_ciclo.add_done_callback(lambda _: self._lanzar(self._revisar_objeto_esperando()))
+
+    async def _revisar_objeto_esperando(self) -> None:
+        """Al terminar un ciclo: si llegó un residuo mientras tanto y sigue en la bandeja, se procesa."""
+        if (self._objeto_esperando and not self._bandeja_libre.is_set() and not self.ciclo_activo
+                and self.estado in (Estado.MENU, Estado.ESPERA_OBJETO)):
+            self.db.registrar_evento("info", "orquestador", "Se procesa el residuo que llegó durante el ciclo anterior")
+            self._iniciar_ciclo()
+
     async def _ciclo(self) -> None:
         t0 = time.monotonic()
         self._espera_humana_s = 0.0
@@ -570,26 +585,51 @@ class Orquestador:
         await self._mostrar(lcd_ui.pantalla_procesando())
         await self._cmd_suave("LIGHT:ON")
         await asyncio.sleep(TIEMPOS["luz_ms"] / 1000 * self.f)
+        foto_mala: FotoNoValida | None = None
         try:
-            frames = await self.camara.capturar(TIEMPOS["fotogramas"])
+            # La cámara revisa la calidad (sin señal, oscura, quemada, borrosa). Si todas salen mal se repite;
+            # si siguen mal, el residuo NO se clasifica: va a revisión con motivo "foto_no_valida".
+            for intento in range(int(CAMARA["reintentos"]) + 1):
+                try:
+                    frames = await self.camara.capturar(TIEMPOS["fotogramas"])
+                    foto_mala = None
+                    break
+                except FotoNoValida as error:
+                    foto_mala = error
+                    if intento < int(CAMARA["reintentos"]):
+                        await self._alerta("aviso", "FOTO_REINTENTO", f"{error}: se toma otra foto")
         finally:
             await self._cmd_suave("LIGHT:OFF")
-        foto = self.camara.guardar_foto(frames[len(frames) // 2])
+        if foto_mala is not None:
+            frames = [foto_mala.frame] if foto_mala.frame is not None else []
+        foto = self.camara.guardar_foto(frames[len(frames) // 2]) if frames else None
         self._caso_id = self.db.insertar_clasificacion(
             foto=foto, modo=self.modo, origen="camara", simulado=int(self.simulado),
             modelo_version=self.modelo.version if self.modelo.cargado else None, estado="en_proceso",
         )
-        await self.difusor.emitir("captura", {"clasificacion_id": self._caso_id, "foto": f"/captures/{foto}",
+        await self.difusor.emitir("captura", {"clasificacion_id": self._caso_id,
+                                              "foto": f"/captures/{foto}" if foto else None,
                                               "oculto": self._oculto})
         # --- CLASIFICACION
         await self._transicion(Estado.CLASIFICACION)
+        if foto_mala is not None:
+            await self._alerta("aviso", "FOTO_NO_VALIDA", f"{foto_mala}: el residuo va a revisión")
+            self.db.actualizar_clasificacion(self._caso_id, dudoso=1, motivo_dudoso="foto_no_valida")
+            decision = Decision(None, None, True, "foto_no_valida")
+            if not self._oculto:
+                await self.difusor.emitir("clasificacion", self.caso_actual())
+            return decision
         modelo = self.modelo  # referencia fija: un reentrenamiento puede cambiarlo a medio ciclo
         try:
             # La red neuronal corre en otro hilo para no congelar el servidor (~0.1–0.3 s en CPU)
-            predicciones = await asyncio.get_running_loop().run_in_executor(
-                None, modelo.predecir, frames, self.camara.ultima_pista)
+            predicciones, novedad = await asyncio.get_running_loop().run_in_executor(
+                None, modelo.analizar, frames, self.camara.ultima_pista)
             probs = promediar(predicciones)
-            decision = aplicar_reglas(probs, self.config.get("umbral_general"), self.config.get("umbral_peligroso"))
+            decision = aplicar_reglas(probs, self.config.get("umbral_general"), self.config.get("umbral_peligroso"),
+                                      novedad, self.config.get("umbral_desconocido"))
+            if decision.motivo == "desconocido":
+                await self._alerta("aviso", "OBJETO_DESCONOCIDO",
+                                   f"Objeto no reconocido (caso #{self._caso_id}): va a revisión")
             self.db.actualizar_clasificacion(
                 self._caso_id, pred_id=decision.pred_id, confianza=decision.confianza,
                 p_organica=float(probs[0]), p_inorganica=float(probs[1]), p_peligroso=float(probs[2]),
@@ -660,6 +700,9 @@ class Orquestador:
         if final_id not in IDS_CATEGORIA:
             raise ValueError(f"Categoría inválida ({final_id}): no se suelta el residuo")
         bote_id = self.botes.bote_para_categoria(final_id)
+        # El destino ya está decidido: se guarda AHORA para que el panel lo vea mientras el disco gira
+        # (antes solo se guardaba al registrar y el panel veía final_id = null en POSICIONAR y SOLTAR).
+        self.db.actualizar_clasificacion(self._caso_id, final_id=final_id)
 
         # --- VERIFICAR_BOTE / BOTE_LLENO (el bloqueo se activa en la Fase 7)
         await self._transicion(Estado.VERIFICAR_BOTE)
