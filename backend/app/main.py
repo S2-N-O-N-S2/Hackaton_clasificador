@@ -13,10 +13,11 @@ from __future__ import annotations
 import json
 import logging
 from contextlib import asynccontextmanager
+from pathlib import Path
 
 from fastapi import FastAPI, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from .bins import GestorBotes
@@ -93,6 +94,11 @@ def crear_app() -> FastAPI:
     def raiz() -> dict:
         return {"servicio": "clasificador", "simulacion": ajustes.simulacion,
                 "documentacion": "/docs", "estado": "/api/estado", "websocket": "/ws/eventos"}
+
+    @app.get("/prueba/voz", include_in_schema=False)
+    def prueba_voz() -> FileResponse:
+        """Página de prueba del micrófono y la voz (no es el panel; sirve para ajustar la voz)."""
+        return FileResponse(Path(__file__).resolve().parent / "static" / "prueba_voz.html")
 
     @app.websocket("/ws/eventos")
     async def ws_eventos(ws: WebSocket) -> None:

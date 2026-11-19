@@ -189,6 +189,14 @@ async def post_voz_escuchar(request: Request) -> dict[str, Any]:
         raise HTTPException(503, str(error)) from None
 
 
+@router.get("/api/voz/microfonos")
+def get_voz_microfonos(request: Request) -> dict[str, Any]:
+    """Micrófonos disponibles y el configurado (`microfono` en /api/config)."""
+    ctx = _ctx(request)
+    return {"microfonos": ctx.orq.voz.microfonos(), "configurado": ctx.config.get("microfono"),
+            "voz": ctx.orq.voz.estado()}
+
+
 # ---------------------------------------------------------------------------- estadísticas
 def _matriz_vacia() -> list[list[int]]:
     return [[0, 0, 0] for _ in range(3)]

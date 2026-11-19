@@ -221,3 +221,10 @@ def test_arranque_con_voz_disponible_precarga_vosk(tmp_path, monkeypatch):
         assert c.get("/api/estado").json()["voz"]["disponible"] is True
         r = c.post("/api/voz/escuchar").json()  # "usar ia" en el menú
         assert r["accion"] == "modo_ia" and c.get("/api/estado").json()["estado"] == "ESPERA_OBJETO"
+
+
+def test_pagina_de_prueba_y_microfonos(cliente):
+    r = cliente.get("/prueba/voz")
+    assert r.status_code == 200 and "PRUEBA DE VOZ" in r.text and "/api/voz/escuchar" in r.text
+    d = cliente.get("/api/voz/microfonos").json()
+    assert isinstance(d["microfonos"], list) and d["configurado"] == "" and "disponible" in d["voz"]

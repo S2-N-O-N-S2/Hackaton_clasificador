@@ -196,6 +196,23 @@ class Voz:
             self._modelo = vosk.Model(str(self._ruta_modelo))
 
     @staticmethod
+    def microfonos() -> list[dict[str, Any]]:
+        """Micrófonos que ve Windows (para elegir uno en la configuración). Sin repetidos por nombre."""
+        try:
+            import sounddevice as sd
+
+            predeterminado = sd.default.device[0]
+            vistos, salida = set(), []
+            for i, d in enumerate(sd.query_devices()):
+                if d["max_input_channels"] > 0 and d["name"] not in vistos:
+                    vistos.add(d["name"])
+                    salida.append({"indice": i, "nombre": d["name"], "predeterminado": i == predeterminado})
+            return salida
+        except Exception as error:  # noqa: BLE001 — sin audio: lista vacía
+            log.warning("No se pudieron listar los micrófonos: %s", error)
+            return []
+
+    @staticmethod
     def _dispositivo(preferido: Any) -> Any:
         """'' → micrófono predeterminado; número → índice; texto → primer micrófono cuyo nombre lo contenga."""
         import sounddevice as sd

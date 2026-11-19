@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prueba de voz</title>
+<style>
+  /* Página de PRUEBA de la voz (Fase 9). No es el panel: sirve para elegir micrófono y ajustar keywords.json. */
+  :root {
+    --maquina: #23332E; --lamina: #EEF1EF; --placa: #FFFFFF; --tinta: #1D2925; --suave: #55625D;
+    --linea: #C9D1CC; --verde: #2E9E44; --azul: #1E6FD9; --gris: #6B7280; --amarillo: #F2B705;
+    --rojo: #C62828; --simulado: #7C3AED; --radio: 8px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--lamina); color: var(--tinta);
+         font-family: "Segoe UI Variable Text", "Segoe UI", system-ui, sans-serif; }
+  header { background: var(--maquina); color: var(--lamina); padding: 14px 16px; display: flex;
+           align-items: center; gap: 10px; flex-wrap: wrap; }
+  header h1 { margin: 0; font-size: 1.25rem; font-family: "Bahnschrift", "Arial Narrow", sans-serif; letter-spacing: .5px; }
+  .pastilla { padding: 3px 10px; border-radius: 999px; font-size: .8rem; font-weight: 700; }
+  .sim { background: var(--simulado); color: #fff; }
+  .ok { background: var(--verde); color: #fff; }
+  .mal { background: var(--rojo); color: #fff; }
+  main { max-width: 980px; margin: 0 auto; padding: 16px; display: grid; gap: 16px;
+         grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+  .tarjeta { background: var(--placa); border: 1px solid var(--linea); border-radius: var(--radio); padding: 16px; }
+  .tarjeta h2 { margin: 0 0 10px; font-size: 1rem; text-transform: uppercase; letter-spacing: .6px; color: var(--suave); }
+  .ancha { grid-column: 1 / -1; }
+  #hablar { width: 100%; padding: 22px; font-size: 1.4rem; font-weight: 700; border: 0; border-radius: var(--radio);
+            background: var(--maquina); color: var(--lamina); cursor: pointer; }
+  #hablar:disabled { opacity: .55; cursor: not-allowed; }
+  #hablar.escuchando { background: var(--rojo); animation: latido 1s infinite; }
+  @keyframes latido { 50% { transform: scale(.98); } }
+  .ayuda { color: var(--suave); font-size: .9rem; margin: 8px 0 0; }
+  .lcd { background: #1B3A8C; color: #DDE7FF; font-family: Consolas, "Courier New", monospace; font-size: 1rem;
+         padding: 10px 12px; border-radius: 6px; border: 4px solid #111; white-space: pre; line-height: 1.35; overflow-x: auto; }
+  dl { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 6px 12px; }
+  dt { color: var(--suave); } dd { margin: 0; font-weight: 600; word-break: break-word; }
+  .cat { display: inline-block; padding: 2px 10px; border-radius: 999px; color: #fff; font-weight: 700; }
+  .c0 { background: var(--verde); } .c1 { background: var(--azul); } .c2 { background: var(--gris); }
+  .grande { font-size: 1.3rem; }
+  select, input, button.sec { font: inherit; padding: 8px 10px; border: 1px solid var(--linea); border-radius: 6px; background: #fff; }
+  button.sec { cursor: pointer; } button.sec:hover { border-color: var(--maquina); }
+  .fila { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; margin-bottom: 10px; }
+  .fila > select, .fila > input[type=text] { flex: 1; min-width: 160px; }
+  #historial { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+  #historial li { padding: 8px 10px; border: 1px solid var(--linea); border-radius: 6px; font-size: .92rem; }
+  .ejemplos code { background: var(--lamina); padding: 1px 6px; border-radius: 4px; }
+  #aviso { display: none; background: #FFF4D6; border: 1px solid var(--amarillo); padding: 10px; border-radius: 6px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>PRUEBA DE VOZ</h1>
+  <span id="b-sim" class="pastilla sim" hidden>SIMULADO</span>
+  <span id="b-voz" class="pastilla">…</span>
+  <span id="b-estado" class="pastilla" style="background:#374151;color:#fff">…</span>
+</header>
+<main>
+  <section class="tarjeta">
+    <h2>Hablar</h2>
+    <button id="hablar" type="button">🎤 Presiona y habla</button>
+    <p class="ayuda" id="instruccion">Igual que la tecla A del teclado 4×4. Graba unos segundos y Vosk lo convierte en texto.</p>
+    <p id="aviso"></p>
+  </section>
+
+  <section class="tarjeta">
+    <h2>Lo que entendió</h2>
+    <dl>
+      <dt>Oí</dt><dd id="r-texto" class="grande">—</dd>
+      <dt>Entendí</dt><dd id="r-intencion">—</dd>
+      <dt>Hizo</dt><dd id="r-accion">—</dd>
+      <dt>Contexto</dt><dd id="r-contexto">—</dd>
+    </dl>
+  </section>
+
+  <section class="tarjeta">
+    <h2>LCD del Arduino</h2>
+    <div class="lcd" id="lcd">&nbsp;</div>
+    <p class="ayuda">Estado: <b id="estado-txt">—</b> · Modo: <b id="modo-txt">—</b></p>
+  </section>
+
+  <section class="tarjeta">
+    <h2>Micrófono</h2>
+    <div class="fila">
+      <select id="mic"></select>
+      <button class="sec" type="button" id="guardar-mic">Usar este</button>
+    </div>
+    <div class="fila">
+      <label for="seg">Segundos de grabación</label>
+      <input id="seg" type="number" min="1" max="10" step="0.5" style="width:90px">
+      <button class="sec" type="button" id="guardar-seg">Guardar</button>
+    </div>
+    <p class="ayuda">"DroidCam" usa el micrófono del celular de la cámara (más cerca del residuo).</p>
+  </section>
+
+  <section class="tarjeta">
+    <h2>Probar casos</h2>
+    <div class="fila">
+      <button class="sec" type="button" data-accion="objeto">Colocar residuo</button>
+      <button class="sec" type="button" data-accion="dudoso">Colocar residuo dudoso</button>
+      <button class="sec" type="button" data-tecla="#">Volver al menú (#)</button>
+      <button class="sec" type="button" data-tecla="C">Dejar pendiente (C)</button>
+    </div>
+    <div class="fila">
+      <input id="texto" type="text" placeholder="Escribe lo que dirías: es una lata">
+      <button class="sec" type="button" id="simular">Simular que lo dije</button>
+    </div>
+    <p class="ayuda ejemplos">
+      <b>En el menú:</b> <code>usar IA</code> <code>quiero adivinar</code> <code>dónde tiro esta botella</code><br>
+      <b>En revisión:</b> <code>es una cáscara de plátano</code> <code>una pila</code> <code>es inorgánico</code><br>
+      Con la cámara real, "dudoso" depende de lo que vea la IA: pon algo raro frente a la cámara.
+    </p>
+  </section>
+
+  <section class="tarjeta ancha">
+    <h2>Historial</h2>
+    <ul id="historial"><li>Aún no has hablado.</li></ul>
+  </section>
+</main>
+
+<script>
+  const CATS = ["Orgánica", "Inorgánica", "Peligroso"];
+  const ACCIONES = {
+    revision_resuelta: "Resolvió el caso en revisión (el residuo va al bote)",
+    modo_ia: "Eligió el modo IA", modo_adivina: "Eligió el modo Adivina", modo_menu: "Volvió al menú",
+    respuesta_bote: "Respondió en qué bote va y mostró el bote (pista para el siguiente residuo)",
+    no_reconocido: "No reconoció el objeto (el caso sigue igual)", ignorado: "Nada que hacer en este estado",
+  };
+  const PUEDE_HABLAR = new Set(["MENU", "ESPERA_OBJETO", "REVISION"]);
+  const $ = (id) => document.getElementById(id);
+  let estado = null, escuchando = false;
+
+  async function api(metodo, ruta, cuerpo) {
+    const r = await fetch(ruta, { method: metodo, headers: { "Content-Type": "application/json" },
+                                  body: cuerpo === undefined ? undefined : JSON.stringify(cuerpo) });
+    const datos = await r.json().catch(() => ({}));
+    if (!r.ok) throw new Error(datos.detail ? (typeof datos.detail === "string" ? datos.detail : JSON.stringify(datos.detail)) : r.statusText);
+    return datos;
+  }
+
+  function aviso(texto) { const a = $("aviso"); a.textContent = texto || ""; a.style.display = texto ? "block" : "none"; }
+
+  function categoria(valor) { return `<span class="cat c${valor}">${CATS[valor]}</span>`; }
+
+  function mostrarResultado(r) {
+    $("r-texto").textContent = r.texto_crudo ? `“${r.texto_crudo}”` : "(no oí nada)";
+    const i = r.intencion || {};
+    let entendi = "—";
+    if (i.tipo === "categoria") entendi = `${i.objeto ? `<b>${i.objeto}</b> → ` : ""}${categoria(i.valor)}`;
+    else if (i.tipo === "modo") entendi = `Modo <b>${i.valor}</b>`;
+    else if (i.tipo === "desconocido") entendi = "No está en keywords.json";
+    else if (i.tipo === "vacio") entendi = "Nada";
+    $("r-intencion").innerHTML = entendi;
+    $("r-accion").textContent = ACCIONES[r.accion] || r.accion || "—";
+    $("r-contexto").textContent = r.contexto || "—";
+    const li = document.createElement("li");
+    const hora = new Date().toLocaleTimeString();
+    li.innerHTML = `<b>${hora}</b> · [${r.contexto}] “${r.texto_crudo || ""}” → ${entendi} · ${ACCIONES[r.accion] || r.accion}${r.simulado ? " <i>(texto simulado)</i>" : ""}`;
+    const h = $("historial"); if (h.firstElementChild && !h.firstElementChild.querySelector("b")) h.innerHTML = "";
+    h.prepend(li); while (h.children.length > 15) h.lastChild.remove();
+  }
+
+  function pintarEstado(e) {
+    estado = e;
+    $("b-sim").hidden = !e.simulacion;
+    const v = e.voz || {};
+    const bv = $("b-voz");
+    bv.textContent = v.disponible ? (v.escuchando ? "Escuchando…" : "Voz lista") : "Voz NO disponible";
+    bv.className = "pastilla " + (v.disponible ? "ok" : "mal");
+    $("b-estado").textContent = e.estado;
+    $("estado-txt").textContent = e.estado; $("modo-txt").textContent = e.modo || "—";
+    $("lcd").textContent = (e.lcd || []).map((l) => l.padEnd(20)).join("\n");
+    const btn = $("hablar");
+    if (!escuchando) {
+      btn.disabled = !v.disponible || !PUEDE_HABLAR.has(e.estado);
+      btn.textContent = !v.disponible ? "🎤 Voz no disponible" :
+        PUEDE_HABLAR.has(e.estado) ? "🎤 Presiona y habla" : `🎤 Espera (${e.estado})`;
+    }
+    if (!v.disponible && v.motivo) aviso(v.motivo);
+  }
+
+  async function refrescar() {
+    try { pintarEstado(await api("GET", "/api/estado")); }
+    catch (err) { $("b-estado").textContent = "Sin backend"; }
+  }
+
+  async function hablar() {
+    if (escuchando) return;
+    escuchando = true; aviso("");
+    const btn = $("hablar");
+    btn.disabled = true; btn.classList.add("escuchando");
+    let restante = Number($("seg").value) || 4;
+    btn.textContent = `🔴 Habla ahora… ${restante}`;
+    const reloj = setInterval(() => {
+      restante -= 1;
+      btn.textContent = restante > 0 ? `🔴 Habla ahora… ${restante}` : "⏳ Reconociendo…";
+    }, 1000);
+    try { mostrarResultado(await api("POST", "/api/voz/escuchar")); }
+    catch (err) { aviso("No se pudo escuchar: " + err.message); }
+    finally {
+      clearInterval(reloj); escuchando = false; btn.classList.remove("escuchando"); refrescar();
+    }
+  }
+
+  async function cargarMicrofonos() {
+    try {
+      const d = await api("GET", "/api/voz/microfonos");
+      const sel = $("mic"); sel.innerHTML = "";
+      sel.add(new Option("Predeterminado de Windows", ""));
+      for (const m of d.microfonos) sel.add(new Option(m.nombre + (m.predeterminado ? " (predeterminado)" : ""), m.nombre));
+      sel.value = [...sel.options].some((o) => o.value === d.configurado) ? d.configurado : "";
+      const cfg = await api("GET", "/api/config");
+      $("seg").value = (cfg.config || cfg).voz_segundos ?? 4;
+    } catch (err) { aviso("No se pudo leer la lista de micrófonos: " + err.message); }
+  }
+
+  async function guardar(parcial, texto) {
+    try { await api("PUT", "/api/config", parcial); aviso(""); $("instruccion").textContent = texto; }
+    catch (err) { aviso("No se guardó: " + err.message); }
+  }
+
+  $("hablar").addEventListener("click", hablar);
+  $("guardar-mic").addEventListener("click", () =>
+    guardar({ microfono: $("mic").value }, `Micrófono: ${$("mic").value || "predeterminado"}. Ya puedes hablar.`));
+  $("guardar-seg").addEventListener("click", () =>
+    guardar({ voz_segundos: Number($("seg").value) }, `Grabará ${$("seg").value} s cada vez.`));
+  $("simular").addEventListener("click", async () => {
+    try { mostrarResultado(await api("POST", "/api/sim/voz", { texto: $("texto").value })); aviso(""); }
+    catch (err) { aviso("No se pudo simular: " + err.message); }
+    refrescar();
+  });
+  $("texto").addEventListener("keydown", (e) => { if (e.key === "Enter") $("simular").click(); });
+  document.querySelectorAll("[data-accion]").forEach((b) => b.addEventListener("click", async () => {
+    try {
+      await api("POST", "/api/sim/objeto", b.dataset.accion === "dudoso" ? { categoria_real: "dudoso" } : {});
+      aviso("");
+    } catch (err) { aviso(err.message); }
+  }));
+  document.querySelectorAll("[data-tecla]").forEach((b) => b.addEventListener("click", async () => {
+    try { await api("POST", "/api/sim/tecla", { tecla: b.dataset.tecla }); aviso(""); } catch (err) { aviso(err.message); }
+  }));
+
+  cargarMicrofonos();
+  refrescar();
+  setInterval(refrescar, 1000);
+</script>
+</body>
+</html>
