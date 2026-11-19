@@ -19,6 +19,11 @@ La convocatoria permite bibliotecas, tutoriales e IA generativa **con atribució
 | pytest, httpx | ver lock | MIT / BSD | Pruebas | `backend/tests/` |
 | React / react-dom | 18.3.1 | MIT | Interfaz del panel | `frontend/src/` |
 | Vite + @vitejs/plugin-react | 6.4.6 / 4.7.0 | MIT | Servidor de desarrollo y compilación del panel | `frontend/` |
+| Arduino AVR core | 1.8.8 | LGPL | Compilación para el Arduino UNO | `firmware/` |
+| Servo (Arduino) | 1.3.0 | LGPL | Servos del disco y de la trampilla | `clasificador_uno.ino` |
+| EEPROM, Wire (Arduino) | 2.0 / 1.0 | LGPL | Calibración persistente; bus I2C de la LCD | `clasificador_uno.ino`, `escaner_i2c.ino` |
+| LiquidCrystal I2C (Frank de Brabander) | 1.1.2 | ver repositorio de la biblioteca | LCD 20×4 por I2C | `clasificador_uno.ino` |
+| Keypad (Mark Stanley, Alexander Brevig) | 3.1.1 | LGPL | Teclado matricial 4×4 | `clasificador_uno.ino` |
 
 ## 2. Modelos preentrenados
 
@@ -43,6 +48,7 @@ La convocatoria permite bibliotecas, tutoriales e IA generativa **con atribució
 | Claude Code (Anthropic) | Fase 3: todo `backend/app/` y `backend/tests/` (orquestador, serial, cámara, modelo simulado, BD, API, WebSocket, pruebas) y `docs/api_contrato.md` | Código completo y pruebas | [COMPLETAR: el equipo debe leer `orchestrator.py` y `model.py` y poder modificar `aplicar_reglas` en vivo] |
 | Claude Code (Anthropic) | Fase 4: `training/` (captura, entrenamiento por objeto, evaluación), `ModeloReal` y `GestorReentrenamiento` en `app/model.py`, `tests/test_entrenamiento.py`, sección IA de `memoria_tecnica.md` | Código, pruebas y documentación | [COMPLETAR: el equipo debe capturar el dataset real y revisar los umbrales con `evaluate.py`] |
 | Claude Code (Anthropic) | Fase 5 (preparación): `tools/calibrar_angulos.py`, tiempos por etapa y sincronización de ángulos en `orchestrator.py`, migración en `db.py`, `tests/test_fase5.py`, `docs/integracion_fase5.md`, `docs/resultados/ciclos_reales.md` | Código, pruebas y documentación | [COMPLETAR] |
+| Claude Code (Anthropic) | Fase 2: `firmware/clasificador_uno/clasificador_uno.ino`, `firmware/escaner_i2c/escaner_i2c.ino`, `docs/diagrama_electrico.md`, `docs/prueba_firmware.md` | Firmware completo (parser, rampa del disco, DROP con interrupción, LCD no bloqueante, EEPROM, watchdog), escáner I2C (basado en el escáner clásico de Arduino Playground), tabla de conexiones, checklist de mediciones y la lista de pruebas | [COMPLETAR: el equipo debe probarlo en el hardware, ajustar los ángulos de la trampilla y la dirección de la LCD, y poder explicar cada sección] |
 
 ## 5. Fuentes de contenido (explicaciones del modo Adivina)
 
