@@ -18,7 +18,7 @@
 
 | Variable | Valor | Estado |
 |---|---|---|
-| `BOTE_LARGO` | 120 | Medido 2026-11-19 (interpretado como planta rectangular; ver `docs/mediciones.md`) |
+| `BOTE_LARGO` | 120 | Medido 2026-11-19; bote rectangular (confirmado) |
 | `BOTE_ANCHO` | 80 | Medido 2026-11-19 |
 | `BOTE_ALTO` | [COMPLETAR] | **Urgente:** de él depende la altura de la torre |
 | `BOCA_LARGO` × `BOCA_ANCHO` | [COMPLETAR] (supuesto inicial 110 × 70) | Abertura libre de la boca, sin tapa |

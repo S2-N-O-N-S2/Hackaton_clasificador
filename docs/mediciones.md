@@ -27,7 +27,7 @@ Medir con el vernier en **mm** y la báscula en **kg**. Medir el **diámetro may
 | Altura (con tapa) `H_bote` [mm] | [COMPLETAR] | [COMPLETAR] | [COMPLETAR] |
 | Forma de la boca y medida libre [mm] | [COMPLETAR] | [COMPLETAR] | [COMPLETAR] |
 
-> Medida reportada por el equipo el 2026-11-19: "12 cm de largo y 8 de ancho" (los tres botes iguales). Se interpreta como la **planta rectangular** 120 × 80 mm. Un bote redondo de Ø80 × 120 mm tendría solo ~0.6 L, no 1.5 L. Si la interpretación es incorrecta, corríjanla aquí y en `cad/parametros.md`.
+> Medida reportada por el equipo el 2026-11-19: "12 cm de largo y 8 de ancho" (los tres botes iguales). **Confirmado por el equipo:** los botes son **rectangulares**, con planta de 120 × 80 mm.
 > Falta medir: la **altura** (de ella depende la altura de la torre) y la **boca** (de ella depende el tamaño máximo del residuo).
 | Diámetro de la boca / abertura de la tapa [mm] | [COMPLETAR] | [COMPLETAR] | [COMPLETAR] |
 | Masa vacío [kg] | [COMPLETAR] | [COMPLETAR] | [COMPLETAR] |
