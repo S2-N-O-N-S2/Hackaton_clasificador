@@ -103,9 +103,17 @@ export const api = {
   // 3.12 Control manual: accion = pos | ang | home | drop | light | led
   manual: (accion, cuerpo = {}) => pedir('POST', `/api/manual/${accion}`, cuerpo),
 
+  // 3.12b Voz (contrato v1.5): push-to-talk, voz que habla y diagnóstico del micrófono
+  escucharVoz: () => pedir('POST', '/api/voz/escuchar', {}),          // tarda lo que dure la grabación (~4–5 s)
+  decir: (texto) => pedir('POST', '/api/voz/decir', { texto }),
+  voces: () => pedir('GET', '/api/voz/voces'),
+  microfonos: () => pedir('GET', '/api/voz/microfonos'),
+  nivelMicrofono: () => pedir('POST', '/api/voz/nivel', {}),
+
   // 7. Solo en simulación
   simObjeto: (categoriaReal) =>
     pedir('POST', '/api/sim/objeto', categoriaReal === undefined ? {} : { categoria_real: categoriaReal }),
   simTecla: (tecla) => pedir('POST', '/api/sim/tecla', { tecla }),
   simRetirar: () => pedir('POST', '/api/sim/retirar', {}), // como si llegara LIBRE (contrato v1.1)
+  simVoz: (texto) => pedir('POST', '/api/sim/voz', { texto }),  // como si alguien lo hubiera dicho
 };

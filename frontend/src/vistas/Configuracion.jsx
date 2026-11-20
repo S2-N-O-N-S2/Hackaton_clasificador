@@ -5,6 +5,8 @@ import { api, urlFoto } from '../api.js';
 import { useEnVivo } from '../estado.jsx';
 import { categoria } from '../categorias.js';
 import { BotonCategoria, Categoria, MensajeError, Tarjeta, fechaHora, pct, useAccion, useDatos } from '../componentes/Comun.jsx';
+import { AjustesVoz } from '../componentes/Voz.jsx';
+import { MODO_MOCK } from '../config.js';
 
 const CAMPOS = [
   { clave: 'umbral_general', nombre: 'Umbral general (0–1)', tipo: 'fraccion' },
@@ -305,6 +307,7 @@ export default function Configuracion() {
           <Modelo />
           <PorVerificar />
           <ControlManual />
+          {!MODO_MOCK && <AjustesVoz />}
         </div>
       )}
       {valores && (

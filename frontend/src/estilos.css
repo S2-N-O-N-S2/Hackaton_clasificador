@@ -737,3 +737,52 @@ legend { font-weight: 600; padding: 0 0.3rem; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
 }
+
+
+/* =============================================================================
+   Voz (Fase 9): botón flotante de micrófono, burbuja con lo que entendió y ajustes.
+   ============================================================================= */
+.app:has(.voz-flotante) .contenido { padding-bottom: 5.5rem; } /* que el micrófono no tape lo último */
+.voz-flotante {
+  position: fixed; left: 1rem; bottom: 1rem; z-index: 55; display: flex; flex-direction: column;
+  align-items: flex-start; gap: 0.55rem; max-width: min(360px, calc(100vw - 2rem)); pointer-events: none;
+}
+.voz-boton {
+  pointer-events: auto; display: inline-flex; align-items: center; gap: 0.55rem; border: 0; cursor: pointer;
+  padding: 0.85rem 1.15rem 0.85rem 0.95rem; border-radius: 999px; font: inherit; font-weight: 700;
+  background: var(--maquina); color: #fff; box-shadow: var(--sombra-alta); transition: transform var(--rapido), background var(--rapido);
+}
+.voz-boton:hover:not(:disabled) { background: var(--maquina-2); transform: translateY(-1px); }
+.voz-boton:focus-visible { outline: 3px solid var(--amarillo); outline-offset: 2px; }
+.voz-boton:disabled { cursor: not-allowed; opacity: 0.5; }
+.voz-boton svg { width: 22px; height: 22px; flex: none; }
+.voz-boton.escuchando { background: var(--rojo); animation: voz-latido 1.1s ease-in-out infinite; }
+.voz-boton.procesando { background: var(--tinta-suave); }
+@keyframes voz-latido {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(198, 40, 40, 0.45), var(--sombra-alta); }
+  50% { box-shadow: 0 0 0 12px rgba(198, 40, 40, 0), var(--sombra-alta); }
+}
+.voz-burbuja {
+  pointer-events: auto; background: var(--placa); color: var(--tinta); border: 1.5px solid var(--linea);
+  border-radius: 14px 14px 14px 4px; padding: 0.7rem 0.85rem; box-shadow: var(--sombra-alta);
+  animation: voz-entra 0.2s ease-out; font-size: 0.95rem; line-height: 1.35;
+}
+.voz-burbuja .voz-oido { color: var(--tinta-suave); font-size: 0.85rem; display: block; margin-bottom: 0.2rem; }
+.voz-burbuja .voz-entendido { font-weight: 700; }
+.voz-burbuja.voz-error { border-color: var(--rojo); }
+@keyframes voz-entra { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.voz-ajustes .fila-control { display: grid; grid-template-columns: 7.5rem minmax(0, 1fr) auto; align-items: center; gap: 0.6rem; margin: 0.45rem 0; }
+.voz-ajustes .fila-control output { min-width: 3.5rem; text-align: right; font-weight: 700; font-variant-numeric: tabular-nums; }
+.voz-ajustes input[type="range"] { width: 100%; accent-color: var(--maquina); }
+.voz-ajustes select { width: 100%; min-width: 0; text-overflow: ellipsis; }
+.voz-nivel { font-size: 0.9rem; }
+@media (max-width: 760px) {
+  .voz-flotante { left: 0.6rem; bottom: 0.6rem; }
+  .voz-boton .voz-boton-texto { display: none; }
+  .voz-boton { padding: 0.9rem; }
+  .voz-ajustes .fila-control { grid-template-columns: minmax(0, 1fr) auto; }
+  .voz-ajustes .fila-control > label { grid-column: 1 / -1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .voz-boton.escuchando, .voz-burbuja { animation: none; }
+}

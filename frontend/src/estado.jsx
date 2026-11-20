@@ -23,6 +23,7 @@ const inicial = {
   modelo: null,
   alertas: [],
   ultimaTecla: null,
+  voz: null,                // último evento "voz": {fase: escuchando | reconocido | error, …, recibido}
   versiones: { historial: 0 }, // cambia cuando hay que recargar el historial y las estadísticas
 };
 
@@ -78,6 +79,8 @@ function reductor(estado, accion) {
       return { ...estado, modelo: datos };
     case 'alerta':
       return { ...estado, alertas: [datos, ...estado.alertas].slice(0, MAX_ALERTAS) };
+    case 'voz':
+      return { ...estado, voz: { ...datos, recibido: Date.now() } };
     case 'tecla':
       return { ...estado, ultimaTecla: { tecla: datos.tecla, recibido: Date.now() } };
     default:
