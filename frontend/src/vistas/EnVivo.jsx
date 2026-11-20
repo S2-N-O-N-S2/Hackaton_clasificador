@@ -17,7 +17,7 @@ const EN_BANDEJA = ['CAPTURA', 'CLASIFICACION', 'ESPERA_ADIVINANZA', 'RETROALIME
 function Resultado({ caso, umbrales }) {
   if (!caso) return <p className="atenuado">Esperando el primer residuo…</p>;
   if (caso.oculto) {
-    return <p className="resultado-oculto">Resultado oculto: alguien está jugando "¿Le ganas a la IA?".</p>;
+    return <p className="resultado-oculto">Resultado oculto: modo Adivina.</p>;
   }
   return (
     <div className="resultado">

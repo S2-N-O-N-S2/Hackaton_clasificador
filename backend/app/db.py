@@ -48,6 +48,23 @@ CREATE TABLE IF NOT EXISTS clasificaciones (
 CREATE INDEX IF NOT EXISTS idx_clasif_fecha  ON clasificaciones(fecha_hora);
 CREATE INDEX IF NOT EXISTS idx_clasif_dudoso ON clasificaciones(dudoso);
 
+-- Entrenamiento con fotos del dataset (20-nov): una fila por respuesta. pred_ia = lo que la IA predice para
+-- la MISMA foto (NULL si no hay modelo real); foto_validacion = 1 si la IA no vio esa foto al entrenar.
+CREATE TABLE IF NOT EXISTS practica_respuestas (
+    id               INTEGER PRIMARY KEY AUTOINCREMENT,
+    fecha_hora       TEXT    NOT NULL,
+    sesion           TEXT    NOT NULL,
+    foto             TEXT    NOT NULL,
+    categoria_real   INTEGER NOT NULL CHECK (categoria_real IN (0, 1, 2)),
+    respuesta        INTEGER NOT NULL CHECK (respuesta IN (0, 1, 2)),
+    correcto         INTEGER NOT NULL,
+    intento          INTEGER NOT NULL,
+    pred_ia          INTEGER,
+    confianza_ia     REAL,
+    foto_validacion  INTEGER NOT NULL DEFAULT 0
+);
+CREATE INDEX IF NOT EXISTS idx_practica_sesion ON practica_respuestas(sesion, intento);
+
 CREATE TABLE IF NOT EXISTS sesiones_juego (
     id                 INTEGER PRIMARY KEY AUTOINCREMENT,
     tipo               TEXT    NOT NULL DEFAULT 'libre' CHECK (tipo IN ('libre', 'prueba_aprendizaje')),

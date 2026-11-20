@@ -1728,3 +1728,8 @@ legend { font-family: var(--f-letrero); font-stretch: 87.5%; font-size: 1.02rem;
 .modal-deposito-barra { height: 10px; border-radius: 999px; background: var(--linea); overflow: hidden; margin: 0.7rem 0; }
 .modal-deposito-barra span { display: block; height: 100%; background: var(--cat); transition: width 0.25s linear; }
 @media (prefers-reduced-motion: reduce) { .modal-fondo { animation: none; } .modal-deposito-barra span { transition: none; } }
+
+/* Entrenamiento: qué dijo la IA de la misma foto */
+.practica-ia { text-align: center; margin: 0.4rem 0 0; font-size: 1rem; color: var(--tinta-suave); }
+.practica-ia.ia-bien strong { color: var(--maquina); }
+.practica-ia.ia-mal strong { color: var(--rojo); }

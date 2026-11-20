@@ -1,7 +1,8 @@
 // "Practica con fotos": el usuario clasifica fotos del dataset de entrenamiento sin usar la máquina.
 // Elige cuántas preguntas (5–30); el backend reparte ese total entre las 3 categorías (GET /api/juego/fotos?total=N).
 // La categoría correcta es la carpeta del dataset donde está la foto, así que la calificación se hace aquí.
-// Puntos: 100 por acierto + 20 por cada acierto seguido (hasta +100). Solo es un marcador del juego: no se guarda.
+// Puntos: 100 por acierto + 20 por cada acierto seguido (hasta +100). Los puntos no se guardan, pero CADA RESPUESTA
+// sí (POST /api/juego/fotos/respuesta): alimenta «Humano vs. IA» y «Aprendizaje», y el backend devuelve qué dijo la IA.
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { api, urlFoto } from '../api.js';
 import { CATEGORIAS, categoria } from '../categorias.js';
@@ -161,6 +162,8 @@ export default function Practica() {
   const [ganados, setGanados] = useState(null); // {valor, clave} para el "+120" flotante
   const [sinFotos, setSinFotos] = useState(false);
   const [aviso, setAviso] = useState(null);
+  const [ia, setIa] = useState({});          // índice → {pred_id, confianza, correcto} de la IA
+  const sesion = useRef(null);
   const { ejecutar, ocupado, error } = useAccion();
   const marcoFoto = useRef(null);
   const temporizador = useRef(null);
@@ -177,6 +180,8 @@ export default function Practica() {
     setSinFotos(r.total === 0);
     if (r.total === 0) return;
     setAviso(r.total < n ? `El dataset solo alcanzó para ${r.total} preguntas.` : null);
+    sesion.current = window.crypto?.randomUUID?.() || `s${Date.now()}`;
+    setIa({});
     setFotos(r.items);
     setRespuestas([]);
     setIndice(0);
@@ -195,6 +200,10 @@ export default function Practica() {
   const responder = useCallback((id) => {
     if (!foto || respondida) return;
     setRespuestas((rs) => [...rs, id]);
+    const n = indice;
+    api.respuestaPractica({ sesion: sesion.current, foto: foto.id, respuesta: id, intento: n + 1 })
+      .then((r) => { if (r?.ia) setIa((m) => ({ ...m, [n]: r.ia })); })
+      .catch(() => {});  // si no se guarda, el entrenamiento sigue igual
     if (id === foto.categoria_id) {
       const nuevaRacha = racha + 1;
       const valor = puntosPor(nuevaRacha);
@@ -291,6 +300,11 @@ export default function Practica() {
         {respondida ? (correcta ? (racha >= 3 ? `¡${racha} seguidas!` : '¡Correcto!') : `Casi: era ${cat.nombre}`) : '¿A qué bote va?'}
       </h2>
       <BotonesRespuesta alElegir={responder} respuesta={respuesta} correcta={foto.categoria_id} />
+      {respondida && ia[indice] && (
+        <p className={`practica-ia ${ia[indice].correcto ? 'ia-bien' : 'ia-mal'}`}>
+          La IA dijo <strong>{categoria(ia[indice].pred_id)?.nombre}</strong> ({pct(ia[indice].confianza)}) {ia[indice].correcto ? '✓' : '✗'}
+        </p>
+      )}
       {respondida && (
         <div className="practica-siguiente">
           <button type="button" className={`boton-principal ${correcta ? 'con-avance' : ''}`} onClick={siguiente} autoFocus
@@ -300,7 +314,7 @@ export default function Practica() {
         </div>
       )}
       <button type="button" className="boton-texto practica-salir" onClick={() => { clearTimeout(temporizador.current); setFotos(null); }}>
-        Salir de la práctica
+        Salir del entrenamiento
       </button>
     </div>
   );

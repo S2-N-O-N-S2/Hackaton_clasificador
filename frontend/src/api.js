@@ -67,6 +67,8 @@ export const api = {
   clasificaciones: ({ limit = 50, offset = 0, dudosos, simulado = 'incluir' } = {}) =>
     pedir('GET', `/api/clasificaciones${consulta({ limit, offset, dudosos, simulado })}`),
   corregir: (id, finalId) => pedir('POST', `/api/clasificaciones/${id}/corregir`, { final_id: finalId }),
+  // Entrenamiento con fotos (contrato v1.14): guarda la respuesta y devuelve lo que dijo la IA de esa foto
+  respuestaPractica: (datos) => pedir('POST', '/api/juego/fotos/respuesta', datos),
   corregirObjeto: (id, texto) => pedir('POST', `/api/clasificaciones/${id}/corregir-objeto`, { texto }), // contrato v1.11
 
   // 3.4 Revisión
@@ -97,8 +99,8 @@ export const api = {
   sesion: () => pedir('GET', '/api/juego/sesion'),
   // Práctica con fotos del dataset (no usa la máquina)
   fotosPractica: (total) => pedir('GET', `/api/juego/fotos${consulta({ total })}`), // total se reparte entre las 3 categorías
-  estadisticasJuego: (niveles) => pedir('GET', `/api/juego/estadisticas${consulta({ niveles: niveles.join(',') })}`),
-  aprendizaje: (niveles) => pedir('GET', `/api/juego/aprendizaje${consulta({ niveles: niveles.join(',') })}`),
+  estadisticasJuego: () => pedir('GET', '/api/juego/estadisticas'),   // del Entrenamiento con fotos (contrato v1.14)
+  aprendizaje: () => pedir('GET', '/api/juego/aprendizaje'),
   iniciarPruebaAprendizaje: ({ alias, ronda, residuos }) =>
     pedir('POST', '/api/juego/prueba-aprendizaje', { alias, ronda, residuos }),
 

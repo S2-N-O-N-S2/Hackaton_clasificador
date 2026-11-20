@@ -30,8 +30,8 @@ export default function Inicio() {
         {/* El juego ya no usa la máquina (20-nov): solo lleva a la práctica con fotos, sin cambiar el modo. */}
         <a href="#/juego" className="boton-menu boton-adivina">
           <span className="tecla">2</span>
-          <span>Adivinar</span>
-          <small>¿Le ganas a la IA? Juega con fotos</small>
+          <span>Entrenamiento</span>
+          <small>Practica con fotos y compárate con la IA</small>
         </a>
       </div>
       {!puedeElegir && estado && (

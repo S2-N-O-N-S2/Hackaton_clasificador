@@ -20,7 +20,7 @@ from .bins import GestorBotes
 from .camera import PISTAS_ESPECIALES, copiar_a_dataset
 from .config import CATEGORIAS, CLAVES_CATEGORIA, CLAVES_REQUIEREN_REINICIO, IDS_CATEGORIA, Ajustes, Configuracion
 from .db import BaseDatos, ahora, clasificacion_a_dict
-from .game import NIVELES_REPORTABLES, Juego
+from .game import NIVELES_REPORTABLES, Juego, fotos_de_validacion
 from .model import GestorReentrenamiento
 from .orchestrator import Estado, Orquestador
 from .practica import POR_CATEGORIA_MAX, TOTAL_MAX, TOTAL_MIN, elegir_fotos, ruta_foto
@@ -527,6 +527,59 @@ def get_foto_practica(request: Request, clave: str, archivo: str) -> FileRespons
     if ruta is None:
         raise HTTPException(404, "La foto no existe")
     return FileResponse(ruta, headers={"Cache-Control": "public, max-age=3600"})
+
+
+class RespuestaPracticaIn(BaseModel):
+    sesion: str = Field(min_length=1, max_length=64)
+    foto: str = Field(min_length=3, max_length=200)   # "clave/archivo", el `id` de GET /api/juego/fotos
+    respuesta: StrictInt
+    intento: int = Field(ge=1, le=100)
+
+
+_CACHE_IA: dict[tuple[str, str], tuple[int, float]] = {}
+_CACHE_VALIDACION: dict[str, set[str]] = {}
+
+
+def _ia_para_foto(ctx: Contexto, ruta, foto: str) -> tuple[int | None, float | None, bool]:
+    """Lo que la IA (modelo activo real) predice para una foto del dataset, y si la vio al entrenar."""
+    modelo = ctx.orq.modelo
+    if not modelo.cargado or modelo.simulado or not hasattr(modelo, "dir"):
+        return None, None, False
+    if modelo.version not in _CACHE_VALIDACION:
+        _CACHE_VALIDACION[modelo.version] = fotos_de_validacion(modelo.dir)
+    validacion = foto in _CACHE_VALIDACION[modelo.version]
+    clave = (modelo.version, foto)
+    if clave not in _CACHE_IA:
+        import cv2
+
+        imagen = cv2.imread(str(ruta))
+        if imagen is None:
+            return None, None, validacion
+        probs = modelo.predecir([imagen])[0]
+        pred = int(max(range(3), key=lambda i: probs[i]))
+        _CACHE_IA[clave] = (pred, round(float(probs[pred]), 3))
+    pred, confianza = _CACHE_IA[clave]
+    return pred, confianza, validacion
+
+
+@router.post("/api/juego/fotos/respuesta")
+async def post_respuesta_practica(request: Request, cuerpo: RespuestaPracticaIn) -> dict[str, Any]:
+    """Entrenamiento: guarda la respuesta de la persona a una foto y la compara con la IA (contrato v1.14).
+    La categoría real es la carpeta del dataset; la del panel no se cree."""
+    ctx = _ctx(request)
+    if cuerpo.respuesta not in IDS_CATEGORIA:
+        raise HTTPException(400, "respuesta debe ser 0, 1 o 2")
+    clave, _, archivo = cuerpo.foto.partition("/")
+    ruta = ruta_foto(ctx.ajustes.dir_dataset, clave, archivo)
+    if ruta is None:
+        raise HTTPException(404, "La foto no existe")
+    try:
+        pred, confianza, validacion = await asyncio.get_running_loop().run_in_executor(
+            None, _ia_para_foto, ctx, ruta, cuerpo.foto)
+    except Exception:  # noqa: BLE001 — si la IA falla, la respuesta de la persona igual se guarda
+        pred, confianza, validacion = None, None, False
+    return ctx.juego.registrar_respuesta(cuerpo.sesion, cuerpo.foto, CLAVES_CATEGORIA.index(clave),
+                                         cuerpo.respuesta, cuerpo.intento, pred, confianza, validacion)
 
 
 # ---------------------------------------------------------------------------- botes

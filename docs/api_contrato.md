@@ -1,6 +1,6 @@
 # Contrato de interfaces — Backend ↔ Panel ↔ Arduino
 
-> **Versión 1.13 — 2026-11-20.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
+> **Versión 1.14 — 2026-11-20.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
 > Detalla las secciones 9 y 17 de `docs/ESPECIFICACION.md`. Si este contrato y la especificación se contradicen, manda la especificación: avisen y corrijan este archivo.
 > **Nadie cambia este archivo sin avisar a la otra persona.** Cada cambio sube la versión y se anota en la sección 9 ("Historial").
 
@@ -469,6 +469,7 @@ Mientras el backend no exista, el panel puede trabajar con **datos de ejemplo**:
 |---|---|---|---|
 | 1.0 | 2026-11-19 | Persona A (generado con Claude Code) | Versión inicial |
 | 1.7 | 2026-11-19 | Persona B (generado con Claude Code) | `GET /api/juego/fotos?total=N`: el usuario elige cuántas preguntas y se reparten entre las 3 categorías; campo `cuotas` en la respuesta. |
+| 1.14 | 2026-11-20 | Persona A (generado con Claude Code) | **Entrenamiento** (antes «¿Le ganas a la IA?») solo con fotos. Nuevo `POST /api/juego/fotos/respuesta` `{sesion, foto: "clave/archivo", respuesta, intento}` → `{correcto, categoria_real, ia: {pred_id, confianza, correcto} \| null, foto_validacion}` (guarda en `practica_respuestas`; la IA predice la misma foto). `GET /api/juego/estadisticas` y `/aprendizaje` mantienen su forma pero salen de esas respuestas; `humano_vs_ia` agrega `n_no_vistas`, `acierto_humano_no_vistas` y `acierto_ia_no_vistas` (fotos de validación, comparación justa); `?niveles` ya no aplica. Se quitan del panel el filtro de niveles, la ronda 1 vs. 2 y la prueba controlada. **Avisar a la Persona B.** |
 | 1.13 | 2026-11-20 | Persona A (generado con Claude Code) | Voz en MENU o ESPERA_OBJETO con un objeto ("una lata", "¿dónde tiro esta cáscara?"): ahora **toma la foto** (como «Tomar foto») y la cámara confirma; nueva `accion = "clasificar_voz"`. Si coinciden, va a ese bote (10 s + modal); si no, revisión `conflicto_voz`. `respuesta_bote` queda solo cuando no hay cámara o hay un ciclo en curso. **Avisar a la Persona B.** |
 | 1.12 | 2026-11-20 | Persona A (generado con Claude Code) | `SOLTAR` dura `tiempo_deposito_s` (nuevo en la configuración, por defecto **10 s**): el bote elegido se queda al frente para que la persona deposite y luego la base vuelve a reposo. `estado.cuenta_regresiva_s` trae los segundos que faltan; el panel muestra el modal «Deposita tu residuo». La voz dice el resultado al empezar `SOLTAR` (antes en `REGISTRAR`). Ese tiempo se descuenta de `tiempo_ciclo_ms` (es de la persona). **Avisar a la Persona B.** |
 | 1.11 | 2026-11-20 | Persona A (generado con Claude Code) | Historial: `POST /api/clasificaciones/{id}/corregir-objeto` (corregir escribiendo qué objeto es). En revisión se quitó «No sé qué es» (si nadie responde en 30 s queda pendiente igual). **Avisar a la Persona B.** |

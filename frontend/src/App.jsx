@@ -23,7 +23,7 @@ import Configuracion from './vistas/Configuracion.jsx';
 const VISTAS = [
   { ruta: 'inicio', nombre: 'Inicio', icono: 'inicio', Componente: Inicio },
   { ruta: 'en-vivo', nombre: 'En vivo', icono: 'envivo', Componente: EnVivo },
-  { ruta: 'juego', nombre: '¿Le ganas a la IA?', icono: 'juego', Componente: Juego },
+  { ruta: 'juego', nombre: 'Entrenamiento', icono: 'juego', Componente: Juego },
   { ruta: 'humano-ia', nombre: 'Humano vs. IA', icono: 'duelo', Componente: HumanoIA },
   { ruta: 'aprendizaje', nombre: 'Aprendizaje', icono: 'aprendizaje', Componente: Aprendizaje },
   { ruta: 'botes', nombre: 'Botes', icono: 'botes', Componente: Botes },

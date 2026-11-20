@@ -1,13 +1,13 @@
-// Humano vs. IA (especificación 12.4). Todo viene calculado de GET /api/juego/estadisticas.
+// Humano vs. IA. Todo viene calculado de GET /api/juego/estadisticas, que desde el 20-nov sale del
+// Entrenamiento con fotos: las personas y la IA responden las MISMAS fotos del dataset.
 // Orden: primero la respuesta (duelo), después el detalle en pestañas.
-import { useState } from 'react';
 import { api } from '../api.js';
 import { useEnVivo } from '../estado.jsx';
 import { categoria } from '../categorias.js';
 import { Cargando, IconoCategoria, MensajeError, MuestraPequena, pct, useDatos } from '../componentes/Comun.jsx';
 import { BarrasHorizontales, MatrizConfusion } from '../componentes/Graficas.jsx';
 import { CabeceraVista } from '../componentes/Efectos.jsx';
-import { Duelo, Explicacion, FiltroNiveles, Pestanas } from '../componentes/Paneles.jsx';
+import { Duelo, Explicacion, Pestanas } from '../componentes/Paneles.jsx';
 
 function PorCategoria({ datos }) {
   const filas = [0, 1, 2].map((id) => ({ id, ...datos.por_categoria?.[id] }));
@@ -24,7 +24,7 @@ function PorCategoria({ datos }) {
       <BarrasHorizontales items={filas.map((f) => ({
         id: f.id, etiqueta: categoria(f.id).nombre, valor: f.acierto ?? null, color: categoria(f.id).hex, detalle: `n=${f.n ?? 0}`,
       }))} />
-      <Explicacion>Porcentaje de adivinanzas correctas cuando el residuo era de esa categoría. «n» es cuántas adivinanzas hubo.</Explicacion>
+      <Explicacion>Porcentaje de respuestas correctas cuando la foto era de esa categoría. «n» es cuántas respuestas hubo.</Explicacion>
     </>
   );
 }
@@ -48,21 +48,18 @@ function Confusiones({ parejas }) {
           </li>
         ))}
       </ul>
-      <Explicacion>Los errores más repetidos. Sirven para saber qué explicar mejor en la retroalimentación.</Explicacion>
+      <Explicacion>Los errores más repetidos en el Entrenamiento. Sirven para saber qué explicar mejor.</Explicacion>
     </>
   );
 }
 
 export default function HumanoIA() {
-  const [niveles, setNiveles] = useState(['verificada', 'alta']);
   const { versiones } = useEnVivo();
-  const { datos, error, cargando } = useDatos(() => api.estadisticasJuego(niveles), [niveles.join(','), versiones.historial]);
+  const { datos, error, cargando } = useDatos(() => api.estadisticasJuego(), [versiones.historial]);
 
   return (
     <div className="vista vista-datos">
-      <CabeceraVista icono="duelo" titulo="Humano vs. IA" pregunta="¿Quién clasifica mejor los mismos residuos: las personas o la IA?">
-        <FiltroNiveles niveles={niveles} alCambiar={setNiveles} />
-      </CabeceraVista>
+      <CabeceraVista icono="duelo" titulo="Humano vs. IA" pregunta="¿Quién clasifica mejor las mismas fotos: las personas o la IA?" />
       <MensajeError error={error} />
       {cargando && !datos && <Cargando />}
       {datos && (
@@ -71,14 +68,15 @@ export default function HumanoIA() {
           <Duelo
             izquierda={{ nombre: 'Personas', valor: datos.humano_vs_ia?.acierto_humano ?? null, color: '#F28C05', detalle: 'acierto' }}
             derecha={{ nombre: 'IA', valor: datos.humano_vs_ia?.acierto_ia ?? null, color: '#0E7C86', detalle: 'acierto' }}
-            pie={`Comparación con los mismos ${datos.humano_vs_ia?.n ?? 0} residuos.`}
+            pie={`Comparación con las mismas ${datos.humano_vs_ia?.n ?? 0} fotos del Entrenamiento.`}
           />
           <div className="resumen-chico">
-            <div><strong>{datos.n_adivinanzas ?? 0}</strong><span>adivinanzas</span></div>
-            <div><strong>{datos.n_sesiones ?? 0}</strong><span>sesiones de juego</span></div>
+            <div><strong>{datos.n_adivinanzas ?? 0}</strong><span>respuestas</span></div>
+            <div><strong>{datos.n_sesiones ?? 0}</strong><span>sesiones de entrenamiento</span></div>
             <div><strong>{pct(datos.acierto_humano)}</strong><span>acierto humano total</span></div>
-            <div title="No entra en lo que se reporta al jurado">
-              <strong>{pct(datos.media_aparte?.acierto_humano)}</strong><span>con certeza media (aparte, n={datos.media_aparte?.n_adivinanzas ?? 0})</span>
+            <div title="Fotos de validación: la IA nunca las vio al entrenar">
+              <strong>{pct(datos.humano_vs_ia?.acierto_humano_no_vistas)} / {pct(datos.humano_vs_ia?.acierto_ia_no_vistas)}</strong>
+              <span>personas / IA en fotos que la IA no vio (n={datos.humano_vs_ia?.n_no_vistas ?? 0})</span>
             </div>
           </div>
           <section className="tarjeta">
@@ -89,14 +87,14 @@ export default function HumanoIA() {
                 id: 'matriz', titulo: 'Matriz',
                 contenido: (
                   <>
-                    <MatrizConfusion matriz={datos.matriz_confusion_humana} columnas="Adivinanza" />
-                    <Explicacion>Cada fila es la categoría real y cada columna lo que adivinó la persona. La diagonal (✓) son los aciertos.</Explicacion>
+                    <MatrizConfusion matriz={datos.matriz_confusion_humana} columnas="Respuesta" />
+                    <Explicacion>Cada fila es la categoría real y cada columna lo que respondió la persona. La diagonal (✓) son los aciertos.</Explicacion>
                   </>
                 ),
               },
             ]} />
           </section>
-          <p className="atenuado pie">Niveles usados: {datos.niveles_usados?.join(', ')}. Lo que se reporta al jurado usa solo Verificada y Alta.</p>
+          <p className="atenuado pie">Ojo: la IA aprendió con la mayoría de estas fotos, así que su acierto general sale inflado. La comparación justa es la de las fotos que la IA no vio (validación).</p>
         </>
       )}
     </div>

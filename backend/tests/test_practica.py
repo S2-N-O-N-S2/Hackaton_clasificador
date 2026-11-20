@@ -84,3 +84,39 @@ def test_endpoint_con_total(cliente):  # noqa: F811
     assert r.status_code == 200 and r.json()["total"] == 10
     assert c.get("/api/juego/fotos?total=2").status_code == 422
     assert c.get("/api/juego/fotos?total=61").status_code == 422
+
+
+def test_respuestas_alimentan_humano_vs_ia_y_aprendizaje(tmp_path, monkeypatch):
+    """Entrenamiento con fotos: cada respuesta se guarda y alimenta Humano vs. IA y Aprendizaje."""
+    import cv2
+    import numpy as np
+    from fastapi.testclient import TestClient
+
+    for var, valor in {"SIMULACION": "1", "SIM_RAPIDO": "1", "RUTA_DB": str(tmp_path / "p.db"),
+                       "DIR_CAPTURAS": str(tmp_path / "c"), "DIR_DATASET": str(tmp_path / "d"),
+                       "DIR_MODELOS": str(tmp_path / "m")}.items():
+        monkeypatch.setenv(var, valor)
+    monkeypatch.delenv("SIM_IA_REAL", raising=False)
+    for clave in ("organica", "inorganica", "peligroso"):
+        (tmp_path / "d" / clave).mkdir(parents=True)
+        for i in range(3):
+            cv2.imwrite(str(tmp_path / "d" / clave / f"f{i}.jpg"), np.full((40, 40, 3), 120, np.uint8))
+    from app.main import crear_app
+
+    with TestClient(crear_app()) as c:
+        # sesión A: falla la primera orgánica y acierta la siguiente (corrección tras ver la respuesta)
+        respuestas = [("organica/f0.jpg", 1), ("inorganica/f0.jpg", 1), ("organica/f1.jpg", 0), ("peligroso/f0.jpg", 2)]
+        for i, (foto, r) in enumerate(respuestas, start=1):
+            res = c.post("/api/juego/fotos/respuesta", json={"sesion": "A", "foto": foto, "respuesta": r, "intento": i})
+            assert res.status_code == 200
+        assert res.json()["correcto"] is True and res.json()["ia"] is None   # simulación: sin IA real
+        assert c.post("/api/juego/fotos/respuesta",
+                      json={"sesion": "A", "foto": "../x.jpg", "respuesta": 0, "intento": 5}).status_code == 404
+        e = c.get("/api/juego/estadisticas").json()
+        assert e["n_adivinanzas"] == 4 and e["n_sesiones"] == 1 and e["acierto_humano"] == 0.75
+        assert e["matriz_confusion_humana"]["valores"][0] == [1, 1, 0]
+        assert e["parejas_confusion"][0] == {"dijo": 1, "era": 0, "veces": 1}
+        a = c.get("/api/juego/aprendizaje").json()
+        assert a["por_intento"][0] == {"intento": "1", "n": 1, "acierto": 0.0}
+        assert a["mitades"] == {"n_sesiones": 1, "primera": 0.5, "segunda": 1.0, "diferencia": 0.5}
+        assert a["correccion_tras_explicacion"] == {"n_oportunidades": 1, "corregidas": 1, "tasa": 1.0}
