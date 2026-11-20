@@ -544,7 +544,7 @@ class Orquestador:
         elif accion == "home":
             orden = ("HOME", ("HOME_OK",), t_pos)
         elif accion == "drop":
-            orden = ("DROP", ("DROP_OK", "DROP_TIMEOUT"), t_drop)
+            orden = ("DROP", ("DROP_OK",), t_drop)
         elif accion == "light":
             orden = ("LIGHT:ON" if datos.get("on") else "LIGHT:OFF", ("OK",), None)
         elif accion == "led":
@@ -739,10 +739,9 @@ class Orquestador:
 
         # --- SOLTAR
         await self._transicion(Estado.SOLTAR)
-        respuesta = await self._cmd("DROP", ("DROP_OK", "DROP_TIMEOUT"), TIEMPOS["timeout_drop_s"])
-        confirmado = respuesta == "DROP_OK"
-        if not confirmado:
-            await self._alerta("aviso", "DROP_TIMEOUT", "El sensor de caída no confirmó el residuo")
+        # Sin sensor de caída (20-nov): DROP_OK solo dice que la trampilla se abrió y se cerró.
+        await self._cmd("DROP", ("DROP_OK",), TIEMPOS["timeout_drop_s"])
+        confirmado = True
 
         # --- REGISTRAR
         await self._transicion(Estado.REGISTRAR)

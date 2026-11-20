@@ -55,7 +55,7 @@ def test_simulador_responde_y_espontaneos():
         assert await enlace.comando("LCD:hola|mundo||", ("OK",)) == "OK"
         enlace.simular_objeto()
         await asyncio.sleep(0.05)
-        assert await enlace.comando("DROP", ("DROP_OK", "DROP_TIMEOUT"), 2) == "DROP_OK"
+        assert await enlace.comando("DROP", ("DROP_OK",), 2) == "DROP_OK"
         await asyncio.sleep(0.05)
         await enlace.cerrar()
 
@@ -80,15 +80,16 @@ def test_err_se_entrega_al_comando_que_espera():
     _correr(prueba())
 
 
-def test_drop_sin_objeto_da_timeout_del_sensor():
+def test_drop_sin_objeto_igual_responde_ok():
+    """Sin sensor de caída: DROP_OK = la trampilla se abrió y se cerró, haya o no residuo."""
     async def prueba():
         enlace = EnlaceSimulado(lambda m: None, factor_tiempo=0.01)
         await enlace.iniciar()
-        r = await enlace.comando("DROP", ("DROP_OK", "DROP_TIMEOUT"), 2)
+        r = await enlace.comando("DROP", ("DROP_OK",), 2)
         await enlace.cerrar()
         return r
 
-    assert _correr(prueba()) == "DROP_TIMEOUT"
+    assert _correr(prueba()) == "DROP_OK"
 
 
 def test_sin_respuesta_lanza_timeout():

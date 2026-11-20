@@ -3,6 +3,7 @@
 **Versión 3** — incluye el **modo "¿Le ganas a la IA?"** con menú de selección, retroalimentación explicada **que muestra la confianza de la IA y ajusta su tono**, **medición de la curva de aprendizaje** y el **aviso de bote lleno (estimado)**.
 
 > **Cambio de diseño (20-nov-2026):** la máquina **ya no lleva LCD 20×4 ni teclado 4×4**. Todo se maneja desde la página (panel) y por voz desde la página. Lo que la LCD iba a mostrar se ve en Inicio → "Pantalla de la máquina"; lo que hacía el teclado se hace con los botones del panel o con el botón «Hablar». El firmware y el backend conservan el soporte (sin la LCD conectada no se cuelga, y sin teclado no llegan teclas), así que las menciones de LCD/teclado en este documento quedan como referencia histórica.
+> **Tampoco hay sensor de caída (FC-51 #2, D3):** `DROP` responde siempre `DROP_OK` cuando la trampilla se abrió y se cerró; ya no existe `DROP_TIMEOUT` y cada `DROP_OK` suma una pieza al bote.
 
 ---
 

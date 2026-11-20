@@ -1,6 +1,6 @@
 # Contrato de interfaces — Backend ↔ Panel ↔ Arduino
 
-> **Versión 1.7 — 2026-11-20.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
+> **Versión 1.8 — 2026-11-20.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
 > Detalla las secciones 9 y 17 de `docs/ESPECIFICACION.md`. Si este contrato y la especificación se contradicen, manda la especificación: avisen y corrijan este archivo.
 > **Nadie cambia este archivo sin avisar a la otra persona.** Cada cambio sube la versión y se anota en la sección 9 ("Historial").
 
@@ -77,7 +77,7 @@
 ```
 - `final_id` es `null` mientras el caso está en revisión o pendiente.
 - `tiempos_etapas`: milisegundos que duró cada estado del ciclo (diagnóstico). Vale `null` mientras el ciclo no termina.
-- `drop_confirmado` vale `true` con `DROP_OK`, `false` con `DROP_TIMEOUT` y `null` si el residuo no se soltó.
+- `drop_confirmado` vale `true` cuando la trampilla se abrió y se cerró (`DROP_OK`) y `null` si el residuo no se soltó. **No hay sensor de caída** (desde v1.8): no confirma que el residuo cayó.
 - En modo Adivina, **antes de que el usuario responda**, el backend **no envía** `probabilidades`, `pred_id`, `confianza` ni `dudoso`. En su lugar manda `"oculto": true`.
 
 ### 2.2 `Bote`
@@ -124,7 +124,7 @@
 ```json
 {"nivel": "error", "codigo": "SERIAL_DESCONECTADO", "mensaje": "Se perdió el enlace con el Arduino", "fecha_hora": "2026-11-19T10:40:00"}
 ```
-Códigos: `SERIAL_CONECTADO`, `SERIAL_DESCONECTADO`, `ERROR_SERIAL`, `ARDUINO_REINICIADO`, `WATCHDOG`, `CAMARA_NO_DISPONIBLE`, `MODELO_NO_CARGADO`, `POS_TIMEOUT`, `DROP_TIMEOUT`, `BOTE_CASI_LLENO`, `BOTE_LLENO`, `REVISION_PENDIENTE`, `RESIDUO_NO_RETIRADO`, `ERROR_INTERNO`, `RECUPERADO`, `MODELO_ACTIVADO`, `CAL_NO_SINCRONIZADA`, `VOZ_NO_DISPONIBLE`.
+Códigos: `SERIAL_CONECTADO`, `SERIAL_DESCONECTADO`, `ERROR_SERIAL`, `ARDUINO_REINICIADO`, `WATCHDOG`, `CAMARA_NO_DISPONIBLE`, `MODELO_NO_CARGADO`, `POS_TIMEOUT`, `BOTE_CASI_LLENO`, `BOTE_LLENO`, `REVISION_PENDIENTE`, `RESIDUO_NO_RETIRADO`, `ERROR_INTERNO`, `RECUPERADO`, `MODELO_ACTIVADO`, `CAL_NO_SINCRONIZADA`, `VOZ_NO_DISPONIBLE`.
 
 ---
 
@@ -393,7 +393,7 @@ Se usa a 115 200 baudios, en ASCII, con líneas terminadas en `\n` (el Arduino i
 | `POS:<0\|1\|2>` | — | `POS_OK:<id>` cuando termina la rampa |
 | `ANG:<0-180>` (**agregado**) | — | `ANG_OK:<grados>` |
 | `HOME` | — | `HOME_OK` (**agregado**: la especificación no define respuesta) |
-| `DROP` | — | `DROP_OK` o `DROP_TIMEOUT` (2 s desde que se abre la trampilla) |
+| `DROP` | — | `DROP_OK` cuando la trampilla ya se abrió (600 ms) y se cerró (~0.9 s en total). Sin sensor de caída ya no existe `DROP_TIMEOUT`. |
 | `LIGHT:<ON\|OFF>` | `OK` (**agregado**) | — |
 | `LED:<VERDE\|AMARILLO\|ROJO\|OFF>[:PARPADEO]` | `OK` | — |
 | `LCD:<l1>\|<l2>\|<l3>\|<l4>` | `OK` | — |
@@ -464,6 +464,7 @@ Mientras el backend no exista, el panel puede trabajar con **datos de ejemplo**:
 |---|---|---|---|
 | 1.0 | 2026-11-19 | Persona A (generado con Claude Code) | Versión inicial |
 | 1.7 | 2026-11-19 | Persona B (generado con Claude Code) | `GET /api/juego/fotos?total=N`: el usuario elige cuántas preguntas y se reparten entre las 3 categorías; campo `cuotas` en la respuesta. |
+| 1.8 | 2026-11-20 | Persona A (generado con Claude Code) | **Sin sensor de caída** (FC-51 #2, D3): `DROP` siempre responde `DROP_OK` al cerrar la trampilla; se quitan `DROP_TIMEOUT` (respuesta y alerta) y el "sin confirmar" de los botes. Firmware recargado en el UNO. **Avisar a la Persona B.** |
 | 1.7 | 2026-11-20 | Persona A (generado con Claude Code) | Sin LCD ni teclado ni sensor IR: `POST /api/tomar-foto` (botón «Tomar foto» en Inicio) y voz "listo" → `accion: "foto"`. **Avisar a la Persona B.** |
 | 1.6 | 2026-11-19 | Persona B (generado con Claude Code) | Práctica con fotos del dataset: `GET /api/juego/fotos` y `GET /api/juego/fotos/{clase}/{archivo}` (solo lectura, no tocan la máquina). |
 | 1.5 | 2026-11-19 | Persona A (generado con Claude Code) | Voz que habla (texto a voz de Windows): `voz_habla`, `voz_nombre`, `voz_volumen` y `voz_velocidad` en la configuración, `GET /api/voz/voces`, `estado.voz.habla` / `voz_sintetica` / `motivo_habla`, `POST /api/voz/decir`; diagnóstico del micrófono: `GET /api/voz/microfonos` y `POST /api/voz/nivel`. Página de prueba en `/prueba/voz`. **Avisar a la Persona B** (puede agregar en Configuración el interruptor "El sistema habla" y el selector de micrófono). |

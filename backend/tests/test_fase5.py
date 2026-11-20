@@ -99,7 +99,7 @@ def test_calibrador_mueve_guarda_y_sincroniza(cliente):
 
     assert "ANG_OK:170" in calibrador.aplicar("o")            # ir al guardado de Orgánica
     assert "HOME_OK" in calibrador.aplicar("h")
-    assert "DROP_TIMEOUT" in calibrador.aplicar("d")          # sin residuo en la bandeja
+    assert "DROP_OK" in calibrador.aplicar("d")               # sin sensor de caída: abre y cierra
     assert calibrador.aplicar("q") is None
 
 

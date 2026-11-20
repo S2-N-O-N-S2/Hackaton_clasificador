@@ -32,9 +32,9 @@ Los ángulos de ejemplo suponen la EEPROM vacía (valores por defecto 170 / 90 /
 | 10 | `ANG:181` | `ERR:ANG_RANGO` | — |
 | 11 | `ANG:abc` · `ANG:-5` | `ERR:ARG` | — |
 | 12 | `HOME` | `HOME_OK` | El disco vuelve a 90° |
-| 13 | `DROP` (pasando la mano frente al FC-51 #2) | `DROP_OK` a los ~0.9 s | La trampilla abre 600 ms y cierra; la respuesta llega **con la trampilla ya cerrada** |
-| 14 | `DROP` (sin pasar nada) | `DROP_TIMEOUT` a los 2 s | Igual que el anterior |
-| 15 | `DROP` y, enseguida, `HOME` | `ERR:OCUPADO`, luego `DROP_OK` o `DROP_TIMEOUT` | — |
+| 13 | `DROP` | `DROP_OK` a los ~0.9 s (verificado el 20-nov) | La trampilla abre 600 ms y cierra; la respuesta llega **con la trampilla ya cerrada**. No hay sensor de caída |
+| 14 | ~~`DROP` sin objeto → `DROP_TIMEOUT`~~ | — | Ya no aplica: sin sensor de caída siempre es `DROP_OK` |
+| 15 | `DROP` y, enseguida, `HOME` | `ERR:OCUPADO`, luego `DROP_OK` | — |
 | 16 | `LIGHT:ON` · `LIGHT:OFF` | `OK` · `OK` | La iluminación se enciende y se apaga |
 | 17 | `LIGHT:X` | `ERR:ARG` | — |
 | 18 | `LED:VERDE` | `OK` | Verde fijo; los demás apagados |

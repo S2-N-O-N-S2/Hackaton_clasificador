@@ -64,7 +64,7 @@ class GestorBotes:
         return self.bote(bote_id)["estado"] != "lleno"
 
     def sumar_pieza(self, bote_id: int, confirmado: bool) -> dict[str, Any]:
-        """ACTUALIZAR_NIVEL. DROP_TIMEOUT también suma (criterio conservador, §13.3)."""
+        """ACTUALIZAR_NIVEL. Sin sensor de caída, cada DROP_OK suma una pieza (confirmado siempre es True)."""
         self.db.ejecutar(
             "UPDATE botes SET piezas_actuales = piezas_actuales + 1, "
             "no_confirmadas = no_confirmadas + ? WHERE id = ?",

@@ -14,7 +14,7 @@ Herramienta: `python tools\calibrar_angulos.py` (con el backend corriendo).
 | HOME | — | [COMPLETAR] | — | | |
 
 ## 2. Ciclo mecánico SIN IA (resolución manual)
-Mientras no haya modelo entrenado, cada residuo va a REVISIÓN (`sin_modelo`) y se resuelve con el teclado (1/2/3) o el panel. Sirve para validar el firmware, el carrusel, la trampilla y el sensor de caída.
+Mientras no haya modelo entrenado, cada residuo va a REVISIÓN (`sin_modelo`) y se resuelve con el teclado (1/2/3) o el panel. Sirve para validar el firmware, el carrusel y la trampilla (no hay sensor de caída).
 
 | # | Hora | Residuo | Categoría dada | ¿Giró al bote correcto? | `drop_confirmado` | `tiempos_etapas` (POSICIONAR / SOLTAR ms) | Observaciones |
 |---|---|---|---|---|---|---|---|

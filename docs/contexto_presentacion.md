@@ -19,7 +19,7 @@ Detectar (sensor IR) → Fotografiar (cámara) → Clasificar (IA) → Girar el 
 ## 3. Arquitectura (quién hace qué)
 | Pieza | Tecnología | Qué hace |
 |---|---|---|
-| **Arduino UNO** | C++ (`Servo`) | Solo obedece comandos y reporta sensores. Mueve el servo y enciende LEDs. **Sin LCD ni teclado:** todo se maneja desde la página y por voz. |
+| **Arduino UNO** | C++ (`Servo`) | Solo obedece comandos y reporta sensores. Mueve el servo y enciende LEDs. **Sin LCD, teclado ni sensor de caída:** todo se maneja desde la página y por voz. |
 | **Comunicación** | Serial USB, 115 200 baudios, texto (`POS:1` → `POS_OK:1`, `DROP` → `DROP_OK`) | Protocolo simple que se puede probar a mano desde el Monitor Serial. |
 | **Backend / cerebro** | Python 3.12 + FastAPI | `orchestrator.py` tiene **toda** la lógica de estados. Si algo falla → estado ERROR seguro. |
 | **IA** | MobileNetV2 (preentrenada, congelada) + regresión logística | Da 3 probabilidades. Promedia 3 fotos. Detecta objetos "desconocidos". |
@@ -125,6 +125,7 @@ cd frontend; npm run dev -- --host
 - El nivel de los botes es **ESTIMADO** por conteo: no hay sensor de nivel.
 - Falta decidir la trampilla: A (compuerta) o B (depósito manual).
 - El peligroso es **simulado** (pilas descargadas, envases vacíos).
+- **No hay sensor de caída:** el sistema sabe que la trampilla se abrió y se cerró, no que el residuo cayó. Por eso el conteo de los botes es una estimación.
 
 ## 9. Preguntas probables del jurado
 | Pregunta | Respuesta corta |

@@ -43,7 +43,7 @@ TIEMPOS = {
     "fotogramas": 3,             # fotogramas por captura (se promedian)
     "timeout_cmd_s": 1.5,        # respuesta a comandos rápidos (LCD, LED, LIGHT, PING)
     "timeout_pos_s": 6.0,        # giro del disco: 160° a 20 ms/° ≈ 3.2 s, con margen
-    "timeout_drop_s": 4.0,       # el Arduino responde DROP_OK o DROP_TIMEOUT en ≤ 2 s
+    "timeout_drop_s": 4.0,       # el Arduino responde DROP_OK al cerrar la trampilla (~0.9 s)
     "latido_s": 3.0,             # PING periódico (el watchdog del Arduino es de 15 s)
     "reintento_serial_s": 2.0,   # cada cuánto se intenta reconectar el puerto serie
     "espera_ready_s": 4.0,       # el UNO se reinicia al abrir el puerto y tarda ~2 s en mandar READY

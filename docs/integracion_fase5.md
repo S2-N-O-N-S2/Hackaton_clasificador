@@ -28,7 +28,7 @@ Desde <http://localhost:8000/docs> (sección `manual`) o desde el panel:
 - [ ] `POST /api/manual/light {"on": true}` → la luz blanca enciende.
 - [ ] `POST /api/manual/led {"color": "AMARILLO"}` → el LED amarillo enciende.
 - [ ] `POST /api/manual/pos {"id": 0}`, luego `1` y `2` → el disco gira **suave** (sin golpes) y responde `POS_OK:<id>`.
-- [ ] `POST /api/manual/drop` → la trampilla abre y cierra. Sin residuo responde `DROP_TIMEOUT` (correcto).
+- [ ] `POST /api/manual/drop` → la trampilla abre y cierra y responde `DROP_OK` (no hay sensor de caída).
 - [ ] **Medición:** voltaje de los servos en reposo y **mientras giran** (multímetro). Si baja de ~4.8 V, la fuente no alcanza.
 
 ## Bloque 3 — Calibrar ángulos

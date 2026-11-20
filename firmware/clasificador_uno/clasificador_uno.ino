@@ -38,10 +38,10 @@
 #include <Keypad.h>
 
 // ============================================================================
-//  1. PINES (especificación, sección 8.1). No quedan pines libres en el UNO.
+//  1. PINES (especificación, sección 8.1). Sin LCD, teclado ni sensor de caída (20-nov) varios pines quedan libres.
 // ============================================================================
 const uint8_t PIN_IR_BANDEJA      = 2;   // FC-51 #1: presencia en la bandeja (activo en BAJO)
-const uint8_t PIN_IR_CAIDA        = 3;   // FC-51 #2: confirmación de caída (activo en BAJO, INT1)
+// D3 queda libre: ya no hay sensor de caída (cambio de diseño del 20-nov). DROP responde DROP_OK al cerrar.
 const uint8_t PIN_SERVO_DISCO     = 9;   // Servo del carrusel (MG996R)
 const uint8_t PIN_SERVO_TRAMPILLA = 10;  // Servo de la trampilla (SG90)
 const uint8_t PIN_LED_VERDE       = A0;  // LED de estado verde   (resistencia 220–330 Ω)
@@ -83,7 +83,6 @@ const unsigned long TRAMPILLA_CIERRE_MS  = 300; // tiempo para que la trampilla 
 
 // --- Sensores y tiempos ---
 const unsigned long ANTIRREBOTE_IR_MS = 300;    // objeto estable ≥ 300 ms → OBJ / vacío ≥ 300 ms → LIBRE
-const unsigned long DROP_TIMEOUT_MS   = 2000;   // sin caída en 2 s desde que se abre → DROP_TIMEOUT
 const unsigned long WATCHDOG_MS       = 15000;  // sin comandos en 15 s → falla segura
 const unsigned long PARPADEO_MS       = 300;    // medio periodo del parpadeo de los LEDs
 
@@ -99,8 +98,7 @@ enum EstadoMov : uint8_t {
   MOV_REPOSO,          // nada se mueve: se aceptan órdenes de movimiento
   MOV_DISCO,           // el disco está en su rampa
   MOV_DROP_ABIERTA,    // trampilla abierta, esperando TRAMPILLA_ABIERTA_MS
-  MOV_DROP_CERRANDO,   // trampilla cerrándose
-  MOV_DROP_ESPERA,     // trampilla cerrada, esperando la confirmación de caída hasta 2 s
+  MOV_DROP_CERRANDO,   // trampilla cerrándose (al terminar → DROP_OK)
   MOV_WD_CERRANDO      // watchdog: cerrando la trampilla antes de llevar el disco a HOME
 };
 
@@ -155,9 +153,6 @@ bool trampillaAbierta = false;
 unsigned long inicioDrop = 0;      // cuándo se abrió la trampilla
 unsigned long inicioFase = 0;      // inicio de la fase actual (cierre)
 
-// Bandera de la interrupción del FC-51 #2 (volatile: la cambia la interrupción).
-volatile bool caidaArmada = false;
-volatile bool caidaDetectada = false;
 
 bool ocupado() {
   return estadoMov != MOV_REPOSO;
@@ -214,36 +209,16 @@ void actualizarDisco() {
   }
 }
 
-// Interrupción del FC-51 #2: un objeto que cae puede pasar en pocos milisegundos,
-// por eso no se lee en loop() sino con interrupción (flanco de bajada).
-void isrCaida() {
-  if (caidaArmada) caidaDetectada = true;
-}
-
-bool leerCaida() {
-  noInterrupts();
-  bool hubo = caidaDetectada;
-  interrupts();
-  return hubo;
-}
-
 void iniciarDrop() {
-  noInterrupts();
-  caidaDetectada = false;
-  caidaArmada = true;
-  interrupts();
   servoTrampilla.write(ANG_TRAMPILLA_ABIERTA);
   trampillaAbierta = true;
   inicioDrop = millis();
   estadoMov = MOV_DROP_ABIERTA;
 }
 
-void terminarDrop(bool confirmado) {
-  noInterrupts();
-  caidaArmada = false;
-  interrupts();
+void terminarDrop() {
   estadoMov = MOV_REPOSO;
-  Serial.println(confirmado ? F("DROP_OK") : F("DROP_TIMEOUT"));
+  Serial.println(F("DROP_OK"));   // sin sensor de caída: DROP_OK = la trampilla se abrió y ya se cerró
 }
 
 // Secuencia de DROP: abrir → esperar → cerrar → responder.
@@ -260,11 +235,7 @@ void actualizarTrampilla() {
       }
       break;
     case MOV_DROP_CERRANDO:
-      if (ahora - inicioFase >= TRAMPILLA_CIERRE_MS) estadoMov = MOV_DROP_ESPERA;
-      break;
-    case MOV_DROP_ESPERA:
-      if (leerCaida())                              terminarDrop(true);
-      else if (ahora - inicioDrop >= DROP_TIMEOUT_MS) terminarDrop(false);
+      if (ahora - inicioFase >= TRAMPILLA_CIERRE_MS) terminarDrop();
       break;
     case MOV_WD_CERRANDO:
       if (ahora - inicioFase >= TRAMPILLA_CIERRE_MS) {
@@ -651,12 +622,8 @@ void revisarWatchdog() {
   if (millis() - ultimoComandoMs < WATCHDOG_MS) return;
   watchdogDisparado = true;
 
-  noInterrupts();
-  caidaArmada = false;
-  interrupts();
-
   bool trampillaEnUso = trampillaAbierta || estadoMov == MOV_DROP_ABIERTA ||
-                        estadoMov == MOV_DROP_CERRANDO || estadoMov == MOV_DROP_ESPERA;
+                        estadoMov == MOV_DROP_CERRANDO;
   cerrarTrampilla();
   if (trampillaEnUso) {
     inicioFase = millis();
@@ -681,7 +648,6 @@ void setup() {
   Serial.begin(VELOCIDAD_SERIAL);
 
   pinMode(PIN_IR_BANDEJA, INPUT_PULLUP);
-  pinMode(PIN_IR_CAIDA, INPUT_PULLUP);
   pinMode(PIN_LED_VERDE, OUTPUT);
   pinMode(PIN_LED_AMARILLO, OUTPUT);
   pinMode(PIN_LED_ROJO, OUTPUT);
@@ -714,8 +680,6 @@ void setup() {
   lcdPonerLinea(2, "Esperando PC...");
   lcdPonerLinea(3, "");
 
-  // FC-51 #2 por interrupción (D3 = INT1)
-  attachInterrupt(digitalPinToInterrupt(PIN_IR_CAIDA), isrCaida, FALLING);
 
   // Bandeja: si al arrancar ya hay objeto, se reportará OBJ tras 300 ms.
   irLecturaAnterior = (digitalRead(PIN_IR_BANDEJA) == LOW);

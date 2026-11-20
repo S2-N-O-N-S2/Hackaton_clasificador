@@ -436,8 +436,7 @@ async function procesarResiduo(modo, categoriaReal) {
     await esperar(1500);
     transicion('SOLTAR', 'Soltando el residuo');
     await esperar(900);
-    c.drop_confirmado = Math.random() > 0.05;
-    if (!c.drop_confirmado) alerta('aviso', 'DROP_TIMEOUT', 'No se confirmó la caída (simulado)');
+    c.drop_confirmado = true;  // sin sensor de caída: DROP_OK = la trampilla abrió y cerró
     c.bote_id = destino;
 
     transicion('REGISTRAR', 'Registrando');

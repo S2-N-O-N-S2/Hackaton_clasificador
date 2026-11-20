@@ -181,7 +181,6 @@ export function NivelBote({ bote, compacto = false }) {
       )}
       <div className={`nivel-bote-estado estado-${bote.estado}`} style={{ color: TEXTO_ESTADO_BOTE[bote.estado] }}>
         {NOMBRE_ESTADO_BOTE[bote.estado] || bote.estado}
-        {bote.no_confirmadas > 0 && <span className="atenuado"> · {bote.no_confirmadas} sin confirmar</span>}
       </div>
     </div>
   );

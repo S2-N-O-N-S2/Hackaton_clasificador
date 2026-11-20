@@ -326,7 +326,6 @@ class EnlaceSimulado(EnlaceBase):
         self.lcd = [""] * 4
         self.scroll = ""
         self._moviendo = False
-        self.fallar_drop = False   # poner True para simular DROP_TIMEOUT
         self.ms_por_grado = 20
 
     async def iniciar(self) -> None:
@@ -419,14 +418,14 @@ class EnlaceSimulado(EnlaceBase):
         if self._moviendo:
             self._responder("ERR:OCUPADO")
             return
-        if self.objeto and not self.fallar_drop:
-            def caer() -> None:
-                self.objeto = False
-                self._procesar_linea("DROP_OK")
+        # Como el firmware: abre, cierra y responde DROP_OK (no hay sensor de caída). Si había residuo, cae.
+        def cerrar() -> None:
+            habia = self.objeto
+            self.objeto = False
+            self._procesar_linea("DROP_OK")
+            if habia:
                 self._responder("LIBRE", 0.3)
-            self._loop.call_later(0.6 * self._f, caer)
-        else:
-            self._responder("DROP_TIMEOUT", 2.0)
+        self._loop.call_later(0.9 * self._f, cerrar)
 
     # --- acciones de prueba (rutas /api/sim/*)
     def simular_objeto(self) -> bool:

@@ -1,7 +1,7 @@
 # Diagrama eléctrico — Arduino UNO (Fase 2)
 
 > **Cambio de diseño (20-nov-2026):** la máquina **ya no lleva LCD 20×4 ni teclado 4×4**. Todo se maneja desde la página (panel) y por voz desde la página. Lo que la LCD iba a mostrar se ve en Inicio → "Pantalla de la máquina"; lo que hacía el teclado se hace con los botones del panel o con el botón «Hablar». El firmware y el backend conservan el soporte (sin la LCD conectada no se cuelga, y sin teclado no llegan teclas), así que las menciones de LCD/teclado en este diagrama quedan como referencia histórica.
-> **Pines libres:** D4–D8 y D11–D13 (eran del teclado) y A4/A5 (eran de la LCD).
+> **Pines libres:** D3 (era del sensor de caída), D4–D8 y D11–D13 (eran del teclado) y A4/A5 (eran de la LCD).
 
 
 > Basado en la especificación, secciones 8.1 y 8.2, y en `firmware/clasificador_uno/clasificador_uno.ino` (sección 1, "Pines").
@@ -13,7 +13,7 @@
 |---|---|---|---|
 | D0 / D1 | USB serial | — | Reservados: no conectar nada |
 | D2 | FC-51 #1 (presencia en la bandeja) | OUT | Activo en BAJO. VCC → 5 V del Arduino, GND → GND |
-| D3 | FC-51 #2 (confirmación de caída) | OUT | Activo en BAJO, con interrupción INT1. VCC → 5 V del Arduino, GND → GND |
+| D3 | ~~FC-51 #2 (confirmación de caída)~~ | — | **Libre:** ya no hay sensor de caída (20-nov) |
 | D4, D5, D6, D7 | Teclado 4×4: filas F1–F4 | Pines 1–4 del conector | Verificar el orden con el multímetro (continuidad al presionar una tecla) |
 | D8, D11, D12, D13 | Teclado 4×4: columnas C1–C4 | Pines 5–8 del conector | D13 también tiene el LED "L" de la placa: parpadea al leer el teclado, es normal |
 | D9 | Servo del disco (MG996R) | Naranja/amarillo (señal) | Rojo → **+V de servos (fuente externa)**, marrón/negro → GND común |

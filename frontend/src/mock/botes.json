@@ -7,7 +7,7 @@
       "categoria_id": 0,
       "capacidad_piezas": 12,
       "piezas_actuales": 10,
-      "no_confirmadas": 1,
+      "no_confirmadas": 0,
       "nivel": 0.833,
       "estado": "casi_lleno",
       "bloqueado": false,

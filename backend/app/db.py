@@ -37,7 +37,7 @@ CREATE TABLE IF NOT EXISTS clasificaciones (
     corregido        INTEGER NOT NULL DEFAULT 0,
     modelo_version   TEXT,
     tiempo_ciclo_ms  INTEGER,                    -- tiempo de MÁQUINA (sin la espera humana)
-    drop_confirmado  INTEGER,                    -- 1 DROP_OK, 0 DROP_TIMEOUT, NULL no se soltó
+    drop_confirmado  INTEGER,                    -- 1 la trampilla abrió y cerró (DROP_OK; no hay sensor de caída), NULL no se soltó
     bote_id          INTEGER,
     tiempos_etapas   TEXT,                       -- JSON {estado: ms} para diagnosticar dónde se atora el ciclo
     simulado         INTEGER NOT NULL DEFAULT 0,
