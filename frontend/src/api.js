@@ -67,6 +67,7 @@ export const api = {
   clasificaciones: ({ limit = 50, offset = 0, dudosos, simulado = 'incluir' } = {}) =>
     pedir('GET', `/api/clasificaciones${consulta({ limit, offset, dudosos, simulado })}`),
   corregir: (id, finalId) => pedir('POST', `/api/clasificaciones/${id}/corregir`, { final_id: finalId }),
+  corregirObjeto: (id, texto) => pedir('POST', `/api/clasificaciones/${id}/corregir-objeto`, { texto }), // contrato v1.11
 
   // 3.4 Revisión
   resolverRevision: (finalId) => pedir('POST', '/api/revision', { accion: 'resolver', final_id: finalId }),

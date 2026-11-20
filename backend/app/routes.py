@@ -183,9 +183,16 @@ def post_corregir(request: Request, id_: int, cuerpo: CorregirIn) -> dict[str, A
         raise HTTPException(404, f"No existe la clasificación {id_}")
     if fila["estado"] == "en_proceso":
         raise HTTPException(409, "El caso sigue en proceso: resuélvanlo con /api/revision")
-    ctx.db.actualizar_clasificacion(id_, final_id=cuerpo.final_id, corregido=1, origen="panel")
-    copiar_a_dataset(ctx.ajustes, fila["foto"], cuerpo.final_id, verificado=True)  # decisión del operador
-    ctx.db.registrar_evento("info", "api", f"Corrección #{id_}: {fila['final_id']} -> {cuerpo.final_id}")
+    return _aplicar_correccion(ctx, fila, cuerpo.final_id, "panel")
+
+
+def _aplicar_correccion(ctx: Contexto, fila: Any, final_id: int, origen: str) -> dict[str, Any]:
+    """Corrige un caso ya terminado. Operador (panel) → foto a dataset/<clase>/; escrito por objeto (texto) →
+    dataset/_por_verificar/<clase>/, porque la categoría la dedujo keywords.json y el operador debe aprobarla."""
+    id_ = fila["id"]
+    ctx.db.actualizar_clasificacion(id_, final_id=final_id, corregido=1, origen=origen)
+    copiar_a_dataset(ctx.ajustes, fila["foto"], final_id, verificado=(origen == "panel"))
+    ctx.db.registrar_evento("info", "api", f"Corrección #{id_} ({origen}): {fila['final_id']} -> {final_id}")
     return clasificacion_a_dict(ctx.db.clasificacion(id_))
 
 
@@ -213,6 +220,27 @@ async def post_revision_objeto(request: Request, cuerpo: ObjetoIn) -> dict[str, 
         return await _ctx(request).orq.describir_objeto(cuerpo.texto)
     except ErrorVoz as error:
         raise HTTPException(503, str(error)) from None
+
+
+@router.post("/api/clasificaciones/{id_}/corregir-objeto")
+def post_corregir_objeto(request: Request, id_: int, cuerpo: ObjetoIn) -> dict[str, Any]:
+    """Historial: corregir escribiendo QUÉ OBJETO es (contrato v1.11). El backend elige la categoría con
+    keywords.json. `accion` = "corregido" (con `clasificacion`) o "no_reconocido" (no cambia nada)."""
+    ctx = _ctx(request)
+    fila = ctx.db.clasificacion(id_)
+    if fila is None:
+        raise HTTPException(404, f"No existe la clasificación {id_}")
+    if fila["estado"] == "en_proceso":
+        raise HTTPException(409, "El caso sigue en proceso: resuélvanlo en En vivo")
+    try:
+        intencion = ctx.orq.voz.interpretar(cuerpo.texto, "revision")
+    except ErrorVoz as error:
+        raise HTTPException(503, str(error)) from None
+    respuesta = {"texto_crudo": cuerpo.texto, "intencion": intencion.a_dict()}
+    if intencion.tipo != "categoria":
+        return {**respuesta, "accion": "no_reconocido", "clasificacion": None}
+    return {**respuesta, "accion": "corregido",
+            "clasificacion": _aplicar_correccion(ctx, fila, int(intencion.valor), "texto")}
 
 
 # ---------------------------------------------------------------------------- voz (§15)

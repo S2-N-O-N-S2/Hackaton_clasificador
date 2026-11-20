@@ -1,6 +1,6 @@
 # Contrato de interfaces — Backend ↔ Panel ↔ Arduino
 
-> **Versión 1.10 — 2026-11-20.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
+> **Versión 1.11 — 2026-11-20.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
 > Detalla las secciones 9 y 17 de `docs/ESPECIFICACION.md`. Si este contrato y la especificación se contradicen, manda la especificación: avisen y corrijan este archivo.
 > **Nadie cambia este archivo sin avisar a la otra persona.** Cada cambio sube la versión y se anota en la sección 9 ("Historial").
 
@@ -171,6 +171,8 @@ Códigos: `SERIAL_CONECTADO`, `SERIAL_DESCONECTADO`, `ERROR_SERIAL`, `ARDUINO_RE
 |---|---|---|
 | `GET /api/clasificaciones` | `?limit=50&offset=0&dudosos=0\|1&simulado=incluir\|excluir\|solo` | `{"total": 120, "items": [Clasificacion, …]}`, de la más reciente a la más antigua |
 | `POST /api/clasificaciones/{id}/corregir` | `{"final_id": 1}` | La `Clasificacion` actualizada (`corregido: true`, `origen: "panel"`). La foto se copia a `dataset/<clase>/` |
+
+**Corregir escribiendo el objeto (v1.11):** `POST /api/clasificaciones/{id}/corregir-objeto` con `{"texto": "una pila"}`. El backend elige la categoría con `keywords.json`. Responde `{"accion": "corregido", "intencion": …, "clasificacion": Clasificacion}` (`origen = "texto"`, foto a `_por_verificar/`) o `{"accion": "no_reconocido", "clasificacion": null}` (no cambia nada). `404` si no existe; `409` si sigue en proceso.
 
 ### 3.4 Revisión (casos dudosos) — **agregado**
 La especificación pide que el panel resuelva dudosos (sección 4, regla 4), pero no define la ruta.
@@ -467,6 +469,7 @@ Mientras el backend no exista, el panel puede trabajar con **datos de ejemplo**:
 |---|---|---|---|
 | 1.0 | 2026-11-19 | Persona A (generado con Claude Code) | Versión inicial |
 | 1.7 | 2026-11-19 | Persona B (generado con Claude Code) | `GET /api/juego/fotos?total=N`: el usuario elige cuántas preguntas y se reparten entre las 3 categorías; campo `cuotas` en la respuesta. |
+| 1.11 | 2026-11-20 | Persona A (generado con Claude Code) | Historial: `POST /api/clasificaciones/{id}/corregir-objeto` (corregir escribiendo qué objeto es). En revisión se quitó «No sé qué es» (si nadie responde en 30 s queda pendiente igual). **Avisar a la Persona B.** |
 | 1.10 | 2026-11-20 | Persona A (generado con Claude Code) | Revisión pensada para quien NO sabe la categoría: `POST /api/revision/objeto` (texto libre del objeto) y `origen = "texto"`. En el panel, la tarjeta de revisión pide qué objeto es (cuadro de texto + botón de voz); los botones de bote quedan plegados en «Soy operador». **Avisar a la Persona B.** |
 | 1.9 | 2026-11-20 | Persona A (generado con Claude Code) | Vista en vivo de la cámara: `GET /api/camara/cuadro`. En «En vivo» la tarjeta **Cámara** se ve en vivo (MENU, ESPERA_OBJETO, OPERADOR, ERROR) y se congela desde CAPTURA, primero en el último cuadro y luego en la foto guardada. **Avisar a la Persona B.** |
 | 1.8 | 2026-11-20 | Persona A (generado con Claude Code) | **Sin sensor de caída** (FC-51 #2, D3): `DROP` siempre responde `DROP_OK` al cerrar la trampilla; se quitan `DROP_TIMEOUT` (respuesta y alerta) y el "sin confirmar" de los botes. Firmware recargado en el UNO. **Avisar a la Persona B.** |

@@ -357,3 +357,17 @@ def test_revision_escrita_desconocida_sigue_en_revision(cliente):
 
 def test_revision_escrita_fuera_de_revision_da_409(cliente):
     assert cliente.post("/api/revision/objeto", json={"texto": "lata"}).status_code == 409
+
+
+def test_historial_corrige_escribiendo_el_objeto(cliente):
+    """Un caso que quedó sin clasificar (pendiente) se corrige escribiendo qué objeto es."""
+    _llevar_a_revision(cliente)
+    cliente.post("/api/revision", json={"accion": "pendiente"})
+    esperar(lambda: cliente.get("/api/clasificaciones").json()["items"][0]["estado"] == "pendiente")
+    caso = cliente.get("/api/clasificaciones").json()["items"][0]
+    r = cliente.post(f"/api/clasificaciones/{caso['id']}/corregir-objeto", json={"texto": "una pila"}).json()
+    assert r["accion"] == "corregido"
+    assert r["clasificacion"]["final_id"] == 2 and r["clasificacion"]["origen"] == "texto"
+    r = cliente.post(f"/api/clasificaciones/{caso['id']}/corregir-objeto", json={"texto": "cachivache"}).json()
+    assert r["accion"] == "no_reconocido" and r["clasificacion"] is None
+    assert cliente.post("/api/clasificaciones/99999/corregir-objeto", json={"texto": "lata"}).status_code == 404

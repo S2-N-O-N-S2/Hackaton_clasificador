@@ -24,6 +24,32 @@ function Fila({ c, alCorregir }) {
     });
     if (r) { setAbierto(false); alCorregir(); }
   }
+  // Escribir qué objeto es: el backend elige la categoría (keywords.json), como en la revisión.
+  const [texto, setTexto] = useState('');
+  const [aviso, setAviso] = useState(null);
+  async function corregirPorObjeto(e) {
+    e.preventDefault();
+    if (!texto.trim()) return;
+    const r = await ejecutar(() => api.corregirObjeto(c.id, texto.trim()), {
+      ok: (r) => {
+        if (r.accion !== 'corregido') return null;
+        const id = r.clasificacion.final_id;
+        const yaCayo = c.bote_id !== null && c.bote_id !== undefined && c.bote_id !== id;
+        return yaCayo
+          ? `Caso #${c.id}: ${r.intencion.objeto} → ${categoria(id).nombre}. Ya cayó en el bote ${categoria(c.bote_id)?.color}: muévelo a mano al ${categoria(id).color}.`
+          : `Caso #${c.id}: ${r.intencion.objeto} → ${categoria(id).nombre} (bote ${categoria(id).color})`;
+      },
+    });
+    if (!r) return;
+    if (r.accion !== 'corregido') {
+      setAviso(`No conozco «${texto.trim()}». Prueba con otra palabra (ej.: botella, cáscara de plátano, pila).`);
+      return;
+    }
+    setAviso(null);
+    setTexto('');
+    setAbierto(false);
+    alCorregir();
+  }
   return (
     <tr className={`${c.dudoso ? 'fila-dudosa' : ''} ${c.motivo_dudoso === 'desconocido' || c.motivo_dudoso === 'foto_no_valida' ? 'fila-no-reconocida' : ''}`}>
       <td data-etiqueta="Caso">#{c.id}</td>
@@ -45,10 +71,21 @@ function Fila({ c, alCorregir }) {
         {!abierto && <button type="button" className="boton-secundario" onClick={() => setAbierto(true)}>Corregir</button>}
         {abierto && (
           <div className="corregir">
-            {[0, 1, 2].map((id) => (
-              <BotonCategoria key={id} id={id} disabled={ocupado} onClick={() => corregir(id)} />
-            ))}
-            <button type="button" className="boton-texto" onClick={() => setAbierto(false)}>Cancelar</button>
+            <form className="revision-objeto" onSubmit={corregirPorObjeto}>
+              <label htmlFor={`objeto-${c.id}`} className="sr-only">¿Qué objeto es?</label>
+              <input id={`objeto-${c.id}`} type="text" value={texto} maxLength={120} autoComplete="off" autoFocus
+                placeholder="¿Qué objeto es? Ej.: botella" disabled={ocupado}
+                onChange={(e) => { setTexto(e.target.value); setAviso(null); }} />
+              <button type="submit" className="boton-principal" disabled={ocupado || !texto.trim()}>Listo</button>
+            </form>
+            {aviso && <p className="texto-error">{aviso}</p>}
+            <details className="revision-operador">
+              <summary>Soy operador: elegir el bote</summary>
+              {[0, 1, 2].map((id) => (
+                <BotonCategoria key={id} id={id} disabled={ocupado} onClick={() => corregir(id)} />
+              ))}
+            </details>
+            <button type="button" className="boton-texto" onClick={() => { setAbierto(false); setAviso(null); }}>Cancelar</button>
           </div>
         )}
         <MensajeError error={error} />

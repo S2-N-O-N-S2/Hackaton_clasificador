@@ -187,9 +187,6 @@ function PanelRevision({ revision }) {
         </button>
       </form>
       {respuesta && <p className={respuesta.ok ? 'revision-ok' : 'texto-error'} role="status">{respuesta.texto}</p>}
-      <button type="button" className="boton-secundario" disabled={ocupado} onClick={() => ejecutar(() => api.dejarPendiente(), { ok: 'Quedó pendiente: un operador lo retira' })}>
-        No sé qué es (un operador lo retira)
-      </button>
       <details className="revision-operador">
         <summary>Soy operador: elegir el bote directamente</summary>
         <p className="atenuado">Decisión del operador: la foto va directo al dataset.</p>
