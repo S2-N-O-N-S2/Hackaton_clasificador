@@ -13,7 +13,6 @@ export default function Inicio() {
     const r = await ejecutar(() => api.elegirModo(modo), {
       ok: modo === 'menu' ? 'De vuelta al menú' : `Modo ${modo === 'ia' ? 'IA' : 'Adivina'}: pon el residuo frente a la cámara`,
     });
-    if (r && modo === 'adivina') window.location.hash = '#/juego';
     if (r && modo === 'ia') window.location.hash = '#/en-vivo';   // ahí está «Tomar foto» y se ve el resultado
   }
 
@@ -28,13 +27,12 @@ export default function Inicio() {
           <span>Usar IA</span>
           <small>La IA clasifica y el carrusel lo deposita</small>
         </button>
-        <button type="button" className={`boton-menu boton-adivina ${maquina?.modo === 'adivina' ? 'elegido' : ''}`}
-          disabled={ocupado || !puedeElegir} onClick={() => elegir('adivina')}>
-          {maquina?.modo === 'adivina' && <span className="elegido-marca">Modo actual</span>}
+        {/* El juego ya no usa la máquina (20-nov): solo lleva a la práctica con fotos, sin cambiar el modo. */}
+        <a href="#/juego" className="boton-menu boton-adivina">
           <span className="tecla">2</span>
           <span>Adivinar</span>
-          <small>¿Le ganas a la IA?</small>
-        </button>
+          <small>¿Le ganas a la IA? Juega con fotos</small>
+        </a>
       </div>
       {!puedeElegir && estado && (
         <p className="atenuado centrado">Hay un residuo en proceso: espera a que termine el ciclo.</p>
