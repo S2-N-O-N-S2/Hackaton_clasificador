@@ -6,6 +6,7 @@ import { MODO_MOCK } from './config.js';
 import { BarraProceso, Notificaciones, Simulado } from './componentes/Comun.jsx';
 import { BarraUrgente, Campana } from './componentes/Avisos.jsx';
 import { Logotipo } from './componentes/Graficas.jsx';
+import { BotonVoz } from './componentes/Voz.jsx';
 import Inicio from './vistas/Inicio.jsx';
 import EnVivo from './vistas/EnVivo.jsx';
 import Juego from './vistas/Juego.jsx';
@@ -105,6 +106,7 @@ export default function App() {
       <main className="contenido entra-vista" key={vista.ruta}>
         <Componente />
       </main>
+      <BotonVoz />
       <Notificaciones />
     </div>
   );
