@@ -1,7 +1,4 @@
 archivo,clase_id,clase,objeto_id,fecha_hora,camara
-inorganica/botella1__20261119_114909_1.jpg,1,inorganica,botella1,2026-11-19T11:49:09,1
-peligroso/botella1__20261119_114941_2.jpg,2,peligroso,botella1,2026-11-19T11:49:41,1
-inorganica/prueba1__20261119_124132_1.jpg,1,inorganica,prueba1,2026-11-19T12:41:32,1
 organica/gd_biological_3__001.jpg,0,organica,gd_biological_3,2026-11-19T12:55:15,externo:garbage_dataset_gd
 organica/gd_biological_5__001.jpg,0,organica,gd_biological_5,2026-11-19T12:55:15,externo:garbage_dataset_gd
 organica/gd_biological_6__001.jpg,0,organica,gd_biological_6,2026-11-19T12:55:15,externo:garbage_dataset_gd
