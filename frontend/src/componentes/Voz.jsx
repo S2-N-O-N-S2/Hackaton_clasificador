@@ -20,6 +20,7 @@ const ACCIONES = {
   revision_resuelta: 'Caso resuelto: el residuo va al bote',
   foto: 'Tomando la foto', modo_ia: 'Modo IA elegido', modo_adivina: 'Modo Adivina elegido', modo_menu: 'De vuelta al menú',
   respuesta_bote: 'Te mostré el bote',
+  clasificar_voz: 'Tomando la foto para confirmarlo',
   no_reconocido: 'Presiona de nuevo y repítelo',
   ignorado: 'No hay nada que hacer ahora',
 };

@@ -488,10 +488,17 @@ class Orquestador:
             await self._mostrar(lcd_ui.pantalla_voz_entendida(intencion.objeto, categoria))
             self.resolver_revision(categoria, origen)
             return "revision_resuelta"
-        # §15 caso 2 sin residuo: responder, mostrar el bote y guardar la pista para el siguiente residuo
+        # §15 caso 2: la persona dice qué tiene ("una lata", "¿dónde tiro esta cáscara?"). La máquina no tiene
+        # sensor IR, así que decirlo equivale a «Tomar foto»: se toma la foto y la cámara CONFIRMA (fusión
+        # voz + visión). Si coinciden, la base va a ese bote (10 s con el modal); si no, revisión (conflicto_voz).
         self._pista_voz = (categoria, intencion.objeto, time.monotonic())
         await self._mostrar(lcd_ui.pantalla_voz_entendida(intencion.objeto, categoria))
         self._hablar(tts.frase_objeto(intencion.objeto, categoria), interrumpir=True)
+        if (self.estado in (Estado.MENU, Estado.ESPERA_OBJETO) and not self.ciclo_activo
+                and self.enlace.conectado and self.camara.disponible):
+            await self.tomar_foto(origen)
+            return "clasificar_voz"
+        # Sin cámara o con un ciclo en curso: solo responde y muestra el bote, y la pista queda para el siguiente
         self._lanzar(self._restaurar_lcd(pantalla_previa, self.estado, segundos=4))
         if self.estado == Estado.MENU and self.enlace.conectado and not self.ciclo_activo:
             if not (self._tarea_mostrar_bote and not self._tarea_mostrar_bote.done()):

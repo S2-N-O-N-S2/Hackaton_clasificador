@@ -162,17 +162,18 @@ def test_palabra_desconocida_sigue_en_revision(cliente):
 
 
 def test_conflicto_voz_y_camara_va_a_revision(cliente):
+    cliente.app.state.ctx.orq.camara.pista_siguiente = 0  # la cámara verá algo orgánico
     r = cliente.post("/api/sim/voz", json={"texto": "¿dónde tiro esta botella?"}).json()
-    assert r["accion"] == "respuesta_bote" and r["intencion"]["valor"] == 1
-    cliente.post("/api/sim/objeto", json={"categoria_real": 0})  # la cámara ve algo orgánico
+    assert r["accion"] == "clasificar_voz" and r["intencion"]["valor"] == 1  # decirlo toma la foto
     esperar(lambda: estado(cliente)["estado"] == "REVISION")
     caso = estado(cliente)["caso_actual"]
     assert caso["dudoso"] is True and caso["motivo_dudoso"] == "conflicto_voz"
 
 
 def test_voz_que_coincide_no_frena_el_ciclo(cliente):
-    cliente.post("/api/sim/voz", json={"texto": "una lata"})
-    cliente.post("/api/sim/objeto", json={"categoria_real": 1})
+    """Decir el objeto toma la foto (no hay sensor IR); si la cámara coincide, va directo a su bote."""
+    cliente.app.state.ctx.orq.camara.pista_siguiente = 1
+    assert cliente.post("/api/sim/voz", json={"texto": "una lata"}).json()["accion"] == "clasificar_voz"
     esperar(lambda: cliente.get("/api/clasificaciones").json()["total"] == 1
             and estado(cliente)["estado"] == "MENU")
     caso = cliente.get("/api/clasificaciones").json()["items"][0]

@@ -8,10 +8,12 @@ Herramienta: `python tools\calibrar_angulos.py` (con el backend corriendo).
 
 | Bote | Posición en el disco φ | Ángulo calibrado θ | Prueba de caída (centro de la boca: sí/no) | Fecha y hora | Quién |
 |---|---|---|---|---|---|
-| Orgánica (verde) | derecha (vista desde el frente) | **180°** | sí (visual, al frente y centrado) | 2026-11-20 ~09:50 | Persona A + equipo |
-| Inorgánica (azul) | izquierda | **0°** | sí (visual, al frente y centrado) | 2026-11-20 ~09:50 | Persona A + equipo |
+| Orgánica (verde) | derecha (vista desde el frente) | **175°** (antes 180°) | sí (visual, al frente y centrado) | 2026-11-20 ~10:15 | Persona A + equipo |
+| Inorgánica (azul) | izquierda | **5°** (antes 0°) | sí (visual, al frente y centrado) | 2026-11-20 ~10:15 | Persona A + equipo |
 | Peligroso (gris) | frente (en reposo) | **90°** | sí (visual, al frente y centrado) | 2026-11-20 ~09:50 | Persona A + equipo |
 | HOME | — | **90°** (Peligroso queda al frente) | — | 2026-11-20 ~09:50 | Persona A + equipo |
+
+> **Por qué 5° y 175°:** a 0° el servo se trabó contra su tope (sin fuerza, alimentado por USB) y dejó de moverse hasta recibir un movimiento pequeño. Se dejan 5° de margen en cada extremo; los botes siguen quedando centrados.
 
 ## 2. Ciclo mecánico SIN IA (resolución manual)
 Mientras no haya modelo entrenado, cada residuo va a REVISIÓN (`sin_modelo`) y se resuelve con el teclado (1/2/3) o el panel. Sirve para validar el firmware, el carrusel y la trampilla (no hay sensor de caída).
