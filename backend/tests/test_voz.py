@@ -277,6 +277,8 @@ def test_dice_la_clasificacion_y_el_bote(cliente):
     cliente.post("/api/sim/objeto", json={"categoria_real": 1})
     esperar(lambda: any("bote azul" in d for d in locutor.dicho))
     assert any(d.startswith("Es inorgánica, con ") for d in locutor.dicho)
+    # Lo dice al EMPEZAR el tiempo de depósito (el residuo todavía está ahí): se espera a que termine el ciclo
+    esperar(lambda: estado(cliente)["estado"] == "MENU")
 
     cliente.post("/api/sim/objeto", json={"categoria_real": "dudoso"})
     esperar(lambda: any("¿Qué es?" in d for d in locutor.dicho))

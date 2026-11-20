@@ -150,6 +150,9 @@ def valores_por_defecto() -> dict[str, Any]:
         "roi": [0.0, 0.0, 1.0, 1.0],
         "tiempo_adivinanza_s": 20,
         "tiempo_revision_s": 30,
+        # Segundos que el bote elegido se queda al frente para que la persona deposite el residuo (SOLTAR);
+        # después la base vuelve a reposo. El panel muestra «Deposita tu residuo» con esta cuenta regresiva.
+        "tiempo_deposito_s": 10,
         "tiempo_retro_firme_s": 5,
         "tiempo_retro_media_s": 8,
         "umbral_aviso_bote": 0.80,
@@ -314,6 +317,7 @@ VALIDADORES = {
     "roi": _validar_roi,
     "tiempo_adivinanza_s": _validar_entero_positivo,
     "tiempo_revision_s": _validar_entero_positivo,
+    "tiempo_deposito_s": _validar_entero_positivo,
     "tiempo_retro_firme_s": _validar_entero_positivo,
     "tiempo_retro_media_s": _validar_entero_positivo,
     "microfono": _validar_texto_opcional,

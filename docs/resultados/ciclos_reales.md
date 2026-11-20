@@ -23,16 +23,20 @@ Mientras no haya modelo entrenado, cada residuo va a REVISIÓN (`sin_modelo`) y 
 | 3 | | | | | | | |
 
 ## 3. Ciclos con IA — criterio de "listo" de la Fase 5 (3 de 3 correctos)
-Requiere el modelo entrenado con fotos reales (`python -m training.train`). Versión del modelo: [COMPLETAR].
+Requiere el modelo entrenado con fotos reales (`python -m training.train`). Versión del modelo: **v1** (The Garbage Dataset). Cámara: celular con DroidCam (índice 1). Arduino en COM7. Sin sensor IR: cada ciclo se inicia con «Tomar foto».
 
 | # | Hora | Residuo (real) | Categoría real | Predicción | Confianza | ¿Dudoso? | Bote final | `drop_confirmado` | Tiempo de ciclo (ms) | ¿Correcto? |
 |---|---|---|---|---|---|---|---|---|---|---|
-| 1 | | (orgánico) | Orgánica | | | | | | | |
-| 2 | | (inorgánico) | Inorgánica | | | | | | | |
-| 3 | | (peligroso simulado) | Peligroso | | | | | | | |
-| D | | (objeto dudoso o no entrenado) | — | | | debe ser **sí** | queda en la bandeja | — | — | |
+| 1 | 09:56:21 | lechuga sobre papel (caso #8) | Orgánica | Orgánica | 0.927 | no | Orgánico (180°) | sí* | 4000 | **sí** |
+| 2 | 09:55:58 | lata de refresco (caso #7) | Inorgánica | Inorgánica | 0.799 | no | Inorgánico (0°) | sí* | 9733 | **sí** |
+| 3 | 09:56:37 | power bank / batería (caso #9) | Peligroso | Peligroso | 0.937 | **sí** (`desconocido`) | Peligroso (90°), resuelto escribiendo «pila» | sí* | 2282 | **sí**, vía revisión |
+| D | 09:56:37 | el mismo caso #9 (objeto no entrenado) | — | — | — | **sí** | esperó en revisión hasta que la persona dijo qué era | — | — | **sí** |
 
-**Resultado:** [COMPLETAR] de 3 ciclos correctos.
+**Resultado:** **3 de 3** residuos terminaron en el bote correcto (2 directo por la IA y 1 por revisión) y el objeto no entrenado **no se soltó** sin ayuda. Bote correcto confirmado visualmente por el equipo.
+
+* Sin sensor de caída: `drop_confirmado` solo indica que el ciclo terminó el depósito, no que se midiera la caída. El ciclo 2 tardó 9.7 s (la captura repitió la foto por calidad).
+
+> Pendiente para el criterio estricto: un peligroso clasificado directo por la IA (sin revisión) y repetir con las tapas conectadas.
 
 ## 4. Fallas encontradas y diagnóstico
 | Hora | Síntoma | Causa (cómo se confirmó: evento, medición, log) | Solución |

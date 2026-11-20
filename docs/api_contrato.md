@@ -1,6 +1,6 @@
 # Contrato de interfaces — Backend ↔ Panel ↔ Arduino
 
-> **Versión 1.11 — 2026-11-20.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
+> **Versión 1.12 — 2026-11-20.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
 > Detalla las secciones 9 y 17 de `docs/ESPECIFICACION.md`. Si este contrato y la especificación se contradicen, manda la especificación: avisen y corrijan este archivo.
 > **Nadie cambia este archivo sin avisar a la otra persona.** Cada cambio sube la versión y se anota en la sección 9 ("Historial").
 
@@ -469,6 +469,7 @@ Mientras el backend no exista, el panel puede trabajar con **datos de ejemplo**:
 |---|---|---|---|
 | 1.0 | 2026-11-19 | Persona A (generado con Claude Code) | Versión inicial |
 | 1.7 | 2026-11-19 | Persona B (generado con Claude Code) | `GET /api/juego/fotos?total=N`: el usuario elige cuántas preguntas y se reparten entre las 3 categorías; campo `cuotas` en la respuesta. |
+| 1.12 | 2026-11-20 | Persona A (generado con Claude Code) | `SOLTAR` dura `tiempo_deposito_s` (nuevo en la configuración, por defecto **10 s**): el bote elegido se queda al frente para que la persona deposite y luego la base vuelve a reposo. `estado.cuenta_regresiva_s` trae los segundos que faltan; el panel muestra el modal «Deposita tu residuo». La voz dice el resultado al empezar `SOLTAR` (antes en `REGISTRAR`). Ese tiempo se descuenta de `tiempo_ciclo_ms` (es de la persona). **Avisar a la Persona B.** |
 | 1.11 | 2026-11-20 | Persona A (generado con Claude Code) | Historial: `POST /api/clasificaciones/{id}/corregir-objeto` (corregir escribiendo qué objeto es). En revisión se quitó «No sé qué es» (si nadie responde en 30 s queda pendiente igual). **Avisar a la Persona B.** |
 | 1.10 | 2026-11-20 | Persona A (generado con Claude Code) | Revisión pensada para quien NO sabe la categoría: `POST /api/revision/objeto` (texto libre del objeto) y `origen = "texto"`. En el panel, la tarjeta de revisión pide qué objeto es (cuadro de texto + botón de voz); los botones de bote quedan plegados en «Soy operador». **Avisar a la Persona B.** |
 | 1.9 | 2026-11-20 | Persona A (generado con Claude Code) | Vista en vivo de la cámara: `GET /api/camara/cuadro`. En «En vivo» la tarjeta **Cámara** se ve en vivo (MENU, ESPERA_OBJETO, OPERADOR, ERROR) y se congela desde CAPTURA, primero en el último cuadro y luego en la foto guardada. **Avisar a la Persona B.** |

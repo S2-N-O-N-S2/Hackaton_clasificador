@@ -7,6 +7,7 @@ import { BarraProceso, Notificaciones, Simulado } from './componentes/Comun.jsx'
 import { BarraUrgente, Campana } from './componentes/Avisos.jsx';
 import { Logotipo } from './componentes/Graficas.jsx';
 import { BotonVoz } from './componentes/Voz.jsx';
+import { ModalDeposito } from './componentes/Deposito.jsx';
 import { BarraScroll, ICONOS, useRevelarAlScroll } from './componentes/Efectos.jsx';
 import Inicio from './vistas/Inicio.jsx';
 import EnVivo from './vistas/EnVivo.jsx';
@@ -135,6 +136,7 @@ export default function App() {
         <Componente />
       </main>
       <BotonVoz />
+      <ModalDeposito />
       <Notificaciones />
     </div>
   );

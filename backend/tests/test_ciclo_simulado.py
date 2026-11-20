@@ -253,3 +253,21 @@ def test_tomar_foto_con_ciclo_en_curso_responde_409(cliente):
     c, _ = cliente
     assert c.post("/api/tomar-foto", json={}).status_code == 200
     assert c.post("/api/tomar-foto", json={}).status_code == 409
+
+
+def test_soltar_espera_el_tiempo_de_deposito_con_cuenta_regresiva(cliente):
+    """El bote elegido se queda al frente `tiempo_deposito_s` (cuenta regresiva para el modal) y ese tiempo
+    no cuenta como tiempo de máquina."""
+    c, _ = cliente
+    with c.websocket_connect("/ws/eventos") as ws:
+        assert ws.receive_json()["tipo"] == "hola"
+        c.post("/api/sim/objeto", json={"categoria_real": 0})
+        cuenta = None
+        while True:
+            m = ws.receive_json()
+            if m["tipo"] == "estado" and m["datos"]["estado"] == "SOLTAR":
+                cuenta = m["datos"]["cuenta_regresiva_s"]
+            if m["tipo"] == "registrado":
+                break
+    assert cuenta == 10
+    esperar(lambda: c.get("/api/estado").json()["estado"] == "MENU")

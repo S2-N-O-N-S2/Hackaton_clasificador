@@ -748,11 +748,22 @@ class Orquestador:
         if respuesta != f"POS_OK:{final_id}":
             raise ErrorSerial(f"Posición incorrecta: se pidió {final_id} y respondió {respuesta}")
 
-        # --- SOLTAR
-        await self._transicion(Estado.SOLTAR)
+        # --- SOLTAR: el bote elegido se queda al frente `tiempo_deposito_s` (10 s) para que la persona deposite
+        # el residuo; el panel muestra «Deposita tu residuo» con la cuenta regresiva y la máquina lo dice en voz.
+        # Ese tiempo es de la PERSONA: se descuenta del tiempo de máquina, igual que la revisión.
+        espera = self.config.get("tiempo_deposito_s") * self.f
+        self._fin_cuenta = time.monotonic() + espera
+        await self._transicion(Estado.SOLTAR, f"Deposita el residuo en el bote {bote_id}")
+        confianza = decision.confianza if origen == "camara" else None
+        await self._mostrar(lcd_ui.pantalla_resultado(final_id, confianza, origen), led="VERDE")
+        self._hablar(tts.frase_resultado(final_id, confianza, origen), interrumpir=True)
+        inicio = time.monotonic()
         # Sin sensor de caída (20-nov): DROP_OK solo dice que la trampilla se abrió y se cerró.
         await self._cmd("DROP", ("DROP_OK",), TIEMPOS["timeout_drop_s"])
         confirmado = True
+        await asyncio.sleep(max(0.0, self._fin_cuenta - time.monotonic()))
+        self._fin_cuenta = None
+        self._espera_humana_s += time.monotonic() - inicio
 
         # --- REGISTRAR
         await self._transicion(Estado.REGISTRAR)
@@ -763,9 +774,6 @@ class Orquestador:
             tiempo_ciclo_ms=tiempo_ms, drop_confirmado=int(confirmado), bote_id=bote_id, estado="registrado",
         )
         await self.difusor.emitir("registrado", self.caso_actual())
-        confianza = decision.confianza if origen == "camara" else None
-        await self._mostrar(lcd_ui.pantalla_resultado(final_id, confianza, origen), led="VERDE")
-        self._hablar(tts.frase_resultado(final_id, confianza, origen), interrumpir=True)
 
         # --- ACTUALIZAR_NIVEL (nivel ESTIMADO por conteo)
         await self._transicion(Estado.ACTUALIZAR_NIVEL)
