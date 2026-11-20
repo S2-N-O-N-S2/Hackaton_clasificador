@@ -1,11 +1,14 @@
 // Pruebas oficiales (especificación 3 y 20.4): 20 residuos × 2 corridas, manual cronometrada vs. sistema.
+// Organizada en 4 pasos para no mostrar todo a la vez: residuos → corrida manual → corrida del sistema → resultados.
 import { useEffect, useRef, useState } from 'react';
 import { api } from '../api.js';
 import { categoria } from '../categorias.js';
 import {
-  BotonesCategoria, Categoria, Cifra, MensajeError, Simulado, Tarjeta, pct, useAccion, useDatos,
+  BotonesCategoria, Categoria, IconoCategoria, MensajeError, Simulado, Tarjeta, pct, useAccion, useDatos,
 } from '../componentes/Comun.jsx';
 import { MatrizConfusion } from '../componentes/Graficas.jsx';
+import { CabeceraVista } from '../componentes/Efectos.jsx';
+import { Duelo, Explicacion, Pestanas, Segmentado } from '../componentes/Paneles.jsx';
 
 function NuevoResiduo({ alGuardar }) {
   const [nombre, setNombre] = useState('');
@@ -134,78 +137,119 @@ function celda(registro) {
   );
 }
 
+function ListaResiduos({ residuos, recargar }) {
+  const meta = 20;
+  return (
+    <>
+      <div className="meta-residuos">
+        <span><strong>{residuos.length}</strong> de {meta} residuos registrados (el reto pide 20 o más)</span>
+        <div className="meta-barra" aria-hidden="true"><div style={{ width: `${Math.min(1, residuos.length / meta) * 100}%` }} /></div>
+      </div>
+      {residuos.length > 0 && (
+        <ul className="fichas fichas-residuos">
+          {residuos.map((r) => (
+            <li key={r.id} className="ficha" data-cat={categoria(r.categoria_real)?.clave}>
+              <span className="ficha-n">{r.id}</span>
+              <IconoCategoria id={r.categoria_real} tam={15} /> {r.nombre}
+              {r.simulado && <Simulado />}
+              {r.usado_en_entrenamiento && <span className="rotulo rotulo-aviso" title="Indicarlo al jurado">en entrenamiento</span>}
+            </li>
+          ))}
+        </ul>
+      )}
+      <h3>Agregar residuo</h3>
+      <NuevoResiduo alGuardar={recargar} />
+    </>
+  );
+}
+
+function Resultados({ residuos, comp, ultimoDe }) {
+  return (
+    <>
+      {comp && (
+        <Duelo
+          izquierda={{ nombre: 'Manual', valor: comp.manual?.precision ?? null, color: '#F28C05', detalle: `${comp.manual?.aciertos ?? 0}/${comp.manual?.n ?? 0} · ${comp.manual?.tiempo_promedio_s ?? '—'} s` }}
+          derecha={{ nombre: 'Sistema', valor: comp.sistema?.precision ?? null, color: '#0E7C86', detalle: `${comp.sistema?.aciertos ?? 0}/${comp.sistema?.n ?? 0} · ${comp.sistema?.tiempo_promedio_s ?? '—'} s` }}
+          pie="Debajo de cada anillo: aciertos y tiempo promedio por residuo."
+        />
+      )}
+      <Pestanas pestanas={[
+        {
+          id: 'tabla', titulo: 'Residuo por residuo',
+          contenido: (
+            <div className="tabla-desplazable">
+              <table className="tabla">
+                <thead><tr><th>Residuo</th><th>Real</th><th>Manual</th><th>Sistema</th></tr></thead>
+                <tbody>
+                  {residuos.map((r) => (
+                    <tr key={r.id}>
+                      <td>{r.nombre}</td><td><Categoria id={r.categoria_real} /></td>
+                      {celda(ultimoDe(r.id, 'manual'))}
+                      {celda(ultimoDe(r.id, 'sistema'))}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ),
+        },
+        ...(comp ? [{
+          id: 'matrices', titulo: 'Matrices',
+          contenido: (
+            <>
+              <div className="rejilla-2">
+                <div><h3>Manual</h3><MatrizConfusion matriz={comp.matriz_manual} columnas="Asignada" /></div>
+                <div><h3>Sistema</h3><MatrizConfusion matriz={comp.matriz_sistema} columnas="Asignada" /></div>
+              </div>
+              <Explicacion>Cada fila es la categoría real y cada columna el bote asignado. La diagonal (✓) son los aciertos.</Explicacion>
+            </>
+          ),
+        }] : []),
+      ]} />
+    </>
+  );
+}
+
 export default function Pruebas() {
   const [corrida, setCorrida] = useState(1);
+  const [paso, setPaso] = useState('residuos');
   const { datos, error, recargar } = useDatos(() => api.pruebas(), []);
   const residuos = datos?.residuos || [];
   const registros = (datos?.registros || []).filter((r) => r.corrida === corrida);
   const ultimoDe = (residuoId, modo) => registros.filter((r) => r.residuo_id === residuoId && r.modo === modo).at(-1);
+  const hechos = (modo) => new Set(registros.filter((r) => r.modo === modo).map((r) => r.residuo_id)).size;
   const comp = datos?.comparativa;
 
+  const pasos = [
+    { id: 'residuos', titulo: 'Residuos', estado: `${residuos.length}/20`, listo: residuos.length >= 20 },
+    { id: 'manual', titulo: 'Corrida manual', estado: `${hechos('manual')}/${residuos.length}`, listo: residuos.length > 0 && hechos('manual') >= residuos.length },
+    { id: 'sistema', titulo: 'Corrida con el sistema', estado: `${hechos('sistema')}/${residuos.length}`, listo: residuos.length > 0 && hechos('sistema') >= residuos.length },
+    { id: 'resultados', titulo: 'Resultados', estado: comp ? pct(comp.sistema?.precision) : '—', listo: false },
+  ];
+
   return (
-    <div className="vista">
-      <h1>Pruebas: manual vs. sistema</h1>
+    <div className="vista vista-datos">
+      <CabeceraVista icono="pruebas" titulo="Pruebas" pregunta="¿Separa mejor y más rápido una persona o el sistema, con los mismos 20 residuos?">
+        <Segmentado etiqueta="Corrida" valor={corrida} alCambiar={setCorrida}
+          opciones={[{ clave: 1, nombre: 'Corrida 1' }, { clave: 2, nombre: 'Corrida 2' }]} />
+      </CabeceraVista>
       <MensajeError error={error} />
-      <Tarjeta titulo={`Residuos de prueba (${residuos.length}; el reto pide ≥ 20)`}>
-        <div className="tabla-desplazable">
-          <table className="tabla">
-            <thead><tr><th>#</th><th>Nombre</th><th>Categoría real</th><th>Simulado</th><th>Usado en entrenamiento</th></tr></thead>
-            <tbody>
-              {residuos.map((r) => (
-                <tr key={r.id}>
-                  <td>{r.id}</td><td>{r.nombre}</td><td><Categoria id={r.categoria_real} /></td>
-                  <td><Simulado si={r.simulado} />{!r.simulado && 'No'}</td>
-                  <td>{r.usado_en_entrenamiento ? 'Sí (indicarlo)' : 'No'}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        <NuevoResiduo alGuardar={recargar} />
-      </Tarjeta>
-
-      <div className="filtros">
-        <label>Corrida
-          <select value={corrida} onChange={(e) => setCorrida(Number(e.target.value))}>
-            <option value={1}>Corrida 1</option>
-            <option value={2}>Corrida 2</option>
-          </select>
-        </label>
-      </div>
-
-      <div className="rejilla-2">
-        <CorridaManual residuos={residuos} corrida={corrida} alRegistrar={recargar} />
-        <CorridaSistema residuos={residuos} corrida={corrida} alRegistrar={recargar} />
-      </div>
-
-      <Tarjeta titulo="Tabla comparativa">
-        {comp && (
-          <div className="cifras">
-            <Cifra etiqueta="Manual: acierto" valor={pct(comp.manual?.precision)} progreso={comp.manual?.precision} detalle={`${comp.manual?.aciertos ?? 0}/${comp.manual?.n ?? 0} · ${comp.manual?.tiempo_promedio_s ?? '—'} s prom.`} />
-            <Cifra etiqueta="Sistema: acierto" valor={pct(comp.sistema?.precision)} progreso={comp.sistema?.precision} detalle={`${comp.sistema?.aciertos ?? 0}/${comp.sistema?.n ?? 0} · ${comp.sistema?.tiempo_promedio_s ?? '—'} s prom.`} />
-          </div>
-        )}
-        <div className="tabla-desplazable">
-          <table className="tabla">
-            <thead><tr><th>Residuo</th><th>Real</th><th>Manual</th><th>Sistema</th></tr></thead>
-            <tbody>
-              {residuos.map((r) => (
-                <tr key={r.id}>
-                  <td>{r.nombre}</td><td><Categoria id={r.categoria_real} /></td>
-                  {celda(ultimoDe(r.id, 'manual'))}
-                  {celda(ultimoDe(r.id, 'sistema'))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-        {comp && (
-          <div className="rejilla-2">
-            <div><h3>Matriz manual</h3><MatrizConfusion matriz={comp.matriz_manual} columnas="Asignada" /></div>
-            <div><h3>Matriz del sistema</h3><MatrizConfusion matriz={comp.matriz_sistema} columnas="Asignada" /></div>
-          </div>
-        )}
-      </Tarjeta>
+      <ol className="pasos" aria-label="Pasos de la prueba">
+        {pasos.map((p, i) => (
+          <li key={p.id} className="paso">
+            <button type="button" aria-current={paso === p.id ? 'step' : undefined} className={p.listo ? 'listo' : ''} onClick={() => setPaso(p.id)}>
+              <span className="paso-numero">{p.listo ? '✓' : i + 1}</span>
+              <span className="paso-texto"><strong>{p.titulo}</strong><small>{p.estado}</small></span>
+            </button>
+          </li>
+        ))}
+      </ol>
+      <section className="tarjeta paso-contenido" key={paso}>
+        {paso === 'residuos' && <ListaResiduos residuos={residuos} recargar={recargar} />}
+        {paso === 'manual' && <CorridaManual residuos={residuos} corrida={corrida} alRegistrar={recargar} />}
+        {paso === 'sistema' && <CorridaSistema residuos={residuos} corrida={corrida} alRegistrar={recargar} />}
+        {paso === 'resultados' && <Resultados residuos={residuos} comp={comp} ultimoDe={ultimoDe} />}
+      </section>
     </div>
   );
 }

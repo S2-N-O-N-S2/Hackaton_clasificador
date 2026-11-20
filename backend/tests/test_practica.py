@@ -60,3 +60,27 @@ def test_endpoints_de_practica(cliente):  # noqa: F811
     assert c.get("/api/juego/fotos?por_categoria=500").status_code == 422
     assert c.get("/api/juego/fotos/organica/..%2Fsecreto.jpg").status_code == 404
     assert c.get("/api/juego/fotos/otra/x.jpg").status_code == 404
+
+
+def test_total_se_reparte_entre_las_3_categorias(tmp_path):
+    from app.practica import repartir
+
+    crear_dataset(tmp_path, {"organica": 30, "inorganica": 30, "peligroso": 30})
+    for total in (5, 10, 15, 20, 25, 30):
+        r = elegir_fotos(tmp_path, rng=random.Random(total), total=total)
+        assert r["total"] == total
+        cuenta = [sum(1 for it in r["items"] if it["categoria_id"] == c) for c in range(3)]
+        assert sum(cuenta) == total and max(cuenta) - min(cuenta) <= 1
+        assert cuenta == r["cuotas"]
+    assert repartir(15, random.Random(0)) == [5, 5, 5]
+    extras = {tuple(repartir(10, random.Random(s))) for s in range(30)}
+    assert extras == {(4, 3, 3), (3, 4, 3), (3, 3, 4)}  # la pregunta extra cae en cualquier categoría
+
+
+def test_endpoint_con_total(cliente):  # noqa: F811
+    c, tmp = cliente
+    crear_dataset(tmp / "dataset", {"organica": 12, "inorganica": 12, "peligroso": 12})
+    r = c.get("/api/juego/fotos?total=10")
+    assert r.status_code == 200 and r.json()["total"] == 10
+    assert c.get("/api/juego/fotos?total=2").status_code == 422
+    assert c.get("/api/juego/fotos?total=61").status_code == 422

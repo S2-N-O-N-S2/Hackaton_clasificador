@@ -1,5 +1,5 @@
 // Estructura del panel: encabezado, navegación por pestañas y la vista activa.
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useEnVivo } from './estado.jsx';
 import { NOMBRE_ESTADO } from './categorias.js';
 import { MODO_MOCK } from './config.js';
@@ -7,6 +7,7 @@ import { BarraProceso, Notificaciones, Simulado } from './componentes/Comun.jsx'
 import { BarraUrgente, Campana } from './componentes/Avisos.jsx';
 import { Logotipo } from './componentes/Graficas.jsx';
 import { BotonVoz } from './componentes/Voz.jsx';
+import { BarraScroll, useRevelarAlScroll } from './componentes/Efectos.jsx';
 import Inicio from './vistas/Inicio.jsx';
 import EnVivo from './vistas/EnVivo.jsx';
 import Juego from './vistas/Juego.jsx';
@@ -85,6 +86,8 @@ export default function App() {
   const ruta = useRuta();
   const vista = VISTAS.find((v) => v.ruta === ruta) || VISTAS[0];
   const { Componente } = vista;
+  const principal = useRef(null);
+  useRevelarAlScroll(principal, vista.ruta);
   // En el celular la regleta de pestañas se desplaza: deja visible la pestaña activa.
   // Y cada pestaña nueva empieza desde arriba.
   useEffect(() => {
@@ -101,9 +104,10 @@ export default function App() {
         ))}
       </nav>
       <BarraProceso />
+      <BarraScroll />
       <BarraUrgente ruta={vista.ruta} />
       {/* key: al cambiar de pestaña el contenido entra con un fundido corto. */}
-      <main className="contenido entra-vista" key={vista.ruta}>
+      <main className="contenido entra-vista" key={vista.ruta} ref={principal}>
         <Componente />
       </main>
       <BotonVoz />

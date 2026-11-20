@@ -1,6 +1,7 @@
 // Configuración: umbrales, calibración de ángulos, capacidades, modelo, etiquetas por verificar,
 // control manual y (en simulación) residuos y teclas simuladas.
 import { useEffect, useState } from 'react';
+import { CabeceraVista } from '../componentes/Efectos.jsx';
 import { api, urlFoto } from '../api.js';
 import { useEnVivo } from '../estado.jsx';
 import { categoria } from '../categorias.js';
@@ -295,7 +296,7 @@ export default function Configuracion() {
 
   return (
     <div className="vista">
-      <h1>Configuración</h1>
+      <CabeceraVista icono="configuracion" titulo="Configuración" pregunta="Umbrales de la IA, tiempos, cámara y voz. Solo para el operador." />
       <MensajeError error={config.error} />
       {maquina?.simulacion && <Simulacion />}
       {valores && (

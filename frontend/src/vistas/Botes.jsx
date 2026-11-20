@@ -1,4 +1,5 @@
 // Botes (especificación 13): nivel ESTIMADO por conteo de piezas, vaciado e historial.
+import { CabeceraVista } from '../componentes/Efectos.jsx';
 import { api } from '../api.js';
 import { useEnVivo } from '../estado.jsx';
 import { categoria } from '../categorias.js';
@@ -20,8 +21,9 @@ export default function Botes() {
 
   return (
     <div className="vista">
-      <h1>Botes <Estimado /></h1>
-      <p className="atenuado">No hay sensor de nivel: el llenado se estima contando las piezas depositadas contra una capacidad calibrada.</p>
+      <CabeceraVista icono="botes" titulo="Botes" pregunta="¿Cuánto le cabe todavía a cada bote? (sin sensor: se estima contando piezas)">
+        <Estimado />
+      </CabeceraVista>
       <MensajeError error={error || datos.error} />
       <div className="rejilla-3">
         {lista.map((b) => (

@@ -16,11 +16,22 @@ font-weight:700;font-size:1rem}</style></head><body><div><h1>Sin conexión con l
 <p>Revisa que la laptop esté encendida, con el panel corriendo, y que el celular esté en la misma red Wi-Fi.</p>
 <button onclick="location.reload()">Reintentar</button></div></body></html>`;
 
+// Si el servidor del panel se reinició, el primer intento puede fallar con una conexión vieja aunque
+// la laptop ya responda: se reintenta una vez (con una petición nueva) antes de mostrar el aviso.
+async function navegar(peticion) {
+  try {
+    return await fetch(peticion);
+  } catch {
+    await new Promise((listo) => setTimeout(listo, 400));
+    try {
+      return await fetch(peticion.url, { cache: 'no-store', credentials: 'same-origin' });
+    } catch {
+      return new Response(PAGINA_SIN_CONEXION, { headers: { 'Content-Type': 'text/html; charset=utf-8' } });
+    }
+  }
+}
+
 self.addEventListener('fetch', (evento) => {
   if (evento.request.mode !== 'navigate') return; // todo lo demás va directo a la red, sin caché
-  evento.respondWith(
-    fetch(evento.request).catch(() => new Response(PAGINA_SIN_CONEXION, {
-      headers: { 'Content-Type': 'text/html; charset=utf-8' },
-    })),
-  );
+  evento.respondWith(navegar(evento.request));
 });

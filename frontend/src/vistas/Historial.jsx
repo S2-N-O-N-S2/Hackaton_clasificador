@@ -1,5 +1,6 @@
 // Historial filtrable con corrección manual (POST /api/clasificaciones/{id}/corregir).
 import { useState } from 'react';
+import { CabeceraVista } from '../componentes/Efectos.jsx';
 import { api, urlFoto } from '../api.js';
 import { useEnVivo } from '../estado.jsx';
 import { NOMBRE_ORIGEN, categoria } from '../categorias.js';
@@ -70,7 +71,7 @@ export default function Historial() {
 
   return (
     <div className="vista">
-      <h1>Historial</h1>
+      <CabeceraVista icono="historial" titulo="Historial" pregunta="Cada residuo que pasó por la máquina, con su foto y cómo se decidió." />
       <div className="filtros">
         <label>Casos
           <select value={dudosos} onChange={(e) => { setDudosos(e.target.value); setPagina(0); }}>

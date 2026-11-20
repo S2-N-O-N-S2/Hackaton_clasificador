@@ -1,11 +1,13 @@
 // "¿Le ganas a la IA?" (especificación 12.2). El panel solo muestra lo que calcula el backend:
 // nivel de certeza, tono, título y explicación vienen en la Retroalimentacion (contrato 2.3).
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from '../api.js';
 import { useCuentaRegresiva, useEnVivo } from '../estado.jsx';
 import { categoria } from '../categorias.js';
 import { BotonesCategoria, Categoria, MensajeError, pct, Tarjeta, useAccion } from '../componentes/Comun.jsx';
 import Practica from '../componentes/Practica.jsx';
+import { BotonSonido, CabeceraVista } from '../componentes/Efectos.jsx';
+import { confeti, sonar } from '../efectos.js';
 
 const FUENTE = { ia: 'la IA', operador: 'el operador', etiqueta_real: 'la etiqueta real del residuo' };
 const NIVEL = { verificada: 'Verificada', alta: 'Alta', media: 'Media', baja: 'Baja' };
@@ -32,6 +34,11 @@ function Marcador({ sesion, retro }) {
 
 function PantallaRetro({ retro, estado }) {
   const segundos = useCuentaRegresiva();
+  // Efecto al aparecer: confeti y sonido si acertó con resultado firme; sonido grave si falló.
+  useEffect(() => {
+    const color = colorRetro(retro);
+    if (color === 'verde') { sonar('acierto'); confeti(); } else if (color === 'rojo') { sonar('error'); }
+  }, [retro.clasificacion_id]); // eslint-disable-line react-hooks/exhaustive-deps
   const { ejecutar, ocupado, error } = useAccion();
   const ref = categoria(retro.categoria_referencia);
   const enPantalla = estado === 'RETROALIMENTACION';
@@ -79,7 +86,7 @@ function PantallaRetro({ retro, estado }) {
 function Selector({ apartado, alCambiar }) {
   const opciones = [
     { id: 'maquina', texto: 'Con la máquina', detalle: 'Residuo real en la bandeja' },
-    { id: 'fotos', texto: 'Con fotos', detalle: '60 fotos del dataset' },
+    { id: 'fotos', texto: 'Con fotos', detalle: 'De 5 a 30 fotos del dataset' },
   ];
   return (
     <div className="selector-juego" role="group" aria-label="Forma de jugar">
@@ -95,7 +102,14 @@ function Selector({ apartado, alCambiar }) {
 
 export default function Juego() {
   const [apartado, setApartado] = useState('maquina');
-  const selector = <Selector apartado={apartado} alCambiar={setApartado} />;
+  const selector = (
+    <>
+      <CabeceraVista icono="juego" titulo="¿Le ganas a la IA?" pregunta="Adivina en qué bote va cada residuo y descubre si separas mejor que la IA.">
+        <BotonSonido />
+      </CabeceraVista>
+      <Selector apartado={apartado} alCambiar={setApartado} />
+    </>
+  );
   if (apartado === 'fotos') {
     return (
       <div className="vista-juego">
@@ -141,8 +155,8 @@ function JuegoMaquina({ selector }) {
     const libre = estado === 'MENU' || estado === 'ESPERA_OBJETO';
     contenido = (
       <div className="juego-pregunta">
-        <h1 className="titulo-grande">¿Le ganas a la IA?</h1>
-        <p>Adivina en qué bote va cada residuo. Si fallas, te explicamos por qué.</p>
+        <h2 className="titulo-grande">Juega con un residuo real</h2>
+        <p>Coloca un residuo en la bandeja y adivina su bote antes que la IA. Si fallas, te explicamos por qué.</p>
         <button type="button" className="boton-menu boton-adivina" disabled={ocupado || !libre}
           onClick={() => ejecutar(() => api.elegirModo('adivina'))}>
           <span className="tecla">2</span>
