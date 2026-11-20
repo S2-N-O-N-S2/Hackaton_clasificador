@@ -64,7 +64,8 @@ CAMARA = {
     "plana_std": 4.0,              # desviación por canal menor a esto → imagen de un solo color (sin señal)
     "brillo_min": 35.0,            # brillo medio (0–255) menor a esto → foto oscura [COMPLETAR]
     "brillo_max": 225.0,           # brillo medio mayor a esto → foto quemada [COMPLETAR]
-    "nitidez_min": 30.0,           # varianza del Laplaciano menor a esto → foto borrosa / movida [COMPLETAR]
+    "nitidez_min": 80.0,           # nitidez (Laplaciano tras mediana 5 px, sin franjas) menor → borrosa / movida
+                                   # (20-nov, DroidCam: nítidas 122–232, movidas 5–57) [COMPLETAR: recalibrar en la mesa]
     "reintentos": 1,               # si todas las fotos salen mal, se repite la captura una vez
 }
 

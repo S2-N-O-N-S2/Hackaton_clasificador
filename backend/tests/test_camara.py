@@ -102,3 +102,31 @@ def test_vista_no_espera_si_el_ciclo_esta_tomando_la_foto():
     cam._cap = object()
     with cam._lock:
         assert cam.vista() is None
+
+
+def test_foto_movida_con_franjas_y_marca_de_agua_es_borrosa():
+    """20-nov: una foto movida de DroidCam salía "nítida" por los bordes de las franjas negras y las letras de
+    la marca "using droidcam.app". La nitidez se mide sin franjas y tras un filtro de mediana."""
+    import cv2
+    import numpy as np
+
+    from app.camera import evaluar_foto
+    from app.config import CAMARA
+
+    azar = np.random.default_rng(7)
+    escena = np.full((360, 640, 3), 120, np.uint8)
+    for _ in range(60):  # objetos con bordes (como una foto real enfocada)
+        x, y = int(azar.integers(0, 600)), int(azar.integers(0, 330))
+        color = tuple(int(c) for c in azar.integers(40, 230, 3))
+        cv2.rectangle(escena, (x, y), (x + int(azar.integers(10, 60)), y + int(azar.integers(10, 40))), color, -1)
+
+    def como_droidcam(img):
+        foto = np.zeros((480, 640, 3), np.uint8)  # franjas negras arriba y abajo (16:9 dentro de 4:3)
+        foto[60:420] = img
+        cv2.putText(foto, "using droidcam.app", (80, 280), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
+        return foto
+
+    nitida = como_droidcam(escena)
+    movida = como_droidcam(cv2.GaussianBlur(escena, (0, 0), 6))
+    assert evaluar_foto(nitida, CAMARA) is None
+    assert evaluar_foto(movida, CAMARA) == "borrosa"

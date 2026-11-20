@@ -144,13 +144,29 @@ def _gris_chico(frame: np.ndarray, ancho: int = 160) -> np.ndarray:
     return cv2.resize(gris, (ancho, alto), interpolation=cv2.INTER_AREA)
 
 
+def sin_bandas_negras(gris: np.ndarray, umbral: float = 12.0) -> tuple[slice, slice]:
+    """Filas y columnas con imagen, sin las franjas negras que agrega el celular (DroidCam manda 16:9 dentro de
+    4:3). Si toda la foto es oscura, se devuelve completa (el problema es la luz, no las franjas)."""
+    filas = np.where(gris.mean(axis=1) > umbral)[0]
+    cols = np.where(gris.mean(axis=0) > umbral)[0]
+    if len(filas) < gris.shape[0] // 4 or len(cols) < gris.shape[1] // 4:
+        return slice(None), slice(None)
+    return slice(filas[0], filas[-1] + 1), slice(cols[0], cols[-1] + 1)
+
+
 def metricas_foto(frame: np.ndarray) -> dict[str, float]:
-    """Brillo medio (0–255), nitidez (varianza del Laplaciano) y variación máxima por canal."""
+    """Brillo medio (0–255), nitidez y variación máxima por canal, medidos SIN las franjas negras.
+    Nitidez = varianza del Laplaciano después de un filtro de mediana de 5 px: así los bordes duros de las
+    franjas y las letras finas de la marca "using droidcam.app" no cuentan como detalle (antes una foto movida
+    salía "nítida" por ellos). Calibrado el 20-nov con 12 fotos de DroidCam: nítidas 122–232, movidas 5–57."""
     gris = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY) if frame.ndim == 3 else frame
-    canales = frame.reshape(-1, frame.shape[-1]) if frame.ndim == 3 else gris.reshape(-1, 1)
+    filas, cols = sin_bandas_negras(gris)
+    gris = gris[filas, cols]
+    zona = frame[filas, cols]
+    canales = zona.reshape(-1, zona.shape[-1]) if zona.ndim == 3 else gris.reshape(-1, 1)
     return {
         "brillo": float(gris.mean()),
-        "nitidez": float(cv2.Laplacian(gris, cv2.CV_64F).var()),
+        "nitidez": float(cv2.Laplacian(cv2.medianBlur(gris, 5), cv2.CV_64F).var()),
         "variacion": float(canales.std(axis=0).max()),
     }
 
@@ -360,6 +376,12 @@ class CamaraSimulada(CamaraBase):
         """Bandeja gris uniforme con una figura según la categoría simulada."""
         img = np.full((ALTO, ANCHO, 3), 190, dtype=np.uint8)
         cv2.rectangle(img, (120, 60), (520, 420), (215, 215, 215), -1)  # fondo de la bandeja
+        # Cuadrícula de la bandeja: da textura, como una foto real enfocada (si no, la revisión de calidad
+        # la marcaría "borrosa": una figura plana casi no tiene bordes)
+        for x in range(132, 520, 24):
+            cv2.line(img, (x, 60), (x, 420), (170, 170, 170), 3)
+        for y in range(72, 420, 24):
+            cv2.line(img, (120, y), (520, y), (170, 170, 170), 3)
         centro = (320 + self._azar.randint(-60, 60), 240 + self._azar.randint(-40, 40))
         if pista == 0:
             cv2.ellipse(img, centro, (70, 40), self._azar.randint(0, 180), 0, 360, (40, 160, 60), -1)
