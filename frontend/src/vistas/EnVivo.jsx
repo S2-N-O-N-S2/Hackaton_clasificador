@@ -49,6 +49,25 @@ function Resultado({ caso, umbrales }) {
   );
 }
 
+// «Tomar foto»: arranca el ciclo como lo haría el sensor IR (la máquina no lo tiene). También por voz: «listo».
+function TomarFoto({ estado }) {
+  const { ejecutar, ocupado, error } = useAccion();
+  const puede = estado === 'MENU' || estado === 'ESPERA_OBJETO';
+  return (
+    <div className="tomar-foto centrado">
+      <button type="button" className="boton-tomar-foto" disabled={ocupado || !puede}
+        onClick={() => ejecutar(() => api.tomarFoto(), { ok: 'Tomando la foto…' })}>
+        📷 Tomar foto
+      </button>
+      <p className="atenuado">
+        {puede ? 'Pon el residuo frente a la cámara y presiona aquí (o di «listo» con el botón Hablar).'
+          : 'Hay un residuo en proceso: espera a que termine el ciclo.'}
+      </p>
+      <MensajeError error={error} />
+    </div>
+  );
+}
+
 function PanelRevision({ revision }) {
   const segundos = useCuentaRegresiva();
   const { ejecutar, ocupado, error } = useAccion();
@@ -87,6 +106,7 @@ export default function EnVivo() {
 
   return (
     <div className="vista-en-vivo">
+      <TomarFoto estado={estado} />
       <div className="rejilla-en-vivo">
         <Tarjeta titulo="Última foto" extra={caso && <span className="atenuado">#{caso.id} · {hora(caso.fecha_hora)}</span>}>
           {/* Flash al tomar la foto y línea de escaneo mientras la IA clasifica. */}

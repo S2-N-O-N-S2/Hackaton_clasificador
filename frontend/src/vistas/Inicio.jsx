@@ -11,9 +11,10 @@ export default function Inicio() {
 
   async function elegir(modo) {
     const r = await ejecutar(() => api.elegirModo(modo), {
-      ok: modo === 'menu' ? 'De vuelta al menú' : `Modo ${modo === 'ia' ? 'IA' : 'Adivina'}: coloca el residuo en la bandeja`,
+      ok: modo === 'menu' ? 'De vuelta al menú' : `Modo ${modo === 'ia' ? 'IA' : 'Adivina'}: pon el residuo frente a la cámara`,
     });
     if (r && modo === 'adivina') window.location.hash = '#/juego';
+    if (r && modo === 'ia') window.location.hash = '#/en-vivo';   // ahí está «Tomar foto» y se ve el resultado
   }
 
   return (
@@ -35,19 +36,12 @@ export default function Inicio() {
           <small>¿Le ganas a la IA?</small>
         </button>
       </div>
-      <div className="tomar-foto centrado">
-        <button type="button" className="boton-tomar-foto" disabled={ocupado || !puedeElegir}
-          onClick={() => ejecutar(() => api.tomarFoto(), { ok: 'Tomando la foto…' })}>
-          📷 Tomar foto
-        </button>
-        <p className="atenuado">Pon el residuo frente a la cámara y presiona aquí (o di «listo» con el botón Hablar).</p>
-      </div>
       {!puedeElegir && estado && (
         <p className="atenuado centrado">Hay un residuo en proceso: espera a que termine el ciclo.</p>
       )}
       {maquina?.modo && estado === 'ESPERA_OBJETO' && (
         <p className="centrado">
-          Pon el residuo frente a la cámara y presiona «Tomar foto».{' '}
+          Pon el residuo frente a la cámara y presiona «Tomar foto» en <a href="#/en-vivo">En vivo</a>.{' '}
           <button type="button" className="boton-secundario" disabled={ocupado} onClick={() => elegir('menu')}>
             Volver al menú
           </button>
