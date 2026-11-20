@@ -62,7 +62,7 @@ docs/               ESPECIFICACION.md bitacora.md recursos_externos.md memoria_t
 6. **Toda configuración en un solo lugar** (`config.py` + tabla `config`). Nada de valores mágicos dispersos.
 7. **Nunca inventes mediciones ni resultados.** Todo dato simulado se marca como `simulado` en la BD y como **SIMULADO** en el panel; todo nivel de bote se rotula **ESTIMADO**.
 8. Comentarios, mensajes de interfaz y documentación **en español**. Código legible, modular, con manejo de errores en cada frontera (serial, cámara, modelo, BD, voz).
-9. Textos para la LCD 20×4: máximo 20 caracteres por línea y **sin acentos** (usa la función de `lcd_ui.py`).
+9. Textos de la "pantalla de la máquina" (antes LCD 20×4; desde el 20-nov ya no hay LCD ni teclado y se muestra en el panel): máximo 20 caracteres por línea y **sin acentos** (usa la función de `lcd_ui.py`); no mencionar teclas.
 10. Escribe **pruebas con pytest** para la lógica pura (reglas de decisión, protocolo, juego, botes, aprendizaje) y ejecútalas antes de dar una fase por terminada.
 11. **Al terminar cada fase:**
     - Di exactamente cómo probarla (comandos) y qué debe verse si funciona.

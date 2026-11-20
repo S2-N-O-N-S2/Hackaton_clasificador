@@ -1,10 +1,10 @@
-// Inicio / Menú: los mismos dos modos que el teclado (1 y 2) y la voz.
+// Inicio / Menú: los dos modos (botones o voz). La máquina no tiene LCD ni teclado: su pantalla se ve aquí.
 import { api } from '../api.js';
 import { useEnVivo } from '../estado.jsx';
 import { Lcd, MensajeError, Tarjeta, useAccion } from '../componentes/Comun.jsx';
 
 export default function Inicio() {
-  const { maquina, ultimaTecla } = useEnVivo();
+  const { maquina } = useEnVivo();
   const { ejecutar, ocupado, error } = useAccion();
   const estado = maquina?.estado;
   const puedeElegir = estado === 'MENU' || estado === 'ESPERA_OBJETO';
@@ -40,7 +40,7 @@ export default function Inicio() {
       )}
       {maquina?.modo && estado === 'ESPERA_OBJETO' && (
         <p className="centrado">
-          Coloca el residuo en la bandeja.{' '}
+          Coloca el residuo frente a la cámara.{' '}
           <button type="button" className="boton-secundario" disabled={ocupado} onClick={() => elegir('menu')}>
             Volver al menú
           </button>
@@ -53,16 +53,11 @@ export default function Inicio() {
       )}
       <MensajeError error={error} />
 
-      <div className="rejilla-2">
-        <Tarjeta titulo="Pantalla del Arduino (espejo de la LCD)">
-          <Lcd lineas={maquina?.lcd} />
-          <p className="mensaje-maquina">{maquina?.mensaje}</p>
-        </Tarjeta>
-        <Tarjeta titulo="Teclado 4×4">
-          <p>Última tecla: <span className="tecla tecla-grande llegada" key={ultimaTecla?.recibido}>{ultimaTecla ? ultimaTecla.tecla : '—'}</span></p>
-          <p className="atenuado">El panel y el teclado comparten el mismo estado: lo que elijas aquí se ve en la LCD y viceversa.</p>
-        </Tarjeta>
-      </div>
+      <Tarjeta titulo="Pantalla de la máquina">
+        <Lcd lineas={maquina?.lcd} />
+        <p className="mensaje-maquina">{maquina?.mensaje}</p>
+        <p className="atenuado">Lo que la máquina le dice a quien la usa. Todo se maneja desde esta página o por voz (botón «Hablar»).</p>
+      </Tarjeta>
     </div>
   );
 }

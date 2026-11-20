@@ -1,5 +1,10 @@
 """
-lcd_ui.py — Pantallas de la LCD 20×4.
+lcd_ui.py — "Pantalla de la máquina" (4 líneas × 20 caracteres).
+
+Cambio de diseño (20-nov): la máquina ya NO lleva LCD ni teclado 4×4. Todo se hace desde la página y por
+voz. Estas pantallas se siguen generando porque el panel las muestra en Inicio ("Pantalla de la máquina").
+Por eso los textos ya no mencionan teclas. Se conserva el formato de 20×4 sin acentos: si algún día se
+conecta una LCD, el firmware la sigue soportando sin cambios.
 
 Reglas (CLAUDE.md, regla 9):
   - máximo 20 caracteres por línea;
@@ -63,12 +68,12 @@ def porcentaje(confianza: float | None) -> str:
 # Pantallas (§11 y §13 de la especificación)
 # ---------------------------------------------------------------------------
 def pantalla_menu() -> list[str]:
-    return normalizar(["== CLASIFICADOR ==", "1: Usar IA", "2: Adivinar (reto)", "Coloca o elige"])
+    return normalizar(["== CLASIFICADOR ==", "Elige en la pagina:", "Usar IA o Adivinar", "o dilo por voz"])
 
 
 def pantalla_espera_objeto(modo: str) -> list[str]:
     titulo = "MODO ADIVINA" if modo == "adivina" else "MODO IA"
-    return normalizar([titulo, "Coloca el residuo", "en la bandeja", "#: volver al menu"])
+    return normalizar([titulo, "Coloca el residuo", "frente a la camara", "Menu: en la pagina"])
 
 
 def pantalla_procesando() -> list[str]:
@@ -98,7 +103,7 @@ def pantalla_revision(motivo: str | None, confianza: float | None) -> list[str]:
         segunda = "Foto no valida"
     else:
         segunda = f"IA {porcentaje(confianza)} no segura"
-    return normalizar(["AYUDA: que es?", segunda, "1:Org 2:Inorg 3:Pel", "A:hablar C:pendiente"])
+    return normalizar(["AYUDA: que es?", segunda, "Elige en la pagina", "o dilo por voz"])
 
 
 def pantalla_pendiente() -> list[str]:
@@ -126,4 +131,4 @@ def pantalla_voz_entendida(objeto: str | None, categoria_id: int) -> list[str]:
 
 
 def pantalla_voz_no_reconocida(texto: str) -> list[str]:
-    return normalizar(["No reconoci el", "objeto", f"Oi: {texto}" if texto else "No oi nada", "A: repetir"])
+    return normalizar(["No reconoci el", "objeto", f"Oi: {texto}" if texto else "No oi nada", "Habla de nuevo"])

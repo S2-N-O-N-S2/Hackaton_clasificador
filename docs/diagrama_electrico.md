@@ -1,5 +1,9 @@
 # Diagrama eléctrico — Arduino UNO (Fase 2)
 
+> **Cambio de diseño (20-nov-2026):** la máquina **ya no lleva LCD 20×4 ni teclado 4×4**. Todo se maneja desde la página (panel) y por voz desde la página. Lo que la LCD iba a mostrar se ve en Inicio → "Pantalla de la máquina"; lo que hacía el teclado se hace con los botones del panel o con el botón «Hablar». El firmware y el backend conservan el soporte (sin la LCD conectada no se cuelga, y sin teclado no llegan teclas), así que las menciones de LCD/teclado en este diagrama quedan como referencia histórica.
+> **Pines libres:** D4–D8 y D11–D13 (eran del teclado) y A4/A5 (eran de la LCD).
+
+
 > Basado en la especificación, secciones 8.1 y 8.2, y en `firmware/clasificador_uno/clasificador_uno.ino` (sección 1, "Pines").
 > `[COMPLETAR]` = falta medirlo o decidirlo. **No se anotan mediciones que no se hayan hecho.**
 

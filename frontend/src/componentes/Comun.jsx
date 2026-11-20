@@ -377,11 +377,12 @@ export function Cargando({ filas = 3 }) {
   );
 }
 
-// Espejo de la LCD 20×4 del Arduino (las líneas las genera el backend).
+// Pantalla de la máquina: 4 líneas de 20 caracteres que genera el backend (lcd_ui.py). La máquina ya no
+// tiene LCD física; el texto solo se muestra aquí.
 export function Lcd({ lineas }) {
   const filas = [0, 1, 2, 3].map((i) => ((lineas && lineas[i]) || '').padEnd(20, ' ').slice(0, 20));
   return (
-    <pre className="lcd" aria-label="Pantalla LCD">
+    <pre className="lcd" aria-label="Pantalla de la máquina">
       {filas.join('\n')}
     </pre>
   );

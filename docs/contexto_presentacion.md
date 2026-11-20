@@ -14,18 +14,18 @@ La basura mezclada no se recicla. Nuestro prototipo **ve el residuo con una cám
 Detectar (sensor IR) → Fotografiar (cámara) → Clasificar (IA) → Girar el carrusel al bote → Soltar → Registrar (SQLite + panel)
 ```
 - Si la confianza es baja, si puede ser peligroso o si el objeto es desconocido → **REVISIÓN**: el residuo no cae.
-- La revisión se resuelve por **voz**, **teclado** (1/2/3) o **panel**, y queda registrada.
+- La revisión se resuelve por **voz** o con los **botones del panel**, y queda registrada.
 
 ## 3. Arquitectura (quién hace qué)
 | Pieza | Tecnología | Qué hace |
 |---|---|---|
-| **Arduino UNO** | C++ (`Servo`, `LiquidCrystal_I2C`, `Keypad`) | Solo obedece comandos y reporta sensores y teclas. Mueve el servo, muestra la LCD 20×4 y enciende LEDs. |
+| **Arduino UNO** | C++ (`Servo`) | Solo obedece comandos y reporta sensores. Mueve el servo y enciende LEDs. **Sin LCD ni teclado:** todo se maneja desde la página y por voz. |
 | **Comunicación** | Serial USB, 115 200 baudios, texto (`POS:1` → `POS_OK:1`, `DROP` → `DROP_OK`) | Protocolo simple que se puede probar a mano desde el Monitor Serial. |
 | **Backend / cerebro** | Python 3.12 + FastAPI | `orchestrator.py` tiene **toda** la lógica de estados. Si algo falla → estado ERROR seguro. |
 | **IA** | MobileNetV2 (preentrenada, congelada) + regresión logística | Da 3 probabilidades. Promedia 3 fotos. Detecta objetos "desconocidos". |
-| **Voz** | Vosk (offline) + voz de Windows (Laura, es-ES) | Escucha solo al presionar **A** y dice el resultado en voz alta. |
+| **Voz** | Vosk (offline) + voz de Windows (Laura, es-ES) | Escucha solo al presionar «Hablar» en la página y dice el resultado en voz alta. |
 | **Base de datos** | SQLite | `clasificador.db` (real) y `clasificador_sim.db` (simulación, separada). |
-| **Panel** | React + Vite, REST + WebSocket | En vivo, historial, corrección, estadísticas, juego, botes y configuración. Se instala en el celular como app (PWA). |
+| **Panel** | React + Vite, REST + WebSocket | **Única interfaz de la máquina** (sustituye LCD y teclado): menú, pantalla de la máquina, en vivo, historial, corrección, estadísticas, juego, botes y configuración. Se instala en el celular como app (PWA). |
 
 **Todo funciona sin internet.** Solo hace falta una red local para que el celular abra el panel.
 
@@ -45,7 +45,7 @@ Detectar (sensor IR) → Fotografiar (cámara) → Clasificar (IA) → Girar el 
 - **"¿Le ganas a la IA?"** Hay dos versiones:
   - **Con fotos:** ✅ funciona. Tiene 1 200 fotos y elige 5–30 preguntas repartidas entre las 3 clases. Lleva puntos, racha y resultado por categoría.
   - **Con la máquina:** ⏳ el estado `ESPERA_ADIVINANZA` todavía "pasa de largo" (Fase 8).
-- **Aviso de bote lleno (ESTIMADO):** 🟡 el nivel se calcula contando piezas contra una capacidad. Hay aviso al 80 % y bloqueo al 100 %, y se vacía desde el panel o con el teclado. Falta calibrar la capacidad real y demostrarlo.
+- **Aviso de bote lleno (ESTIMADO):** 🟡 el nivel se calcula contando piezas contra una capacidad. Hay aviso al 80 % y bloqueo al 100 %, y se vacía desde el panel. Falta calibrar la capacidad real y demostrarlo.
 - **Voz offline:** ✅ menú por voz, resolver dudosos y "¿dónde tiro…?". El sistema dice la categoría, la certeza y el bote.
 - **App móvil (PWA):** 🟡 instalable (verificado en Edge). Falta probarla en un celular real.
 
@@ -79,11 +79,11 @@ cd frontend; npm run dev -- --host
 | A2 | Backend vivo | Abrir `http://localhost:8000/docs` | Lista de rutas de la API | ✅ |
 | A3 | Panel en vivo | `http://localhost:5173` | Estado de la máquina, conexión y carrusel | ✅ |
 | A4 | Clasificación con IA | Poner un objeto frente a la cámara (`SIM_IA_REAL=1`) | Foto, categoría, **3 probabilidades** y umbral | ✅ |
-| A5 | "No adivina" | Mostrar un objeto raro o ambiguo | Va a **REVISIÓN**, LED amarillo y aviso en el panel | ✅ en simulación |
+| A5 | "No adivina" | Mostrar un objeto raro o ambiguo | Va a **REVISIÓN**, LED amarillo, aviso y "Pantalla de la máquina" pidiendo ayuda en el panel | ✅ en simulación |
 | A6 | Cambio de función en vivo | Configuración → subir `UMBRAL_GENERAL` de 0.60 a 0.80 | Un objeto que antes se aceptaba ahora va a revisión | ✅ |
 | A7 | Corrección manual | Historial → "Corregir" | Queda registrada (`corregido = 1`) y la foto va al dataset | ✅ |
 | A8 | Estadísticas | Pestaña Estadísticas | Precisión total y por clase, matriz de confusión y tiempo promedio | ✅ |
-| A9 | Voz que escucha | Botón 🎤 o tecla A → decir "plátano" | Burbuja "Oí… → Orgánica (bote verde)" | ✅ |
+| A9 | Voz que escucha | Botón «Hablar» → decir "plátano" | Burbuja "Oí… → Orgánica (bote verde)" | ✅ |
 | A10 | Voz que habla | Configuración → "Probar la voz" | Laura dice "Es inorgánica… va en el bote azul" | ✅ |
 | A11 | Conflicto voz-cámara | Decir "botella" con algo orgánico frente a la cámara | Revisión con `conflicto_voz` | ✅ en simulación |
 | A12 | Juego con fotos | Juego → "Con fotos" → Empezar | Fotos reales, acierto/error, resultado por categoría | ✅ |
@@ -95,15 +95,15 @@ cd frontend; npm run dev -- --host
 | # | Punto | Cómo | Qué debe verse | Estado |
 |---|---|---|---|---|
 | B1 | Comandos del firmware | Monitor Serial 115 200, fin de línea `\n`: `PING`, `POS:0`, `DROP` | `PONG`, `POS_OK:0`, `DROP_OK` | ✅ 20-nov: READY, PONG, HOME y POS:0/1/2; servo visto moviéndose (sin carga, con USB) |
-| B2 | LCD 20×4 | Encender | Menú legible, sin acentos, ≤ 20 caracteres | ⏳ |
-| B3 | Teclado 4×4 | Presionar 1/2/3/A/D | Llega `KEY:x` al backend | ⏳ |
+| B2 | Control desde la página | Configuración → Control manual: POS a cada bote y HOME | El Arduino contesta `POS_OK:n` / `HOME_OK` bajo los botones | ✅ 20-nov (POS:1 y HOME) |
+| B3 | ~~LCD y teclado~~ | — | **Ya no se usan** (cambio de diseño del 20-nov): su función está en la página y la voz | — |
 | B4 | Sensor IR | Poner un objeto | Llega `OBJ` y arranca el ciclo | ⏳ |
 | B5 | Servo con fuente externa | `POS:0/1/2` | El disco gira al bote correcto sin temblar | ⏳ |
 | B6 | Calibración de ángulos | `python tools\calibrar_angulos.py` | Cae al centro de la boca del bote | ⏳ |
 | B7 | **3 de 3 ciclos reales** | Orgánico, inorgánico, peligroso + 1 dudoso | Cada uno en su bote; el dudoso se queda | ⏳ **criterio del jurado** |
 | B8 | Mediciones eléctricas | Multímetro: 5 V de la lógica, voltaje del servo, consumo | Valores anotados en `docs/mediciones.md` | ⏳ |
 | B9 | Falla diagnosticable | Provocar una (por ejemplo, desconectar el servo) | Se ve en `eventos` / `tiempos_etapas` en qué etapa falló | ⏳ |
-| B10 | Bote lleno | Capacidad de prueba = 2 piezas | Aviso, bloqueo y vaciado con `D` + `1` | 🟡 |
+| B10 | Bote lleno | Capacidad de prueba = 2 piezas | Aviso, bloqueo y vaciado con "Marcar como vaciado" en Botes | 🟡 |
 
 ### C. Entregables
 | Entregable | Dónde | Estado |
@@ -134,5 +134,6 @@ cd frontend; npm run dev -- --host
 | ¿Cómo saben que el 98 % es real? | La validación separa por objeto y el modelo nunca vio esas fotos. Pero es con el dataset, no con la bandeja: lo decimos. |
 | ¿Funciona sin internet? | Sí: la IA, la voz y la base de datos corren en la laptop. |
 | ¿Quién decide, el Arduino o la laptop? | La laptop (Python). El Arduino solo ejecuta y reporta. |
+| ¿Por qué no tiene pantalla ni teclado? | Los quitamos: la página ya hace todo (menú, ayuda, resultado, bote lleno) y también se maneja por voz. Menos cables y menos fallas, y se ve desde el celular. |
 | ¿Qué hace si se desconecta algo? | Falla segura: HOME, trampilla cerrada, LED rojo y aviso. |
 | Modifiquen una función en vivo | Cambiar `UMBRAL_GENERAL` desde el panel o editar `aplicar_reglas()` en `backend/app/model.py`. |

@@ -11,7 +11,7 @@
   "caso_actual": null,
   "cuenta_regresiva_s": null,
   "mensaje": "Coloca un residuo o elige un modo",
-  "lcd": ["== CLASIFICADOR ==", "1: Usar IA", "2: Adivinar (reto)", "Coloca o elige"],
+  "lcd": ["== CLASIFICADOR ==", "Elige en la pagina:", "Usar IA o Adivinar", "o dilo por voz"],
   "prueba_actual": null,
   "alertas": []
 }

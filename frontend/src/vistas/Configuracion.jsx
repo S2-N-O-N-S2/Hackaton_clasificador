@@ -256,10 +256,9 @@ function ControlManual() {
   );
 }
 
-// Solo con el backend en SIMULACION=1 (o datos de ejemplo): simula un residuo o una tecla.
+// Solo con el backend en SIMULACION=1 (o datos de ejemplo): simula un residuo.
 function Simulacion() {
   const { ejecutar, ocupado, error } = useAccion();
-  const teclas = ['1', '2', '3', 'A', '4', '5', '6', 'B', '7', '8', '9', 'C', '*', '0', '#', 'D'];
   return (
     <Tarjeta titulo="Simulación (sin hardware)" className="tarjeta-simulacion">
       <p>Colocar un residuo simulado:</p>
@@ -277,12 +276,6 @@ function Simulacion() {
       <button type="button" className="boton-secundario" disabled={ocupado} onClick={() => ejecutar(() => api.simRetirar(), { ok: 'Bandeja libre' })}>
         Retirar el residuo de la bandeja (LIBRE)
       </button>
-      <p>Teclado 4×4 simulado:</p>
-      <div className="teclado">
-        {teclas.map((t) => (
-          <button key={t} type="button" className="tecla-boton" disabled={ocupado} onClick={() => ejecutar(() => api.simTecla(t))}>{t}</button>
-        ))}
-      </div>
       <MensajeError error={error} />
     </Tarjeta>
   );

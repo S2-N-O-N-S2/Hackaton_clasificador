@@ -2,6 +2,8 @@
 ### Equipo Cyber Insanos · HACKATHÓN TESCo 2026 · Reto 1
 **Versión 3** — incluye el **modo "¿Le ganas a la IA?"** con menú de selección, retroalimentación explicada **que muestra la confianza de la IA y ajusta su tono**, **medición de la curva de aprendizaje** y el **aviso de bote lleno (estimado)**.
 
+> **Cambio de diseño (20-nov-2026):** la máquina **ya no lleva LCD 20×4 ni teclado 4×4**. Todo se maneja desde la página (panel) y por voz desde la página. Lo que la LCD iba a mostrar se ve en Inicio → "Pantalla de la máquina"; lo que hacía el teclado se hace con los botones del panel o con el botón «Hablar». El firmware y el backend conservan el soporte (sin la LCD conectada no se cuelga, y sin teclado no llegan teclas), así que las menciones de LCD/teclado en este documento quedan como referencia histórica.
+
 ---
 
 ## 1. Rol que debes asumir
@@ -133,7 +135,7 @@ No agregues lenguajes ni servicios en la nube fuera de esta tabla. Si alguna bib
 - 2 × Arduino UNO R3, 2 × Arduino Nano V3
 - 5 × servomotores SG90 / MG996R
 - 2 × sensores IR FC-51 / TCRT5000
-- LCD 2004 (20×4) con módulo I2C · Teclado matricial 4×4
+- ~~LCD 2004 (20×4) con módulo I2C · Teclado matricial 4×4~~ — **no se usan** (cambio de diseño del 20-nov: todo desde la página y por voz)
 - LEDs de 5 mm (rojo, verde, amarillo, azul) · transistores 2N2222 / BC547 / TIP120 · resistencias · capacitores electrolíticos (1–1000 µF) y cerámicos
 - Fuente regulada DC 3–20 V con caimanes · power bank Ugreen 25 000 mAh · 2 protoboards · jumpers
 - Multímetro Steren MUL-281 · vernier digital · herramientas manuales

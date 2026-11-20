@@ -68,11 +68,11 @@ function PantallaRetro({ retro, estado }) {
           {retro.puede_reportar && (
             <button type="button" className={`boton-reportar ${retro.tono === 'prudente' ? 'destacado' : ''}`}
               disabled={ocupado} onClick={() => ejecutar(() => api.reportarError(), { ok: 'Reporte enviado' })}>
-              Creo que la IA se equivocó (tecla *)
+              Creo que la IA se equivocó
             </button>
           )}
           <button type="button" className="boton-secundario" disabled={ocupado} onClick={() => ejecutar(() => api.continuar())}>
-            Continuar (tecla B){segundos !== null ? ` · ${segundos} s` : ''}
+            Continuar{segundos !== null ? ` · ${segundos} s` : ''}
           </button>
         </div>
       )}
@@ -145,7 +145,7 @@ function JuegoMaquina({ selector }) {
         <h1 className="titulo-grande">Coloca el residuo en la bandeja</h1>
         <p className="atenuado">La IA lo clasificará en secreto y tú intentarás adivinar.</p>
         <button type="button" className="boton-secundario" disabled={ocupado} onClick={() => ejecutar(() => api.elegirModo('menu'))}>
-          Volver al menú (tecla #)
+          Volver al menú
         </button>
       </div>
     );

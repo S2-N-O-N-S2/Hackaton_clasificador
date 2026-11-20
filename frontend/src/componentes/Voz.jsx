@@ -141,7 +141,7 @@ export function BotonVoz() {
         </div>
       )}
       <button type="button" className={`voz-boton ${clase}`} onClick={hablar} disabled={!puede || ocupado}
-        title={puede ? 'Presiona y habla (igual que la tecla A)' : 'La voz se usa en el menú o cuando el sistema pide ayuda'}
+        title={puede ? 'Presiona y habla' : 'La voz se usa en el menú o cuando el sistema pide ayuda'}
         aria-label={etiqueta}>
         <span className="voz-mic" style={{ '--avance': avance }}>
           <IconoMicrofono />

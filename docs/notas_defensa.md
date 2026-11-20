@@ -27,3 +27,7 @@
 - **Offline y push-to-talk:** "La voz corre en la laptop con Vosk, sin internet. Solo escucha cuando se presiona A: así no reacciona al ruido del evento ni graba conversaciones."
 - **Gramática restringida:** "El modelo pequeño de Vosk se equivoca con vocabulario libre. En cada estado solo puede reconocer las palabras útiles (en revisión, ~150 objetos y categorías; en el juego, solo las tres categorías), y eso sube mucho la precisión."
 - **La voz no manda sobre la seguridad:** "Si alguien dice 'botella' y la cámara ve algo orgánico, el sistema no adivina: el caso va a revisión (`conflicto_voz`). Y lo que se resuelve por voz va a `_por_verificar`, no directo al entrenamiento."
+
+## Cambio de diseño — sin LCD ni teclado (20-nov)
+- **Una sola interfaz:** "Quitamos la LCD y el teclado: el panel ya mostraba lo mismo y tenía un botón para cada tecla. Ahora todo se hace desde la página o por voz. Son menos cables y menos puntos de falla, y libera 10 pines del Arduino."
+- **Nada se perdió:** "Las mismas pantallas de 4 líneas se siguen generando en `lcd_ui.py` y se ven en Inicio. Si algún día se conecta una LCD, el firmware la sigue soportando sin cambios."

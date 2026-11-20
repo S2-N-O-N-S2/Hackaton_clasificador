@@ -643,8 +643,8 @@ function elegirModo(modo) {
   if (modo === 'adivina') iniciarSesionSiHaceFalta();
   transicion('ESPERA_OBJETO', modo === 'ia' ? 'Modo IA: coloca el residuo' : 'Modo Adivina: coloca el residuo', {
     lcd: modo === 'ia'
-      ? lineasLcd('MODO IA', 'Coloca el residuo', 'en la bandeja', '#: volver al menu')
-      : lineasLcd('MODO ADIVINA', 'Coloca el residuo', 'en la bandeja', '#: volver al menu'),
+      ? lineasLcd('MODO IA', 'Coloca el residuo', 'frente a la camara', 'Menu: en la pagina')
+      : lineasLcd('MODO ADIVINA', 'Coloca el residuo', 'frente a la camara', 'Menu: en la pagina'),
   });
 }
 
