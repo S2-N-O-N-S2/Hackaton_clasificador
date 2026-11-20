@@ -71,6 +71,7 @@ export const api = {
   // 3.4 Revisión
   resolverRevision: (finalId) => pedir('POST', '/api/revision', { accion: 'resolver', final_id: finalId }),
   dejarPendiente: () => pedir('POST', '/api/revision', { accion: 'pendiente' }),
+  describirObjeto: (texto) => pedir('POST', '/api/revision/objeto', { texto }), // "una lata" → resuelve (contrato v1.10)
 
   // 3.5 Estadísticas
   estadisticas: (simulado = 'incluir') => pedir('GET', `/api/estadisticas${consulta({ simulado })}`),

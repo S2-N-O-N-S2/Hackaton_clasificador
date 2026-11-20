@@ -131,21 +131,70 @@ function TomarFoto({ estado }) {
   );
 }
 
+// Qué responder según lo que el backend entendió (texto escrito o voz). El panel no interpreta nada.
+function respuestaObjeto(r) {
+  if (r?.accion === 'revision_resuelta') {
+    const c = categoria(r.intencion?.valor);
+    return { ok: true, texto: `Entendí: ${r.intencion?.objeto || r.texto_crudo} → ${c?.nombre} (bote ${c?.color})` };
+  }
+  return {
+    ok: false,
+    texto: r?.texto_crudo ? `No conozco «${r.texto_crudo}». Prueba con otra palabra (ej.: botella, cáscara de plátano, pila).`
+      : 'No oí nada. Vuelve a intentarlo.',
+  };
+}
+
+// Revisión: quien usa la máquina NO sabe la categoría; solo dice QUÉ OBJETO es (escrito o por voz) y el
+// backend decide el bote con keywords.json. Los botones de bote quedan plegados para el operador.
 function PanelRevision({ revision }) {
   const segundos = useCuentaRegresiva();
   const { ejecutar, ocupado, error } = useAccion();
+  const [texto, setTexto] = useState('');
+  const [respuesta, setRespuesta] = useState(null);
+  const [escuchando, setEscuchando] = useState(false);
+
+  async function enviar(e) {
+    e.preventDefault();
+    if (!texto.trim()) return;
+    const r = await ejecutar(() => api.describirObjeto(texto.trim()));
+    if (r) { setRespuesta(respuestaObjeto(r)); if (r.accion === 'revision_resuelta') setTexto(''); }
+  }
+  async function hablar() {
+    setRespuesta(null);
+    setEscuchando(true);
+    const r = await ejecutar(() => api.escucharVoz());
+    setEscuchando(false);
+    if (r) setRespuesta(respuestaObjeto(r));
+  }
+
   return (
-    <Tarjeta titulo={revision?.motivo === 'desconocido' ? 'Objeto no reconocido: ¿en qué bote va?'
-      : revision?.motivo === 'foto_no_valida' ? 'Foto no válida: ¿en qué bote va?' : 'Revisión: la IA no está segura'}
+    <Tarjeta titulo={revision?.motivo === 'desconocido' ? 'Objeto no reconocido: ¿qué es?'
+      : revision?.motivo === 'foto_no_valida' ? 'Foto no válida: ¿qué es?' : 'La IA no está segura: ¿qué es?'}
       className="tarjeta-revision" extra={segundos !== null && <span className="cuenta-chica">{segundos} s</span>}>
       <p>
-        {TEXTO_MOTIVO[revision?.motivo] || 'Caso dudoso'}. El residuo se queda en la bandeja.
-        ¿En qué bote va? (decisión del operador: la foto va directo al dataset)
+        {TEXTO_MOTIVO[revision?.motivo] || 'Caso dudoso'}. El residuo se queda frente a la cámara.
+        Dinos <strong>qué objeto es</strong> y el sistema elige el bote.
       </p>
-      <BotonesCategoria deshabilitado={ocupado} alElegir={(id) => ejecutar(() => api.resolverRevision(id), { ok: `Revisión resuelta: va al bote ${categoria(id)?.color}` })} />
+      <form className="revision-objeto" onSubmit={enviar}>
+        <label htmlFor="revision-texto" className="sr-only">¿Qué objeto es?</label>
+        <input id="revision-texto" type="text" value={texto} maxLength={120} autoComplete="off" autoFocus
+          placeholder="Ej.: botella de agua, cáscara de plátano, pila…" disabled={ocupado}
+          onChange={(e) => { setTexto(e.target.value); setRespuesta(null); }} />
+        <button type="submit" className="boton-principal" disabled={ocupado || !texto.trim()}>Listo</button>
+        <button type="button" className={`boton-secundario revision-voz ${escuchando ? 'escuchando' : ''}`} disabled={ocupado}
+          onClick={hablar}>
+          🎤 {escuchando ? 'Habla ahora…' : 'Decirlo por voz'}
+        </button>
+      </form>
+      {respuesta && <p className={respuesta.ok ? 'revision-ok' : 'texto-error'} role="status">{respuesta.texto}</p>}
       <button type="button" className="boton-secundario" disabled={ocupado} onClick={() => ejecutar(() => api.dejarPendiente(), { ok: 'Quedó pendiente: un operador lo retira' })}>
-        Dejar pendiente (un operador lo retira)
+        No sé qué es (un operador lo retira)
       </button>
+      <details className="revision-operador">
+        <summary>Soy operador: elegir el bote directamente</summary>
+        <p className="atenuado">Decisión del operador: la foto va directo al dataset.</p>
+        <BotonesCategoria deshabilitado={ocupado} alElegir={(id) => ejecutar(() => api.resolverRevision(id), { ok: `Revisión resuelta: va al bote ${categoria(id)?.color}` })} />
+      </details>
       <MensajeError error={error} />
     </Tarjeta>
   );

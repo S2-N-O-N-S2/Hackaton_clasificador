@@ -1,6 +1,6 @@
 # Contrato de interfaces — Backend ↔ Panel ↔ Arduino
 
-> **Versión 1.9 — 2026-11-20.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
+> **Versión 1.10 — 2026-11-20.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
 > Detalla las secciones 9 y 17 de `docs/ESPECIFICACION.md`. Si este contrato y la especificación se contradicen, manda la especificación: avisen y corrijan este archivo.
 > **Nadie cambia este archivo sin avisar a la otra persona.** Cada cambio sube la versión y se anota en la sección 9 ("Historial").
 
@@ -180,6 +180,8 @@ La especificación pide que el panel resuelva dudosos (sección 4, regla 4), per
 | `POST /api/revision` | `{"accion": "resolver", "final_id": 1}` o `{"accion": "pendiente"}` | `{"ok": true, "estado": "VERIFICAR_BOTE"}`. `409` si el estado no es `REVISION` |
 
 Si la resuelve el panel, es una decisión del operador: la foto va directo a `dataset/<clase>/` y, en modo Adivina, la referencia queda como `verificada`.
+
+**Revisión escrita (v1.10):** `POST /api/revision/objeto` con `{"texto": "una lata de refresco"}`. La persona escribe **qué objeto es** (no la categoría) y el backend lo interpreta con `keywords.json`, igual que la voz. Responde como `POST /api/voz/escuchar`: `accion = "revision_resuelta"` (va al bote, `origen = "texto"`, la foto va a `_por_verificar/`) o `"no_reconocido"` (sigue en revisión). `409` fuera de `REVISION`. Nuevo valor de `origen`: `texto` (las bases existentes se migran solas al arrancar, con respaldo `*.antes_texto.bak`).
 
 ### 3.5 Estadísticas del sistema
 **`GET /api/estadisticas?simulado=incluir|excluir|solo`**
@@ -465,6 +467,7 @@ Mientras el backend no exista, el panel puede trabajar con **datos de ejemplo**:
 |---|---|---|---|
 | 1.0 | 2026-11-19 | Persona A (generado con Claude Code) | Versión inicial |
 | 1.7 | 2026-11-19 | Persona B (generado con Claude Code) | `GET /api/juego/fotos?total=N`: el usuario elige cuántas preguntas y se reparten entre las 3 categorías; campo `cuotas` en la respuesta. |
+| 1.10 | 2026-11-20 | Persona A (generado con Claude Code) | Revisión pensada para quien NO sabe la categoría: `POST /api/revision/objeto` (texto libre del objeto) y `origen = "texto"`. En el panel, la tarjeta de revisión pide qué objeto es (cuadro de texto + botón de voz); los botones de bote quedan plegados en «Soy operador». **Avisar a la Persona B.** |
 | 1.9 | 2026-11-20 | Persona A (generado con Claude Code) | Vista en vivo de la cámara: `GET /api/camara/cuadro`. En «En vivo» la tarjeta **Cámara** se ve en vivo (MENU, ESPERA_OBJETO, OPERADOR, ERROR) y se congela desde CAPTURA, primero en el último cuadro y luego en la foto guardada. **Avisar a la Persona B.** |
 | 1.8 | 2026-11-20 | Persona A (generado con Claude Code) | **Sin sensor de caída** (FC-51 #2, D3): `DROP` siempre responde `DROP_OK` al cerrar la trampilla; se quitan `DROP_TIMEOUT` (respuesta y alerta) y el "sin confirmar" de los botes. Firmware recargado en el UNO. **Avisar a la Persona B.** |
 | 1.7 | 2026-11-20 | Persona A (generado con Claude Code) | Sin LCD ni teclado ni sensor IR: `POST /api/tomar-foto` (botón «Tomar foto» en Inicio) y voz "listo" → `accion: "foto"`. **Avisar a la Persona B.** |

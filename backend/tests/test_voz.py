@@ -331,3 +331,29 @@ def test_endpoint_de_voces(cliente):
 def test_listo_por_voz_toma_la_foto(cliente):
     r = cliente.post("/api/sim/voz", json={"texto": "listo"}).json()
     assert r["intencion"]["valor"] == "foto" and r["accion"] == "foto"
+
+
+def _llevar_a_revision(cliente):
+    cliente.post("/api/sim/objeto", json={"categoria_real": "desconocido"})
+    esperar(lambda: cliente.get("/api/estado").json()["estado"] == "REVISION")
+
+
+def test_revision_escrita_resuelve_con_el_objeto(cliente):
+    """La persona escribe qué objeto es (no la categoría): el backend decide el bote."""
+    _llevar_a_revision(cliente)
+    r = cliente.post("/api/revision/objeto", json={"texto": "Es una cáscara de plátano"}).json()
+    assert r["accion"] == "revision_resuelta" and r["intencion"]["valor"] == 0
+    esperar(lambda: cliente.get("/api/clasificaciones").json()["items"][0]["estado"] == "registrado")
+    caso = cliente.get("/api/clasificaciones").json()["items"][0]
+    assert caso["origen"] == "texto" and caso["final_id"] == 0 and caso["corregido"] is True
+
+
+def test_revision_escrita_desconocida_sigue_en_revision(cliente):
+    _llevar_a_revision(cliente)
+    r = cliente.post("/api/revision/objeto", json={"texto": "un cachivache raro"}).json()
+    assert r["accion"] == "no_reconocido"
+    assert cliente.get("/api/estado").json()["estado"] == "REVISION"
+
+
+def test_revision_escrita_fuera_de_revision_da_409(cliente):
+    assert cliente.post("/api/revision/objeto", json={"texto": "lata"}).status_code == 409

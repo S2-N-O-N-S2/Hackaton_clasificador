@@ -704,6 +704,19 @@ async function atender(metodo, rutaCompleta, cuerpo) {
     return { ok: true, estado: 'VERIFICAR_BOTE' };
   }
 
+  if (metodo === 'POST' && ruta === '/api/revision/objeto') {
+    exigir(maquina.estado === 'REVISION' && esperaAccion && esperaAccion.tipo === 'revision', 409, 'El estado no es REVISION');
+    const dicho = String(cuerpo.texto || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const objetos = { platano: 0, cascara: 0, manzana: 0, botella: 1, lata: 1, carton: 1, papel: 1, pila: 2, medicamento: 2, cubrebocas: 2 };
+    const hallado = Object.keys(objetos).find((o) => dicho.includes(o));
+    if (hallado === undefined) {
+      return { fase: 'reconocido', contexto: 'revision', texto_crudo: dicho, intencion: { tipo: 'desconocido' }, accion: 'no_reconocido' };
+    }
+    esperaAccion.resolver({ final_id: objetos[hallado], origen: 'texto' });
+    return { fase: 'reconocido', contexto: 'revision', texto_crudo: dicho,
+      intencion: { tipo: 'categoria', valor: objetos[hallado], objeto: hallado }, accion: 'revision_resuelta' };
+  }
+
   // 3.5 Estadísticas
   if (metodo === 'GET' && ruta === '/api/estadisticas') return calcularEstadisticas(q.get('simulado') || 'incluir');
 

@@ -11,6 +11,7 @@ Inicializar a mano (crea las tablas si no existen):
 from __future__ import annotations
 
 import json
+import shutil
 import sqlite3
 import threading
 from datetime import datetime
@@ -31,7 +32,7 @@ CREATE TABLE IF NOT EXISTS clasificaciones (
     p_peligroso      REAL,
     final_id         INTEGER,                    -- categoría con la que se depositó (NULL = sin resolver)
     origen           TEXT    NOT NULL DEFAULT 'camara'
-                     CHECK (origen IN ('camara', 'voz', 'manual', 'teclado', 'panel')),
+                     CHECK (origen IN ('camara', 'voz', 'manual', 'teclado', 'panel', 'texto')),
     dudoso           INTEGER NOT NULL DEFAULT 0,
     motivo_dudoso    TEXT,                       -- confianza_baja | riesgo_peligroso | conflicto_voz | sin_modelo
     corregido        INTEGER NOT NULL DEFAULT 0,
@@ -175,6 +176,40 @@ class BaseDatos:
         self.inicializar()
 
     # ------------------------------------------------------------------ básico
+    def _migrar_origen_texto(self) -> None:
+        """Bases creadas antes del 20-nov: su CHECK de `origen` no acepta 'texto' (revisión escrita).
+        SQLite no permite cambiar un CHECK, así que se reconstruye la tabla con el procedimiento oficial
+        (tabla nueva → copiar → borrar → renombrar), con respaldo previo del archivo. Los datos no cambian."""
+        fila = self._conexion.execute(
+            "SELECT sql FROM sqlite_master WHERE type = 'table' AND name = 'clasificaciones'").fetchone()
+        if fila is None or "'texto'" in fila[0] or "CHECK (origen IN" not in fila[0]:
+            return  # ya migrada, o una base sin esa regla (nada que cambiar)
+        viejo = "'teclado', 'panel')"
+        if viejo not in fila[0]:
+            raise RuntimeError("No se reconoce el esquema de clasificaciones para migrar 'texto'")
+        if self.ruta != ":memory:" and Path(self.ruta).exists():
+            shutil.copy2(self.ruta, self.ruta + ".antes_texto.bak")
+        nuevo = fila[0].replace(viejo, "'teclado', 'panel', 'texto')", 1).replace(
+            "clasificaciones", "clasificaciones_nueva", 1)
+        c = self._conexion
+        c.execute("PRAGMA foreign_keys = OFF")
+        try:
+            c.execute("BEGIN")
+            c.execute(nuevo)
+            c.execute("INSERT INTO clasificaciones_nueva SELECT * FROM clasificaciones")
+            c.execute("DROP TABLE clasificaciones")
+            c.execute("ALTER TABLE clasificaciones_nueva RENAME TO clasificaciones")
+            c.execute("CREATE INDEX IF NOT EXISTS idx_clasif_fecha  ON clasificaciones(fecha_hora)")
+            c.execute("CREATE INDEX IF NOT EXISTS idx_clasif_dudoso ON clasificaciones(dudoso)")
+            if c.execute("PRAGMA foreign_key_check").fetchall():
+                raise RuntimeError("La migración rompería referencias a clasificaciones")
+            c.execute("COMMIT")
+        except Exception:
+            c.execute("ROLLBACK")
+            raise
+        finally:
+            c.execute("PRAGMA foreign_keys = ON")
+
     def inicializar(self) -> None:
         with self._lock:
             self._conexion.executescript(ESQUEMA)
@@ -183,6 +218,7 @@ class BaseDatos:
                 existentes_col = {f[1] for f in self._conexion.execute(f"PRAGMA table_info({tabla})")}
                 if columna not in existentes_col:
                     self._conexion.execute(f"ALTER TABLE {tabla} ADD COLUMN {columna} {tipo}")
+            self._migrar_origen_texto()
             existentes = self._conexion.execute("SELECT COUNT(*) FROM botes").fetchone()[0]
             if existentes == 0:
                 self._conexion.executemany(

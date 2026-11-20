@@ -33,5 +33,5 @@ export const NOMBRE_ESTADO = {
 };
 
 export const NOMBRE_ORIGEN = {
-  camara: 'Cámara', voz: 'Voz', manual: 'Manual', teclado: 'Teclado', panel: 'Panel',
+  camara: 'Cámara', voz: 'Voz', texto: 'Escrito', manual: 'Manual', teclado: 'Teclado', panel: 'Panel',
 };

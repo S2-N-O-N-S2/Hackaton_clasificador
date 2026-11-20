@@ -443,18 +443,29 @@ class Orquestador:
         except (ErrorVoz, EstadoInvalido):
             pass
 
-    async def aplicar_voz(self, texto: str, pantalla_previa: list[str] | None = None) -> dict[str, Any]:
-        """Interpreta el texto según el estado y actúa. También lo usa la simulación (POST /api/sim/voz)."""
+    async def aplicar_voz(self, texto: str, pantalla_previa: list[str] | None = None,
+                          origen: str = "voz") -> dict[str, Any]:
+        """Interpreta el texto según el estado y actúa. También lo usa la simulación (POST /api/sim/voz) y la
+        revisión escrita (POST /api/revision/objeto, origen = "texto": la persona escribe qué objeto es)."""
         contexto = self._contexto_voz()
         intencion = self.voz.interpretar(texto, contexto)
-        self.db.registrar_evento("info", "voz", f"[{contexto}] '{texto}' -> {intencion.tipo} {intencion.valor}")
-        accion = await self._actuar_voz(intencion, contexto, pantalla_previa or self.lcd)
+        self.db.registrar_evento("info", origen, f"[{contexto}] '{texto}' -> {intencion.tipo} {intencion.valor}")
+        accion = await self._actuar_voz(intencion, contexto, pantalla_previa or self.lcd, origen)
         resultado = {"fase": "reconocido", "contexto": contexto, "texto_crudo": texto,
                      "intencion": intencion.a_dict(), "accion": accion}
-        await self.difusor.emitir("voz", resultado)
+        if origen == "voz":  # lo escrito no se anuncia como voz (el panel ya tiene la respuesta)
+            await self.difusor.emitir("voz", resultado)
         return resultado
 
-    async def _actuar_voz(self, intencion: Intencion, contexto: str, pantalla_previa: list[str]) -> str:
+    async def describir_objeto(self, texto: str) -> dict[str, Any]:
+        """REVISION: la persona ESCRIBE qué objeto es ("una cáscara de plátano"). Se interpreta con el mismo
+        vocabulario que la voz; si no se conoce, el caso sigue en revisión. Va a _por_verificar como la voz."""
+        if self.estado != Estado.REVISION:
+            raise EstadoInvalido("No hay un caso en revisión")
+        return await self.aplicar_voz(texto, origen="texto")
+
+    async def _actuar_voz(self, intencion: Intencion, contexto: str, pantalla_previa: list[str],
+                          origen: str = "voz") -> str:
         if intencion.tipo not in ("modo", "categoria"):
             # §15 caso 3: "No reconocí el objeto" y el caso sigue igual (en revisión, si lo estaba)
             await self._mostrar(lcd_ui.pantalla_voz_no_reconocida(intencion.texto))
@@ -475,7 +486,7 @@ class Orquestador:
         categoria = int(intencion.valor)
         if contexto == "revision":  # §15 caso 1: resolver el dudoso
             await self._mostrar(lcd_ui.pantalla_voz_entendida(intencion.objeto, categoria))
-            self.resolver_revision(categoria, "voz")
+            self.resolver_revision(categoria, origen)
             return "revision_resuelta"
         # §15 caso 2 sin residuo: responder, mostrar el bote y guardar la pista para el siguiente residuo
         self._pista_voz = (categoria, intencion.objeto, time.monotonic())
@@ -696,7 +707,7 @@ class Orquestador:
             self._espera_humana_s += time.monotonic() - inicio
         if final_id is not None:
             fila = self.db.clasificacion(self._caso_id)
-            # Operador (panel) → dataset/<clase>/ ; usuario (teclado/voz) → dataset/_por_verificar/<clase>/
+            # Operador (panel) → dataset/<clase>/ ; usuario (texto/voz/teclado) → dataset/_por_verificar/<clase>/
             copiar_a_dataset(self.ajustes, fila["foto"], final_id, verificado=(origen == "panel"))
             self.db.actualizar_clasificacion(self._caso_id, corregido=1, origen=origen)
         return final_id, origen

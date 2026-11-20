@@ -201,6 +201,20 @@ async def post_revision(request: Request, cuerpo: RevisionIn) -> dict[str, Any]:
     return {"ok": True, "estado": orq.estado.value}
 
 
+class ObjetoIn(BaseModel):
+    texto: str = Field(min_length=1, max_length=120)
+
+
+@router.post("/api/revision/objeto")
+async def post_revision_objeto(request: Request, cuerpo: ObjetoIn) -> dict[str, Any]:
+    """REVISION: la persona escribe qué objeto es (contrato v1.10). Misma respuesta que la voz: `accion` =
+    "revision_resuelta" (va al bote, origen = texto) o "no_reconocido" (sigue en revisión). 409 fuera de REVISION."""
+    try:
+        return await _ctx(request).orq.describir_objeto(cuerpo.texto)
+    except ErrorVoz as error:
+        raise HTTPException(503, str(error)) from None
+
+
 # ---------------------------------------------------------------------------- voz (§15)
 @router.post("/api/voz/escuchar")
 async def post_voz_escuchar(request: Request) -> dict[str, Any]:

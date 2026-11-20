@@ -116,3 +116,23 @@ def test_calibrador_se_niega_a_medio_ciclo(cliente):
     esperar(lambda: cliente.get("/api/estado").json()["estado"] == "REVISION")
     with pytest.raises(ErrorApi, match="REVISION"):
         Calibrador(_enviar_por(cliente)).cargar()
+
+
+def test_migra_bases_viejas_para_aceptar_origen_texto(tmp_path):
+    """Una base creada antes del 20-nov (CHECK sin 'texto') se migra sin perder datos y con respaldo."""
+    import sqlite3
+
+    from app.db import ESQUEMA, BaseDatos
+
+    ruta = tmp_path / "vieja.db"
+    con = sqlite3.connect(ruta)
+    con.executescript(ESQUEMA.replace("'teclado', 'panel', 'texto')", "'teclado', 'panel')"))
+    con.execute("INSERT INTO clasificaciones(fecha_hora, modo, origen) VALUES ('2026-11-19T10:00:00', 'ia', 'voz')")
+    con.commit()
+    con.close()
+
+    db = BaseDatos(ruta)
+    assert db.uno("SELECT COUNT(*) AS n FROM clasificaciones")["n"] == 1
+    db.ejecutar("UPDATE clasificaciones SET origen = 'texto' WHERE id = 1")
+    assert db.uno("SELECT origen FROM clasificaciones WHERE id = 1")["origen"] == "texto"
+    assert (tmp_path / "vieja.db.antes_texto.bak").exists()
