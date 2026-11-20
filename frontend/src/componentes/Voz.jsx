@@ -63,6 +63,7 @@ export function BotonVoz() {
       mostrar(voz.fase === 'error'
         ? { error: voz.mensaje || 'No se pudo escuchar' }
         : { texto: voz.texto_crudo, entendido: textoEntendido(voz.intencion), accion: ACCIONES[voz.accion],
+            cat: voz.intencion?.tipo === 'categoria' ? voz.intencion.valor : null,
             fallo: voz.intencion?.tipo !== 'categoria' && voz.intencion?.tipo !== 'modo' });
     }
   }, [voz?.recibido]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -77,7 +78,7 @@ export function BotonVoz() {
   useEffect(() => () => clearTimeout(temporizador.current), []);
 
   function mostrar(datos) {
-    setBurbuja(datos);
+    setBurbuja({ ...datos, id: Date.now() }); // id nuevo: la barra de tiempo vuelve a empezar
     clearTimeout(temporizador.current);
     temporizador.current = setTimeout(() => setBurbuja(null), MS_BURBUJA);
   }
@@ -93,6 +94,7 @@ export function BotonVoz() {
     try {
       const r = await api.escucharVoz();
       mostrar({ texto: r.texto_crudo, entendido: textoEntendido(r.intencion), accion: ACCIONES[r.accion],
+                cat: r.intencion?.tipo === 'categoria' ? r.intencion.valor : null,
                 fallo: r.intencion?.tipo !== 'categoria' && r.intencion?.tipo !== 'modo' });
     } catch (e) {
       mostrar({ error: e.message || 'No se pudo escuchar' });
@@ -103,32 +105,49 @@ export function BotonVoz() {
 
   let etiqueta = maquina.estado === 'REVISION' ? 'Dime qué es' : 'Hablar';
   let clase = '';
+  let avance = 0; // 0–1: cuánto del tiempo de grabación ya pasó (anillo alrededor del micrófono)
   if (grabando) {
-    const restante = Math.ceil(grabando.segundos - (Date.now() - grabando.inicio) / 1000);
+    const pasado = (Date.now() - grabando.inicio) / 1000;
+    const restante = Math.ceil(grabando.segundos - pasado);
+    avance = Math.min(1, pasado / grabando.segundos);
     etiqueta = restante > 0 ? `Habla ahora… ${restante}` : 'Reconociendo…';
     clase = restante > 0 ? 'escuchando' : 'procesando';
   }
+  const colorCat = burbuja?.cat !== null && burbuja?.cat !== undefined ? categoria(burbuja.cat) : null;
 
   return (
     <div className="voz-flotante">
       {burbuja && (
-        <div className={`voz-burbuja ${burbuja.error || burbuja.fallo ? 'voz-error' : ''}`} role="status" aria-live="polite">
+        <div key={burbuja.id} className={`voz-burbuja ${burbuja.error || burbuja.fallo ? 'voz-error' : 'voz-ok'}`} role="status" aria-live="polite"
+          style={colorCat ? { '--cat': colorCat.hex } : undefined}>
           {burbuja.error ? (
-            <span>{burbuja.error}</span>
+            <>
+              <span className="voz-etiqueta">No se pudo escuchar</span>
+              <span className="voz-entendido">{burbuja.error}</span>
+            </>
           ) : (
             <>
-              <span className="voz-oido">Oí: {burbuja.texto ? `“${burbuja.texto}”` : '(nada)'}</span>
-              <span className="voz-entendido">{burbuja.entendido}</span>
-              {burbuja.accion && <span className="atenuado"> · {burbuja.accion}</span>}
+              <span className="voz-etiqueta">Lo que oí</span>
+              <span className="voz-oido">{burbuja.texto ? `“${burbuja.texto}”` : 'No oí nada'}</span>
+              <span className="voz-etiqueta">Entendí</span>
+              <span className="voz-entendido">
+                {colorCat && <span className="voz-cat-punto" aria-hidden="true" />}
+                {burbuja.entendido}
+              </span>
+              {burbuja.accion && <span className="voz-accion">{burbuja.accion}</span>}
             </>
           )}
+          <span className="voz-tiempo" aria-hidden="true" style={{ '--ms': `${MS_BURBUJA}ms` }} />
         </div>
       )}
       <button type="button" className={`voz-boton ${clase}`} onClick={hablar} disabled={!puede || ocupado}
         title={puede ? 'Presiona y habla (igual que la tecla A)' : 'La voz se usa en el menú o cuando el sistema pide ayuda'}
         aria-label={etiqueta}>
-        <IconoMicrofono />
+        <span className="voz-mic" style={{ '--avance': avance }}>
+          <IconoMicrofono />
+        </span>
         <span className="voz-boton-texto">{etiqueta}</span>
+        <span className="voz-ondas" aria-hidden="true">{[0, 1, 2, 3, 4].map((i) => <i key={i} style={{ '--i': i }} />)}</span>
       </button>
     </div>
   );

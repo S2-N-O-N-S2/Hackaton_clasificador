@@ -81,7 +81,7 @@ function Encabezado() {
         <Logotipo />
         <div className="marca-textos">
           <strong>Clasificador de residuos</strong>
-          <span className="atenuado">Cyber Insanos, Reto 1</span>
+          <span className="marca-linea" aria-hidden="true"><i /><i /><i /></span>
         </div>
       </div>
       <div className="encabezado-estado">

@@ -78,12 +78,27 @@ export function Carrusel({ categoriaId, residuo = 'ninguno', pie }) {
   );
 }
 
-// Logotipo: el mismo disco, pequeño y quieto.
+// Logotipo: el disco de los 3 botes girando dentro del visor de la cámara (esquinas) con el lente al centro.
 export function Logotipo() {
+  const esquina = 'M-86 -50V-72a14 14 0 0 1 14-14H-50';
   return (
     <svg className="marca-logo" viewBox="-100 -100 200 200" aria-hidden="true">
-      {CATEGORIAS.map((c) => <path key={c.id} d={rutaSector(c.id * 120, 96, 30, 56)} fill={c.hex} />)}
-      <circle r="18" fill="#FFFFFF" />
+      <defs>
+        <linearGradient id="logo-fondo" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#1C4A4E" />
+          <stop offset="1" stopColor="#0B2225" />
+        </linearGradient>
+      </defs>
+      <rect x="-100" y="-100" width="200" height="200" rx="46" fill="url(#logo-fondo)" />
+      <g className="logo-visor" fill="none" stroke="#5EEAD4" strokeWidth="9" strokeLinecap="round">
+        {[0, 90, 180, 270].map((g) => <path key={g} d={esquina} transform={`rotate(${g})`} />)}
+      </g>
+      <g className="logo-disco">
+        {CATEGORIAS.map((c) => <path key={c.id} d={rutaSector(c.id * 120, 96, 34, 60)} fill={c.hex} />)}
+      </g>
+      <circle r="21" fill="#0B2225" />
+      <circle r="14" fill="#E6FFFB" />
+      <circle className="logo-lente" r="7" fill="#13A3A8" />
     </svg>
   );
 }
