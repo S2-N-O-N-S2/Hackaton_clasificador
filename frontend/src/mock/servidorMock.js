@@ -789,18 +789,26 @@ async function atender(metodo, rutaCompleta, cuerpo) {
   }
   if (metodo === 'GET' && ruta === '/api/juego/sesion') return db.sesion;
   if (metodo === 'GET' && ruta === '/api/juego/fotos') {
-    // Sin dataset en el modo de ejemplo: fotos dibujadas (rotuladas SIMULADO), N por clase, revueltas.
+    // Sin dataset en el modo de ejemplo: fotos dibujadas (rotuladas SIMULADO), revueltas.
+    // `total` se reparte entre las 3 clases (la pregunta extra cae en una clase al azar), como el backend.
     const n = Number(q.get('por_categoria') || 20);
     exigir(Number.isInteger(n) && n >= 1 && n <= 50, 422, 'por_categoria debe estar entre 1 y 50');
+    let cuotas = [n, n, n];
+    if (q.get('total')) {
+      const total = Number(q.get('total'));
+      exigir(Number.isInteger(total) && total >= 3 && total <= 60, 422, 'total debe estar entre 3 y 60');
+      cuotas = [0, 1, 2].map(() => Math.floor(total / 3));
+      [0, 1, 2].sort(() => Math.random() - 0.5).slice(0, total % 3).forEach((c) => { cuotas[c] += 1; });
+    }
     const items = [];
     ['organica', 'inorganica', 'peligroso'].forEach((clave, cat) => {
-      for (let i = 1; i <= n; i += 1) items.push({ id: `${clave}/ejemplo_${i}.svg`, foto: fotoSimulada(cat, i), categoria_id: cat });
+      for (let i = 1; i <= cuotas[cat]; i += 1) items.push({ id: `${clave}/ejemplo_${i}.svg`, foto: fotoSimulada(cat, i), categoria_id: cat });
     });
     for (let i = items.length - 1; i > 0; i -= 1) {
       const j = Math.floor(Math.random() * (i + 1));
       [items[i], items[j]] = [items[j], items[i]];
     }
-    return { total: items.length, por_categoria: n, disponibles: { organica: n, inorganica: n, peligroso: n }, items };
+    return { total: items.length, por_categoria: n, cuotas, disponibles: { organica: n, inorganica: n, peligroso: n }, items };
   }
   if (metodo === 'GET' && ruta === '/api/juego/estadisticas') {
     return { ...juegoEstadisticasEjemplo, niveles_usados: (q.get('niveles') || 'verificada,alta').split(',') };

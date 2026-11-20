@@ -23,7 +23,7 @@ from .db import BaseDatos, ahora, clasificacion_a_dict
 from .game import NIVELES_REPORTABLES, Juego
 from .model import GestorReentrenamiento
 from .orchestrator import Estado, Orquestador
-from .practica import POR_CATEGORIA_MAX, elegir_fotos, ruta_foto
+from .practica import POR_CATEGORIA_MAX, TOTAL_MAX, TOTAL_MIN, elegir_fotos, ruta_foto
 from .serial_link import EnlaceSimulado, ErrorSerial
 from .voice import ErrorVoz
 
@@ -455,8 +455,10 @@ def post_prueba_aprendizaje(cuerpo: PruebaAprendizajeIn) -> None:
 
 # Práctica con fotos del dataset (no usa la máquina; la califica el panel)
 @router.get("/api/juego/fotos")
-def get_fotos_practica(request: Request, por_categoria: int = Query(20, ge=1, le=POR_CATEGORIA_MAX)) -> dict[str, Any]:
-    return elegir_fotos(_ctx(request).ajustes.dir_dataset, por_categoria)
+def get_fotos_practica(request: Request, por_categoria: int = Query(20, ge=1, le=POR_CATEGORIA_MAX),
+                       total: int | None = Query(None, ge=TOTAL_MIN, le=TOTAL_MAX)) -> dict[str, Any]:
+    """`total` (el panel ofrece 5, 10, … 30) se reparte entre las 3 categorías; si no viene, `por_categoria` de cada una."""
+    return elegir_fotos(_ctx(request).ajustes.dir_dataset, por_categoria, total=total)
 
 
 @router.get("/api/juego/fotos/{clave}/{archivo}")
