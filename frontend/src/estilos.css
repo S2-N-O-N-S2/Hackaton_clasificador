@@ -1396,3 +1396,276 @@ button.ficha[aria-pressed="true"]::before { content: "✓"; font-weight: 800; }
 @media (prefers-reduced-motion: reduce) {
   .logo-disco, .logo-visor, .logo-lente, .marca-linea i { animation: none !important; }
 }
+
+/* =============================================================================
+   Capa "tablero de la máquina" para todo el panel: botones, controles, tarjetas, tablas, matrices,
+   gráficas y avisos con el mismo lenguaje que el encabezado (piezas oscuras verde petróleo, luz verde
+   agua, brillos cortos). El fondo sigue claro para leer bien; lo oscuro marca lo que se puede tocar
+   o lo que es "pantalla". Va al final para ganar a las reglas anteriores sin !important.
+   ============================================================================= */
+:root {
+  --panel-1: #1C4A4E;
+  --panel-2: #0B2225;
+  --panel-borde: #2D5D61;
+  --luz: #5EEAD4;
+  --luz-2: #13A3A8;
+  --brillo: linear-gradient(100deg, transparent 35%, rgba(255, 255, 255, 0.28) 50%, transparent 65%);
+  --radio: 12px;
+}
+:focus-visible { outline: 3px solid var(--luz-2); outline-offset: 2px; }
+::selection { background: rgba(94, 234, 212, 0.45); }
+
+/* ---------- Controles de formulario ---------- */
+input, select, textarea {
+  border-radius: 10px; border: 1.5px solid var(--linea); background: linear-gradient(180deg, #FFFFFF, #F6FAF8);
+  box-shadow: inset 0 1px 2px rgba(20, 50, 45, 0.06);
+}
+input:hover, select:hover { border-color: var(--luz-2); }
+input:focus, select:focus, textarea:focus {
+  border-color: var(--luz-2); outline: none;
+  box-shadow: 0 0 0 4px rgba(19, 163, 168, 0.16), 0 0 14px rgba(94, 234, 212, 0.35);
+}
+select {
+  appearance: none; -webkit-appearance: none; padding-right: 2.2rem; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%230A6870' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"), linear-gradient(180deg, #FFFFFF, #F6FAF8);
+  background-repeat: no-repeat; background-position: right 0.65rem center, 0 0; background-size: 1rem, 100% 100%;
+}
+input[type="checkbox"] {
+  appearance: none; -webkit-appearance: none; width: 1.4rem; height: 1.4rem; min-height: 0; padding: 0; margin: 0; flex: none;
+  border-radius: 6px; border: 2px solid #8FB3AB; background: #fff; cursor: pointer; display: inline-grid; place-content: center;
+  transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+input[type="checkbox"]::after {
+  content: ""; width: 0.75rem; height: 0.4rem; border-left: 3px solid #fff; border-bottom: 3px solid #fff;
+  transform: rotate(-45deg) scale(0); margin-top: -0.15rem; transition: transform 0.2s cubic-bezier(.2, .8, .3, 1.6);
+}
+input[type="checkbox"]:checked { background: linear-gradient(160deg, var(--luz-2), var(--maquina-2)); border-color: var(--maquina-2); box-shadow: 0 0 10px rgba(19, 163, 168, 0.45); }
+input[type="checkbox"]:checked::after { transform: rotate(-45deg) scale(1); }
+input[type="range"] {
+  appearance: none; -webkit-appearance: none; height: 8px; border-radius: 99px; border: none; cursor: pointer;
+  background: linear-gradient(90deg, var(--luz-2), var(--luz)); box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2);
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 1.35rem; height: 1.35rem; border-radius: 50%; background: radial-gradient(circle, #E6FFFB 30%, var(--panel-2) 32%);
+  border: 2px solid var(--luz); box-shadow: 0 0 10px rgba(94, 234, 212, 0.7); transition: transform 0.15s ease;
+}
+input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+input[type="range"]::-moz-range-thumb {
+  width: 1.2rem; height: 1.2rem; border-radius: 50%; background: radial-gradient(circle, #E6FFFB 30%, var(--panel-2) 32%);
+  border: 2px solid var(--luz); box-shadow: 0 0 10px rgba(94, 234, 212, 0.7);
+}
+fieldset { border-radius: var(--radio); border-color: var(--linea); background: rgba(255, 255, 255, 0.5); }
+legend { font-family: var(--f-letrero); font-stretch: 87.5%; font-size: 1.02rem; color: var(--maquina-2); }
+.filtros label, .formulario label { color: var(--tinta); }
+.casilla { padding: 0.15rem 0; }
+
+/* ---------- Botones ---------- */
+.boton-principal, .boton-secundario, .boton-mini, .barra-urgente-accion {
+  position: relative; overflow: hidden; isolation: isolate; border-radius: 10px;
+}
+.boton-principal::before, .boton-secundario::before, .boton-mini::before, .barra-urgente-accion::before,
+.boton-categoria::before, .boton-menu::before, .boton-cat::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none; background: var(--brillo);
+  background-size: 250% 100%; background-position: 150% 0;
+}
+.boton-principal:hover:not(:disabled)::before, .boton-secundario:hover:not(:disabled)::before, .boton-mini:hover:not(:disabled)::before,
+.barra-urgente-accion:hover::before, .boton-categoria:hover:not(:disabled)::before, .boton-menu:hover:not(:disabled)::before,
+.boton-cat:hover:not(:disabled)::before { animation: barrido 0.8s ease-out; }
+.boton-principal {
+  background: linear-gradient(160deg, #13A3A8, var(--maquina) 55%, var(--maquina-2)); border: 1px solid #2CC3C0; color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 3px 0 #075259, 0 6px 14px rgba(14, 124, 134, 0.25);
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+}
+.boton-principal:hover:not(:disabled) {
+  background: linear-gradient(160deg, #18B5B9, var(--maquina) 55%, var(--maquina-2)); transform: translateY(-2px);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 4px 0 #075259, 0 0 22px rgba(19, 163, 168, 0.45);
+}
+.boton-principal:active:not(:disabled) { transform: translateY(2px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 1px 0 #075259; }
+.boton-secundario {
+  background: linear-gradient(180deg, #FFFFFF, #EEF6F3); color: var(--panel-1); border: 1.5px solid var(--panel-borde);
+  box-shadow: 0 2px 0 #B9CEC6;
+}
+.boton-secundario:hover:not(:disabled) {
+  background: linear-gradient(160deg, var(--panel-1), var(--panel-2)); color: #E6FFFB; border-color: var(--luz-2);
+  transform: translateY(-2px); box-shadow: 0 0 18px rgba(19, 163, 168, 0.35);
+}
+.boton-secundario:active:not(:disabled) { transform: translateY(1px); box-shadow: none; }
+.boton-mini { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 2px 0 rgba(0, 0, 0, 0.25); }
+.boton-mini.aprobar { background: linear-gradient(160deg, #2E9E44, #1E6B2E); }
+.boton-mini.rechazar { background: linear-gradient(160deg, #D63A2F, #8F1C13); }
+.boton-mini:hover:not(:disabled) { filter: none; transform: translateY(-2px); box-shadow: 0 0 14px rgba(0, 0, 0, 0.2); }
+.boton-texto {
+  position: relative; text-decoration: none; color: var(--maquina-2); font-weight: 700; border-radius: 6px;
+  background-image: linear-gradient(90deg, var(--luz-2), var(--luz)); background-size: 0 2px; background-repeat: no-repeat;
+  background-position: 0.5rem calc(100% - 0.2rem); transition: background-size 0.3s ease, color 0.2s ease;
+}
+.boton-texto:hover { color: var(--panel-2); background-size: calc(100% - 1rem) 2px; }
+.boton-cat { position: relative; overflow: hidden; isolation: isolate; border-radius: 10px; }
+.boton-cat:hover:not(:disabled) { box-shadow: 0 3px 0 var(--cat), 0 0 14px color-mix(in srgb, var(--cat) 40%, transparent); }
+.boton-categoria { position: relative; overflow: hidden; isolation: isolate; border-radius: 16px; }
+.boton-categoria::after {
+  content: ""; position: absolute; inset: 6px; border-radius: 11px; border: 1.5px solid rgba(255, 255, 255, 0.28); pointer-events: none;
+}
+
+/* Inicio: los dos letreros grandes como teclas de la máquina. */
+.boton-menu { overflow: visible; isolation: isolate; border-radius: 18px; }
+.boton-menu::before, .boton-menu::after { border-radius: inherit; }
+.boton-ia {
+  background: linear-gradient(180deg, #FFFFFF, #EEF6F3); border: 2px solid var(--panel-borde); color: var(--panel-1);
+  box-shadow: 0 6px 0 var(--panel-borde), 0 12px 24px rgba(20, 50, 45, 0.12);
+}
+.boton-adivina {
+  background: linear-gradient(160deg, var(--panel-1), var(--panel-2)); border: 2px solid var(--luz-2); color: #E6FFFB;
+  box-shadow: 0 6px 0 #061416, 0 0 26px rgba(19, 163, 168, 0.3);
+}
+.boton-adivina small { color: #A7D9D2; }
+.boton-adivina .tecla { background: var(--luz); color: var(--panel-2); border-color: #0E5F66; box-shadow: 0 4px 0 #0E5F66; }
+.boton-ia:hover:not(:disabled) { box-shadow: 0 9px 0 var(--panel-borde), 0 0 24px rgba(19, 163, 168, 0.3); border-color: var(--luz-2); }
+.boton-adivina:hover:not(:disabled) { box-shadow: 0 9px 0 #061416, 0 0 34px rgba(94, 234, 212, 0.45); }
+/* Rejilla de circuito tenue en la esquina de cada letrero. */
+.boton-menu::after {
+  content: ""; position: absolute; right: 0; bottom: 0; width: 9rem; height: 9rem; z-index: -1; opacity: 0.18; pointer-events: none;
+  background-image: radial-gradient(circle, currentColor 1.6px, transparent 1.8px); background-size: 14px 14px;
+  -webkit-mask-image: radial-gradient(circle at 100% 100%, #000 20%, transparent 70%); mask-image: radial-gradient(circle at 100% 100%, #000 20%, transparent 70%);
+}
+
+/* Teclas: keycaps oscuros con letra iluminada. */
+.tecla, .tecla-boton {
+  background: linear-gradient(180deg, #2B4A4F, #17393D); color: #CFF7EE; border: 1px solid #0B2225;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 4px 0 #061416; text-shadow: 0 0 8px rgba(94, 234, 212, 0.5);
+}
+.tecla-boton:hover:not(:disabled) { background: linear-gradient(180deg, #33585E, #1C4A4E); color: #fff; }
+.tecla-boton:active:not(:disabled) { transform: translateY(3px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 1px 0 #061416, 0 0 12px rgba(94, 234, 212, 0.5); }
+
+/* ---------- Tarjetas y cifras ---------- */
+.tarjeta { border-radius: 16px; border-color: #C9DCD5; transition: border-color 0.25s ease, box-shadow 0.25s ease; }
+.tarjeta:hover { border-color: #9CCFC9; box-shadow: 0 2px 4px rgba(20, 50, 45, 0.06), 0 10px 26px rgba(20, 50, 45, 0.08); }
+/* Línea de luz arriba (las tarjetas con tapa o franjas ya tienen su marca). */
+.tarjeta:not(.tarjeta-tapa):not(.tarjeta-revision):not(.tarjeta-simulacion)::after {
+  content: ""; position: absolute; left: 1.4rem; right: 1.4rem; top: -1px; height: 2px; border-radius: 2px; pointer-events: none;
+  background: linear-gradient(90deg, transparent, var(--luz-2), transparent); opacity: 0.75;
+}
+.tarjeta-titulo h2 { display: inline-flex; align-items: center; gap: 0.55rem; }
+.tarjeta-titulo h2::before {
+  content: ""; width: 0.55rem; height: 0.55rem; border-radius: 50%; flex: none; background: var(--luz-2);
+  box-shadow: 0 0 0 3px rgba(19, 163, 168, 0.18), 0 0 8px var(--luz);
+}
+.cifra {
+  position: relative; overflow: hidden; border-radius: 14px; border-color: #C9DCD5;
+  transition: transform 0.2s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.cifra::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: linear-gradient(180deg, var(--luz), var(--luz-2)); }
+.cifra:hover { transform: translateY(-3px); border-color: #9CCFC9; box-shadow: 0 10px 22px rgba(20, 50, 45, 0.1); }
+.cifra-ayuda::before { background: linear-gradient(180deg, #FCD34D, var(--amarillo)); }
+.cifra-ayuda { border-left-width: 1.5px; }
+.cifra-progreso { background: #DCEAE5; box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08); }
+.meta-barra > div { position: relative; overflow: hidden; }
+.cifra-progreso div { position: relative; overflow: hidden; background: linear-gradient(90deg, var(--luz-2), var(--luz)); }
+.cifra-progreso div::after, .barra-relleno::after, .meta-barra > div::after {
+  content: ""; position: absolute; inset: 0; background: var(--brillo); background-size: 250% 100%; animation: barrido 2.8s ease-in-out infinite;
+}
+
+/* ---------- Tablas ---------- */
+.tabla-desplazable { border-radius: 14px; border: 1.5px solid #C9DCD5; background: var(--placa); }
+.tabla { border-collapse: separate; border-spacing: 0; }
+.tabla th {
+  background: linear-gradient(180deg, var(--panel-1), #133A3E); color: #CFF7EE; border-bottom: 2px solid var(--luz-2);
+  font-size: 0.92rem; letter-spacing: 0.01em; padding: 0.7rem 0.6rem; white-space: nowrap;
+}
+.tabla thead th:first-child { border-top-left-radius: 12px; }
+.tabla thead th:last-child { border-top-right-radius: 12px; }
+.tabla td { border-bottom: 1px solid #E1ECE8; padding: 0.6rem; }
+.tabla tbody tr:nth-child(even) { background: #F7FBF9; }
+.tabla tbody tr { transition: background 0.2s ease, box-shadow 0.2s ease; }
+.tabla tbody tr:hover { background: #E3F4F1; box-shadow: inset 4px 0 0 var(--luz-2); }
+.tabla tbody tr:last-child td { border-bottom: none; }
+.tabla tbody tr.fila-dudosa, .tabla tbody tr.fila-dudosa:hover { background: #FBEFC4; }
+.celda-ok { background: linear-gradient(90deg, #D9F2E0, #EAF8EE); }
+.celda-mal { background: linear-gradient(90deg, #F8D6D6, #FCE9E9); }
+.miniatura { border-radius: 8px; box-shadow: 0 0 0 2px #fff, 0 0 0 3px #C9DCD5; transition: transform 0.2s ease; }
+.tabla tbody tr:hover .miniatura { transform: scale(1.08); }
+
+/* ---------- Matrices ---------- */
+.matriz { border-spacing: 6px; }
+.matriz td { border-radius: 12px; border: 1px solid rgba(20, 50, 45, 0.08); transition: transform 0.2s ease, box-shadow 0.2s ease; }
+.matriz td:hover { transform: scale(1.07); box-shadow: 0 8px 18px rgba(20, 50, 45, 0.18); position: relative; z-index: 1; }
+.matriz td.diagonal { box-shadow: inset 0 0 0 2px rgba(19, 163, 168, 0.75), 0 0 12px rgba(94, 234, 212, 0.35); }
+.matriz thead th, .matriz tbody th { font-size: 0.95rem; }
+
+/* ---------- Gráficas ---------- */
+.barra { background: #DCEAE5; box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1); }
+.barra-relleno { position: relative; overflow: hidden; box-shadow: 0 0 10px rgba(19, 163, 168, 0.25); }
+.barras-h-fila { padding: 0.25rem 0.4rem; border-radius: 10px; transition: background 0.2s ease; }
+.barras-h-fila:hover { background: #EEF6F3; }
+.barras-v-columnas { border-bottom-color: var(--panel-1); }
+.barras-v-barra { position: relative; overflow: hidden; border-radius: 8px 8px 0 0; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35); transition: filter 0.2s ease, transform 0.2s ease; }
+.barras-v-barra::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, rgba(255, 255, 255, 0.28), transparent 60%); }
+.barras-v-col:hover .barras-v-barra { filter: brightness(1.12) drop-shadow(0 0 8px rgba(19, 163, 168, 0.5)); }
+.grafica-linea { stroke: var(--luz-2); filter: drop-shadow(0 0 6px rgba(94, 234, 212, 0.6)); }
+.grafica-punto { stroke: var(--luz-2); transition: r 0.2s ease; }
+.grafica-punto:hover { r: 9; }
+.grafica-globo { fill: var(--panel-2); stroke: var(--panel-borde); }
+.grafica-valor { fill: #CFF7EE; }
+.anillo-valor { filter: drop-shadow(0 0 5px rgba(94, 234, 212, 0.45)); }
+.leyenda-muestra { border-radius: 50%; box-shadow: 0 0 6px currentColor; }
+
+/* ---------- Chips, listas y avisos ---------- */
+.chip { border-radius: 8px; }
+.chip-cat { box-shadow: 0 1px 0 rgba(0, 0, 0, 0.05); }
+.lista-desviados li { border-radius: 12px; transition: transform 0.2s ease; }
+.lista-desviados li:hover { transform: translateX(4px); }
+.mensaje-error { border-radius: 10px; }
+.barra-urgente { border-radius: 14px; }
+.barra-urgente-accion { background: linear-gradient(160deg, var(--panel-1), var(--panel-2)); border: 1px solid var(--panel-borde); }
+
+/* Notificaciones como pantallas pequeñas. */
+.nota {
+  background: linear-gradient(160deg, #17393D, var(--panel-2)); color: #E6FFFB; border: 1px solid var(--panel-borde);
+  border-left: 5px solid var(--luz); border-radius: 14px; box-shadow: 0 14px 30px rgba(11, 34, 37, 0.35);
+}
+.nota-ok { border-left-color: #4ADE80; }
+.nota-error { border-left-color: #F87171; }
+.nota-aviso { border-left-color: var(--amarillo); }
+.nota-icono { box-shadow: 0 0 10px rgba(94, 234, 212, 0.4); }
+.nota-cerrar { color: #A7D9D2; }
+.nota-cerrar:hover { background: rgba(255, 255, 255, 0.1); color: #fff; }
+
+/* Panel de avisos de la campana. */
+.campana-panel { border-radius: 16px; border-color: #C9DCD5; box-shadow: 0 18px 40px rgba(11, 34, 37, 0.25); }
+.campana-encabezado { background: linear-gradient(160deg, var(--panel-1), var(--panel-2)); color: #E6FFFB; border-bottom: 1px solid var(--panel-borde); }
+.campana-encabezado .boton-texto { color: var(--luz); }
+.campana-item { transition: background 0.2s ease; }
+.campana-item:hover { background: #EEF6F3; }
+
+/* ---------- Piezas de la máquina en las páginas ---------- */
+.foto, .foto-marco { border-radius: 12px; }
+.foto { box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 6px 16px rgba(11, 34, 37, 0.2); }
+.lcd { border-radius: 10px; border-color: #0E1A17; box-shadow: 0 0 0 2px #3C4D47, 0 8px 18px rgba(11, 34, 37, 0.25), inset 0 0 22px rgba(0, 0, 0, 0.35); }
+.bote-vaso { border-color: var(--panel-1); background: linear-gradient(180deg, #FFFFFF, #EEF6F3); }
+.bote-relleno { box-shadow: 0 -4px 14px rgba(255, 255, 255, 0.35) inset; }
+.bote-relleno::after {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 6px; background: rgba(255, 255, 255, 0.45);
+  animation: oleaje 2.6s ease-in-out infinite;
+}
+@keyframes oleaje { 50% { transform: translateY(2px) scaleX(0.96); opacity: 0.7; } }
+.cronometro {
+  display: inline-block; padding: 0.4rem 1rem; border-radius: 14px; color: #CFF7EE; text-shadow: 0 0 14px rgba(94, 234, 212, 0.55);
+  background: linear-gradient(160deg, #17393D, var(--panel-2)); border: 1px solid var(--panel-borde);
+}
+.paginacion { gap: 0.8rem; }
+.paginacion > span { font-family: var(--f-letrero); font-weight: 700; padding: 0.35rem 0.8rem; border-radius: 10px; background: #E3F0EC; }
+.roi-vista { border-radius: 10px; }
+.roi-zona { border-color: var(--luz); background: rgba(94, 234, 212, 0.18); box-shadow: 0 0 12px rgba(94, 234, 212, 0.6); }
+
+@media (prefers-reduced-motion: reduce) {
+  .boton-principal::before, .boton-secundario::before, .boton-mini::before, .barra-urgente-accion::before, .boton-categoria::before,
+  .boton-menu::before, .boton-cat::before, .cifra-progreso div::after, .barra-relleno::after, .meta-barra > div::after, .bote-relleno::after { animation: none !important; }
+}
+@media (max-width: 760px) {
+  /* Historial en celular: cada fila es una tarjeta; sin las líneas ni el rayado de la tabla. */
+  .tabla.tabla-tarjetas td { border: none; padding: 0.2rem 0; }
+  .tabla.tabla-tarjetas tbody tr, .tabla.tabla-tarjetas tbody tr:nth-child(even) { background: var(--placa); border-radius: 14px; }
+  .tabla.tabla-tarjetas tbody tr:hover { box-shadow: 0 8px 20px rgba(20, 50, 45, 0.12); }
+  .tabla.tabla-tarjetas tbody tr.fila-dudosa { background: #FBEFC4; }
+  .tabla-desplazable:has(.tabla-tarjetas) { border: none; background: none; }
+}
