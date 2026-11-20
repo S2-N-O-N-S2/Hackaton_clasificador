@@ -24,9 +24,11 @@ backend/models/*
 !backend/models/v[0-9]*/
 backend/captures/*
 !backend/captures/README.md
-backend/dataset/**/*.jpg
-backend/dataset/**/*.jpeg
-backend/dataset/**/*.png
+# Fotos del dataset: SÍ van en git (para jugar la práctica con fotos en cualquier computadora).
+# Las de _por_verificar no, porque el operador todavía no aprueba su etiqueta.
+backend/dataset/_por_verificar/**/*.jpg
+backend/dataset/_por_verificar/**/*.jpeg
+backend/dataset/_por_verificar/**/*.png
 backend/training/cache/
 *.npy
 *.h5
