@@ -1680,3 +1680,16 @@ legend { font-family: var(--f-letrero); font-stretch: 87.5%; font-size: 1.02rem;
 .boton-tomar-foto:hover:not(:disabled) { background: var(--maquina-2); transform: translateY(-1px); }
 .boton-tomar-foto:focus-visible { outline: 3px solid var(--amarillo); outline-offset: 2px; }
 .boton-tomar-foto:disabled { opacity: 0.5; cursor: not-allowed; }
+
+/* Vista en vivo de la cámara (En vivo): rótulo EN VIVO / FOTO TOMADA */
+.camara-rotulo {
+  position: absolute; top: 0.5rem; left: 0.5rem; padding: 0.2rem 0.55rem; border-radius: 999px;
+  font-size: 0.75rem; font-weight: 800; letter-spacing: 0.04em; color: #fff; background: rgba(0, 0, 0, 0.55);
+}
+.camara-rotulo.en-vivo::before {
+  content: ""; display: inline-block; width: 0.5rem; height: 0.5rem; margin-right: 0.35rem; border-radius: 50%;
+  background: #E53935; animation: camara-punto 1.2s ease-in-out infinite;
+}
+.camara-rotulo.congelada { background: var(--maquina); }
+@keyframes camara-punto { 50% { opacity: 0.25; } }
+@media (prefers-reduced-motion: reduce) { .camara-rotulo.en-vivo::before { animation: none; } }

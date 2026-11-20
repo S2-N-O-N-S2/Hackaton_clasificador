@@ -50,6 +50,10 @@ class CamaraBase:
     async def capturar(self, n: int) -> list[np.ndarray]:
         raise NotImplementedError
 
+    def vista(self, calidad: int = 70) -> bytes | None:
+        """Un cuadro JPEG para la vista en vivo del panel. None si no hay imagen (o la cámara está ocupada)."""
+        return None
+
     # --- guardado
     def guardar_foto(self, frame: np.ndarray) -> str:
         """Guarda en captures/AAAAMMDD_HHMMSS.jpg (agrega _2, _3... si ya existe). Devuelve el nombre."""
@@ -262,6 +266,22 @@ class CamaraReal(CamaraBase):
                 time.sleep(c["pausa_candidatos_s"])
                 candidatos.append(self._leer())
         return elegir_fotogramas(candidatos, n, c)
+
+    def vista(self, calidad: int = 70) -> bytes | None:
+        """Cuadro para la vista en vivo. Si el ciclo está tomando la foto (candado ocupado) NO espera: devuelve
+        None y el panel deja congelado el último cuadro. Nunca cierra la cámara por un cuadro fallido."""
+        if not self._lock.acquire(blocking=False):
+            return None
+        try:
+            if self._cap is None:
+                return None
+            ok, frame = self._cap.read()
+            if not ok or frame is None:
+                return None
+            ok, jpg = cv2.imencode(".jpg", frame, [cv2.IMWRITE_JPEG_QUALITY, calidad])
+            return jpg.tobytes() if ok else None
+        finally:
+            self._lock.release()
 
     async def capturar(self, n: int) -> list[np.ndarray]:
         try:

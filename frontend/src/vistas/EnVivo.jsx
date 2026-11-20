@@ -1,5 +1,7 @@
 // En vivo: última foto, resultado de la IA, estado de la máquina, revisión y botes.
+import { useEffect, useRef, useState } from 'react';
 import { api } from '../api.js';
+import { MODO_MOCK } from '../config.js';
 import { useCuentaRegresiva, useEnVivo } from '../estado.jsx';
 import { NOMBRE_ESTADO, NOMBRE_ORIGEN, REVISION, categoria } from '../categorias.js';
 import { Carrusel } from '../componentes/Graficas.jsx';
@@ -49,20 +51,81 @@ function Resultado({ caso, umbrales }) {
   );
 }
 
+// Estados en los que la cámara se ve EN VIVO. En cualquier otro (desde CAPTURA) la imagen se congela:
+// primero en el último cuadro y, en cuanto existe, en la foto que tomó el ciclo.
+const EN_REPOSO = ['MENU', 'ESPERA_OBJETO', 'OPERADOR', 'ERROR'];
+const PAUSA_CUADROS_MS = 120;   // ~6–8 cuadros por segundo: suficiente para acomodar el residuo
+
+// Pide cuadros uno tras otro mientras `activa`; al desactivarse se queda con el último (congelado).
+function useCuadrosCamara(activa) {
+  const [url, setUrl] = useState(null);
+  const [hayCuadros, setHayCuadros] = useState(true);
+  const actual = useRef(null);
+  useEffect(() => {
+    if (!activa || MODO_MOCK) return undefined;
+    const control = new AbortController();
+    let vivo = true;
+    let vacios = 0;
+    (async () => {
+      while (vivo) {
+        try {
+          const blob = await api.cuadroCamara(control.signal);
+          if (!vivo) break;
+          if (blob) {
+            const nueva = URL.createObjectURL(blob);
+            if (actual.current) URL.revokeObjectURL(actual.current);
+            actual.current = nueva;
+            setUrl(nueva);
+            vacios = 0;
+            setHayCuadros(true);
+          } else if (++vacios > 15) {
+            setHayCuadros(false);   // simulación o cámara sin imagen
+          }
+        } catch {
+          if (!vivo) break;
+          setHayCuadros(false);
+        }
+        await new Promise((r) => setTimeout(r, PAUSA_CUADROS_MS));
+      }
+    })();
+    return () => { vivo = false; control.abort(); };
+  }, [activa]);
+  useEffect(() => () => { if (actual.current) URL.revokeObjectURL(actual.current); }, []);
+  return { url, hayCuadros };
+}
+
+// `casoActual` = el residuo de ESTE ciclo (no el anterior), para no congelar con una foto vieja.
+function VistaCamara({ estado, foto, casoActual }) {
+  const enVivo = !MODO_MOCK && EN_REPOSO.includes(estado);
+  const { url, hayCuadros } = useCuadrosCamara(enVivo);
+  // Congelada: la foto del ciclo en cuanto existe; mientras tanto, el último cuadro en vivo.
+  const fotoCiclo = !enVivo && casoActual && !casoActual.oculto ? casoActual.foto : null;
+  if (MODO_MOCK || !url || (enVivo && !hayCuadros) || fotoCiclo) {
+    // Sin vista en vivo (simulación o cámara sin imagen) o con la foto del ciclo ya guardada.
+    return <Foto foto={fotoCiclo || foto} simulado={casoActual?.simulado} />;
+  }
+  return (
+    <div className="foto">
+      <img src={url} alt={enVivo ? 'Cámara en vivo' : 'Foto congelada'} />
+      <div className={`camara-rotulo ${enVivo ? 'en-vivo' : 'congelada'}`}>{enVivo ? 'EN VIVO' : 'FOTO TOMADA'}</div>
+    </div>
+  );
+}
+
 // «Tomar foto»: arranca el ciclo como lo haría el sensor IR (la máquina no lo tiene). También por voz: «listo».
 function TomarFoto({ estado }) {
   const { ejecutar, ocupado, error } = useAccion();
   const puede = estado === 'MENU' || estado === 'ESPERA_OBJETO';
+  const aviso = puede ? 'Pon el residuo frente a la cámara y presiona aquí (o di «listo» con el botón Hablar).'
+    : estado === 'ERROR' ? 'La máquina está en falla segura (revisa el Arduino): no se puede tomar la foto.'
+      : 'Hay un residuo en proceso: espera a que termine el ciclo.';
   return (
     <div className="tomar-foto centrado">
       <button type="button" className="boton-tomar-foto" disabled={ocupado || !puede}
         onClick={() => ejecutar(() => api.tomarFoto(), { ok: 'Tomando la foto…' })}>
         📷 Tomar foto
       </button>
-      <p className="atenuado">
-        {puede ? 'Pon el residuo frente a la cámara y presiona aquí (o di «listo» con el botón Hablar).'
-          : 'Hay un residuo en proceso: espera a que termine el ciclo.'}
-      </p>
+      <p className={estado === 'ERROR' ? 'texto-error' : 'atenuado'}>{aviso}</p>
       <MensajeError error={error} />
     </div>
   );
@@ -108,12 +171,10 @@ export default function EnVivo() {
     <div className="vista-en-vivo">
       <TomarFoto estado={estado} />
       <div className="rejilla-en-vivo">
-        <Tarjeta titulo="Última foto" extra={caso && <span className="atenuado">#{caso.id} · {hora(caso.fecha_hora)}</span>}>
-          {/* Flash al tomar la foto y línea de escaneo mientras la IA clasifica. */}
+        <Tarjeta titulo="Cámara" extra={!EN_REPOSO.includes(estado) && caso && <span className="atenuado">#{caso.id} · {hora(caso.fecha_hora)}</span>}>
+          {/* En vivo mientras espera; se congela al tomar la foto (flash) y muestra la línea de escaneo al clasificar. */}
           <div className={`foto-marco ${efectoFoto}`}>
-            <div className="llegada-suave" key={foto || 'sin-foto'}>
-              <Foto foto={foto} simulado={caso?.simulado} />
-            </div>
+            <VistaCamara estado={estado} foto={foto} casoActual={maquina?.caso_actual} />
           </div>
         </Tarjeta>
 

@@ -13,7 +13,7 @@ from dataclasses import dataclass
 from typing import Any, Literal
 
 from fastapi import APIRouter, Body, HTTPException, Query, Request
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel, Field, StrictInt
 
 from .bins import GestorBotes
@@ -126,6 +126,17 @@ class SimVozIn(BaseModel):
 @router.get("/api/estado")
 def get_estado(request: Request) -> dict[str, Any]:
     return _ctx(request).orq.estado_dict()
+
+
+@router.get("/api/camara/cuadro")
+async def get_camara_cuadro(request: Request) -> Response:
+    """Un cuadro JPEG de la cámara para la vista en vivo (contrato v1.9). El panel pide uno tras otro.
+    204 = no hay cuadro ahora (cámara ocupada tomando la foto del ciclo, desconectada o simulada)."""
+    camara = _ctx(request).orq.camara
+    jpg = await asyncio.get_running_loop().run_in_executor(None, camara.vista)
+    if jpg is None:
+        return Response(status_code=204, headers={"Cache-Control": "no-store"})
+    return Response(jpg, media_type="image/jpeg", headers={"Cache-Control": "no-store"})
 
 
 @router.post("/api/tomar-foto")

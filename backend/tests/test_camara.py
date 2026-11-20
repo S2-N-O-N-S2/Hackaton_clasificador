@@ -73,3 +73,32 @@ def test_diferencia_detecta_movimiento():
     assert diferencia_fotogramas(a, a.copy()) < CAMARA["estabilidad_diferencia"]
     movida = np.roll(a, 40, axis=1)
     assert diferencia_fotogramas(a, movida) > CAMARA["estabilidad_diferencia"]
+
+
+def test_vista_en_vivo_responde_204_en_simulacion(tmp_path, monkeypatch):
+    """La cámara simulada no tiene vista en vivo: el panel recibe 204 y muestra la última foto."""
+    monkeypatch.setenv("SIMULACION", "1")
+    monkeypatch.delenv("SIM_IA_REAL", raising=False)
+    monkeypatch.setenv("RUTA_DB", str(tmp_path / "prueba.db"))
+    monkeypatch.setenv("DIR_CAPTURAS", str(tmp_path / "captures"))
+    monkeypatch.setenv("DIR_DATASET", str(tmp_path / "dataset"))
+    monkeypatch.setenv("DIR_MODELOS", str(tmp_path / "models"))
+    from fastapi.testclient import TestClient
+
+    from app.main import crear_app
+
+    with TestClient(crear_app()) as c:
+        r = c.get("/api/camara/cuadro")
+    assert r.status_code == 204 and r.headers["cache-control"] == "no-store"
+
+
+def test_vista_no_espera_si_el_ciclo_esta_tomando_la_foto():
+    """Con el candado ocupado (CAPTURA), vista() regresa None al instante: la imagen se congela."""
+    from app.camera import CamaraReal
+
+    cam = CamaraReal.__new__(CamaraReal)
+    import threading
+    cam._lock = threading.Lock()
+    cam._cap = object()
+    with cam._lock:
+        assert cam.vista() is None

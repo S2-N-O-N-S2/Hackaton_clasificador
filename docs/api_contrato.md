@@ -1,6 +1,6 @@
 # Contrato de interfaces — Backend ↔ Panel ↔ Arduino
 
-> **Versión 1.8 — 2026-11-20.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
+> **Versión 1.9 — 2026-11-20.** Es el acuerdo entre la Persona A (backend, `backend/`) y la Persona B (firmware `firmware/` y panel `frontend/`).
 > Detalla las secciones 9 y 17 de `docs/ESPECIFICACION.md`. Si este contrato y la especificación se contradicen, manda la especificación: avisen y corrijan este archivo.
 > **Nadie cambia este archivo sin avisar a la otra persona.** Cada cambio sube la versión y se anota en la sección 9 ("Historial").
 
@@ -163,6 +163,7 @@ Códigos: `SERIAL_CONECTADO`, `SERIAL_DESCONECTADO`, `ERROR_SERIAL`, `ARDUINO_RE
 |---|---|---|
 | `GET /api/modo` | — | `{"modo": "ia", "estado": "MENU"}` |
 | `POST /api/modo` | `{"modo": "ia" \| "adivina" \| "menu"}` (`menu` = volver al menú) | Igual que el GET. `409` si hay un residuo en proceso |
+| `GET /api/camara/cuadro` | — | Un cuadro **JPEG** de la cámara para la vista en vivo (el panel pide uno tras otro, ~6–8 por segundo). `204` si no hay cuadro: la cámara está tomando la foto del ciclo (así la imagen queda congelada), desconectada o simulada. `Cache-Control: no-store`. |
 | `POST /api/tomar-foto` | `{}` | `{"ok": true}`. Arranca el ciclo **igual que `OBJ` del sensor IR** (la máquina puede trabajar sin sensor). Solo en `MENU` o `ESPERA_OBJETO`; si no, `409`. También por voz: "listo", "toma la foto" (`intencion.valor = "foto"`, `accion = "foto"`). |
 
 ### 3.3 Clasificaciones
@@ -464,6 +465,7 @@ Mientras el backend no exista, el panel puede trabajar con **datos de ejemplo**:
 |---|---|---|---|
 | 1.0 | 2026-11-19 | Persona A (generado con Claude Code) | Versión inicial |
 | 1.7 | 2026-11-19 | Persona B (generado con Claude Code) | `GET /api/juego/fotos?total=N`: el usuario elige cuántas preguntas y se reparten entre las 3 categorías; campo `cuotas` en la respuesta. |
+| 1.9 | 2026-11-20 | Persona A (generado con Claude Code) | Vista en vivo de la cámara: `GET /api/camara/cuadro`. En «En vivo» la tarjeta **Cámara** se ve en vivo (MENU, ESPERA_OBJETO, OPERADOR, ERROR) y se congela desde CAPTURA, primero en el último cuadro y luego en la foto guardada. **Avisar a la Persona B.** |
 | 1.8 | 2026-11-20 | Persona A (generado con Claude Code) | **Sin sensor de caída** (FC-51 #2, D3): `DROP` siempre responde `DROP_OK` al cerrar la trampilla; se quitan `DROP_TIMEOUT` (respuesta y alerta) y el "sin confirmar" de los botes. Firmware recargado en el UNO. **Avisar a la Persona B.** |
 | 1.7 | 2026-11-20 | Persona A (generado con Claude Code) | Sin LCD ni teclado ni sensor IR: `POST /api/tomar-foto` (botón «Tomar foto» en Inicio) y voz "listo" → `accion: "foto"`. **Avisar a la Persona B.** |
 | 1.6 | 2026-11-19 | Persona B (generado con Claude Code) | Práctica con fotos del dataset: `GET /api/juego/fotos` y `GET /api/juego/fotos/{clase}/{archivo}` (solo lectura, no tocan la máquina). |

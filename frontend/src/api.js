@@ -55,7 +55,13 @@ export const api = {
   // 3.2 Modo y menú
   modo: () => pedir('GET', '/api/modo'),
   elegirModo: (modo) => pedir('POST', '/api/modo', { modo }), // 'ia' | 'adivina' | 'menu'
-  tomarFoto: () => pedir('POST', '/api/tomar-foto', {}),     // igual que el sensor IR (contrato v1.6)
+  tomarFoto: () => pedir('POST', '/api/tomar-foto', {}),     // igual que el sensor IR (contrato v1.7)
+  // Vista en vivo (contrato v1.9): un cuadro JPEG por petición; null si no hay cuadro ahora (204)
+  cuadroCamara: async (senal) => {
+    const r = await fetch(`${BACKEND_URL}/api/camara/cuadro`, { cache: 'no-store', signal: senal });
+    if (r.status === 204 || !r.ok) return null;
+    return r.blob();
+  },
 
   // 3.3 Clasificaciones
   clasificaciones: ({ limit = 50, offset = 0, dudosos, simulado = 'incluir' } = {}) =>
