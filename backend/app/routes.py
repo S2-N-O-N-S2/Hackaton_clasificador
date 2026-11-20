@@ -13,6 +13,7 @@ from dataclasses import dataclass
 from typing import Any, Literal
 
 from fastapi import APIRouter, Body, HTTPException, Query, Request
+from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field, StrictInt
 
 from .bins import GestorBotes
@@ -22,6 +23,7 @@ from .db import BaseDatos, ahora, clasificacion_a_dict
 from .game import NIVELES_REPORTABLES, Juego
 from .model import GestorReentrenamiento
 from .orchestrator import Estado, Orquestador
+from .practica import POR_CATEGORIA_MAX, elegir_fotos, ruta_foto
 from .serial_link import EnlaceSimulado, ErrorSerial
 from .voice import ErrorVoz
 
@@ -449,6 +451,20 @@ def get_aprendizaje(request: Request, niveles: str = ",".join(NIVELES_REPORTABLE
 @router.post("/api/juego/prueba-aprendizaje")
 def post_prueba_aprendizaje(cuerpo: PruebaAprendizajeIn) -> None:
     raise _no_implementado(8)
+
+
+# Práctica con fotos del dataset (no usa la máquina; la califica el panel)
+@router.get("/api/juego/fotos")
+def get_fotos_practica(request: Request, por_categoria: int = Query(20, ge=1, le=POR_CATEGORIA_MAX)) -> dict[str, Any]:
+    return elegir_fotos(_ctx(request).ajustes.dir_dataset, por_categoria)
+
+
+@router.get("/api/juego/fotos/{clave}/{archivo}")
+def get_foto_practica(request: Request, clave: str, archivo: str) -> FileResponse:
+    ruta = ruta_foto(_ctx(request).ajustes.dir_dataset, clave, archivo)
+    if ruta is None:
+        raise HTTPException(404, "La foto no existe")
+    return FileResponse(ruta, headers={"Cache-Control": "public, max-age=3600"})
 
 
 # ---------------------------------------------------------------------------- botes

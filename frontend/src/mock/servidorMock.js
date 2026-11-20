@@ -788,6 +788,20 @@ async function atender(metodo, rutaCompleta, cuerpo) {
     return { ok: true };
   }
   if (metodo === 'GET' && ruta === '/api/juego/sesion') return db.sesion;
+  if (metodo === 'GET' && ruta === '/api/juego/fotos') {
+    // Sin dataset en el modo de ejemplo: fotos dibujadas (rotuladas SIMULADO), N por clase, revueltas.
+    const n = Number(q.get('por_categoria') || 20);
+    exigir(Number.isInteger(n) && n >= 1 && n <= 50, 422, 'por_categoria debe estar entre 1 y 50');
+    const items = [];
+    ['organica', 'inorganica', 'peligroso'].forEach((clave, cat) => {
+      for (let i = 1; i <= n; i += 1) items.push({ id: `${clave}/ejemplo_${i}.svg`, foto: fotoSimulada(cat, i), categoria_id: cat });
+    });
+    for (let i = items.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [items[i], items[j]] = [items[j], items[i]];
+    }
+    return { total: items.length, por_categoria: n, disponibles: { organica: n, inorganica: n, peligroso: n }, items };
+  }
   if (metodo === 'GET' && ruta === '/api/juego/estadisticas') {
     return { ...juegoEstadisticasEjemplo, niveles_usados: (q.get('niveles') || 'verificada,alta').split(',') };
   }

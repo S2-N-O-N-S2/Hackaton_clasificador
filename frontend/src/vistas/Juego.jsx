@@ -1,9 +1,11 @@
 // "¿Le ganas a la IA?" (especificación 12.2). El panel solo muestra lo que calcula el backend:
 // nivel de certeza, tono, título y explicación vienen en la Retroalimentacion (contrato 2.3).
+import { useState } from 'react';
 import { api } from '../api.js';
 import { useCuentaRegresiva, useEnVivo } from '../estado.jsx';
 import { categoria } from '../categorias.js';
 import { BotonesCategoria, Categoria, MensajeError, pct, Tarjeta, useAccion } from '../componentes/Comun.jsx';
+import Practica from '../componentes/Practica.jsx';
 
 const FUENTE = { ia: 'la IA', operador: 'el operador', etiqueta_real: 'la etiqueta real del residuo' };
 const NIVEL = { verificada: 'Verificada', alta: 'Alta', media: 'Media', baja: 'Baja' };
@@ -73,7 +75,39 @@ function PantallaRetro({ retro, estado }) {
   );
 }
 
+// Dos formas de jugar: con la máquina (residuo real en la bandeja) o con fotos del dataset.
+function Selector({ apartado, alCambiar }) {
+  const opciones = [
+    { id: 'maquina', texto: 'Con la máquina', detalle: 'Residuo real en la bandeja' },
+    { id: 'fotos', texto: 'Con fotos', detalle: '60 fotos del dataset' },
+  ];
+  return (
+    <div className="selector-juego" role="group" aria-label="Forma de jugar">
+      {opciones.map((o) => (
+        <button key={o.id} type="button" aria-pressed={apartado === o.id} onClick={() => alCambiar(o.id)}>
+          <span>{o.texto}</span>
+          <small>{o.detalle}</small>
+        </button>
+      ))}
+    </div>
+  );
+}
+
 export default function Juego() {
+  const [apartado, setApartado] = useState('maquina');
+  const selector = <Selector apartado={apartado} alCambiar={setApartado} />;
+  if (apartado === 'fotos') {
+    return (
+      <div className="vista-juego">
+        {selector}
+        <Practica />
+      </div>
+    );
+  }
+  return <JuegoMaquina selector={selector} />;
+}
+
+function JuegoMaquina({ selector }) {
   const { maquina, retro, sesion } = useEnVivo();
   const segundos = useCuentaRegresiva();
   const { ejecutar, ocupado, error } = useAccion();
@@ -122,6 +156,7 @@ export default function Juego() {
 
   return (
     <div className="vista-juego">
+      {selector}
       <Marcador sesion={sesion} retro={retro} />
       {contenido}
       <MensajeError error={error} />

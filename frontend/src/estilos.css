@@ -786,3 +786,68 @@ legend { font-weight: 600; padding: 0 0.3rem; }
 @media (prefers-reduced-motion: reduce) {
   .voz-boton.escuchando, .voz-burbuja { animation: none; }
 }
+
+/* ---------- Juego: selector y práctica con fotos ---------- */
+.selector-juego {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0.35rem; max-width: 34rem; margin: 0 auto 1.1rem;
+  background: var(--linea-suave); border-radius: 12px; padding: 0.3rem;
+}
+.selector-juego button {
+  display: flex; flex-direction: column; align-items: center; gap: 0.1rem; border: none; border-radius: 9px; background: transparent;
+  color: var(--tinta-suave); padding: 0.55rem 0.6rem; min-height: 3.2rem;
+  transition: background var(--rapido), color var(--rapido), box-shadow var(--rapido);
+}
+.selector-juego button span { font-family: var(--f-letrero); font-stretch: 87.5%; font-size: 1.15rem; font-weight: 700; }
+.selector-juego button small { font-size: 0.85rem; }
+.selector-juego button:hover { color: var(--tinta); background: rgba(255, 255, 255, 0.55); }
+.selector-juego button[aria-pressed="true"] { background: var(--placa); color: var(--maquina-2); box-shadow: var(--sombra); }
+
+.practica-inicio, .practica, .practica-fin { text-align: center; max-width: 46rem; margin: 0 auto; }
+.practica-inicio p { max-width: 38rem; margin: 0.6rem auto; }
+.practica-inicio .boton-principal, .practica-fin .boton-principal { font-size: 1.25rem; padding: 0.7rem 2rem; margin-top: 0.8rem; }
+.practica-progreso { display: flex; align-items: center; gap: 0.9rem; font-size: 1.05rem; margin-bottom: 0.8rem; }
+.practica-progreso strong { font-family: var(--f-letrero); font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+.practica-pista { flex: 1; height: 10px; border-radius: 99px; background: var(--linea-suave); overflow: hidden; }
+.practica-pista > div { height: 100%; background: var(--maquina); border-radius: inherit; transition: width 0.35s ease; }
+.practica-foto {
+  position: relative; background: #1A2420; border-radius: 14px; overflow: hidden; aspect-ratio: 4 / 3; max-height: 46vh;
+  margin: 0 auto; display: flex; align-items: center; justify-content: center; border: 5px solid transparent;
+  animation: practica-entra 0.28s ease-out; transition: border-color 0.2s ease;
+}
+.practica-foto img { width: 100%; height: 100%; object-fit: contain; }
+.practica-foto.bien { border-color: var(--verde); }
+.practica-foto.mal { border-color: var(--rojo-osc); }
+@keyframes practica-entra { from { opacity: 0; transform: scale(0.97); } to { opacity: 1; transform: none; } }
+.practica-pregunta { font-family: var(--f-letrero); font-stretch: 87.5%; font-size: 1.9rem; margin: 0.9rem 0 0.5rem; }
+.practica-veredicto {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 0.6rem 1.2rem; margin-top: 0.9rem;
+  border-radius: 12px; padding: 1rem; border: 3px solid;
+}
+.practica-veredicto.bien { background: var(--tinte-ok); border-color: var(--verde); color: var(--texto-ok); }
+.practica-veredicto.mal { background: var(--tinte-error); border-color: var(--rojo-osc); color: var(--texto-error); }
+.practica-veredicto > strong { font-family: var(--f-letrero); font-stretch: 87.5%; font-size: 2rem; width: 100%; }
+.practica-veredicto > span { display: inline-flex; align-items: center; gap: 0.5rem; }
+.practica-veredicto .atenuado { color: inherit; opacity: 0.85; }
+.practica-salir { display: block; margin: 1rem auto 0; }
+.practica-cifras { margin-top: 1rem; }
+.practica-por-categoria { display: grid; gap: 0.6rem; text-align: left; margin: 0.5rem 0 1.2rem; }
+.practica-fila { display: grid; grid-template-columns: 12rem 1fr; align-items: center; gap: 0.8rem; }
+.practica-subtitulo { font-family: var(--f-letrero); font-stretch: 87.5%; font-size: 1.4rem; text-align: left; margin: 1rem 0 0.5rem; }
+.practica-errores {
+  list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr));
+  gap: 0.7rem; text-align: left;
+}
+.practica-errores li { background: var(--placa); border-radius: 10px; overflow: hidden; box-shadow: var(--sombra); }
+.practica-errores img { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; display: block; background: #1A2420; }
+.practica-errores li > div { display: grid; grid-template-columns: auto 1fr; align-items: center; gap: 0.35rem 0.5rem; padding: 0.6rem; font-size: 0.9rem; }
+@media (max-width: 640px) {
+  .practica-fila { grid-template-columns: 1fr; gap: 0.3rem; }
+  .practica-pregunta { font-size: 1.5rem; }
+  .practica-veredicto > strong { font-size: 1.6rem; }
+  .practica-foto { max-height: 42vh; }
+  .selector-juego button small { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .practica-foto { animation: none; }
+  .practica-pista > div { transition: none; }
+}
