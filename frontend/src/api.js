@@ -86,6 +86,8 @@ export const api = {
   reportarError: () => pedir('POST', '/api/juego/reportar-error', {}),
   continuar: () => pedir('POST', '/api/juego/continuar', {}),
   sesion: () => pedir('GET', '/api/juego/sesion'),
+  // Práctica con fotos del dataset (no usa la máquina)
+  fotosPractica: (porCategoria = 20) => pedir('GET', `/api/juego/fotos${consulta({ por_categoria: porCategoria })}`),
   estadisticasJuego: (niveles) => pedir('GET', `/api/juego/estadisticas${consulta({ niveles: niveles.join(',') })}`),
   aprendizaje: (niveles) => pedir('GET', `/api/juego/aprendizaje${consulta({ niveles: niveles.join(',') })}`),
   iniciarPruebaAprendizaje: ({ alias, ronda, residuos }) =>

@@ -261,6 +261,8 @@ Respuesta de `GET /api/modelo/estado`:
 | `POST /api/juego/reportar-error` | `{}` | `{"ok": true, "estado": "REVISION"}`. `409` si el estado no es `RETROALIMENTACION` |
 | `POST /api/juego/continuar` (**agregado**: equivale a la tecla `B`) | `{}` | `{"ok": true}`. Corta el tiempo de retroalimentación |
 | `GET /api/juego/sesion` | — | `{"activa": true, "id": 5, "tipo": "libre", "alias": null, "inicio": "…", "intentos": 3, "aciertos": 2, "racha": 0, "mejor_racha": 2}`, o `{"activa": false}` |
+| `GET /api/juego/fotos` (**agregado**: práctica con fotos) | `?por_categoria=20` (1–50) | `{"total": 60, "por_categoria": 20, "disponibles": {"organica": 400, …}, "items": [{"id": "organica/x.jpg", "foto": "/api/juego/fotos/organica/x.jpg", "categoria_id": 0}, …]}`. Fotos al azar de `dataset/<clase>/` (nunca de `_por_verificar/`), revueltas. Si una clase tiene menos fotos, se usan todas. No usa la máquina ni guarda nada; el panel califica con `categoria_id` |
+| `GET /api/juego/fotos/{clase}/{archivo}` | — | La imagen. `404` si la clase o el archivo no son válidos |
 | `GET /api/juego/estadisticas` | `?niveles=verificada,alta` (valor por defecto) | Ver abajo |
 | `GET /api/juego/aprendizaje` | `?niveles=verificada,alta` | Ver abajo |
 | `POST /api/juego/prueba-aprendizaje` | `{"alias": "V1", "ronda": 1, "residuos": [3, 5, 7, …]}` | `{"sesion_id": 9, "orden": [7, 3, 5, …]}` (orden aleatorio). Si no hay residuos de prueba registrados, responde `400` |
@@ -452,6 +454,7 @@ Mientras el backend no exista, el panel puede trabajar con **datos de ejemplo**:
 | `motivo_dudoso: desconocido` y configuración `umbral_desconocido` (0.5–3) | La IA siempre elige una de las 3 clases, incluso con un objeto que nunca vio: si la foto queda lejos de todo lo entrenado (`models/vN/novedad.json`), va a revisión |
 | `motivo_dudoso: foto_no_valida`; alertas `FOTO_REINTENTO`, `FOTO_NO_VALIDA` y `OBJETO_DESCONOCIDO` | Una foto mala no se clasifica: se repite una vez y, si sigue mala, el residuo va a revisión |
 | `POST /api/sim/objeto` acepta `"foto_mala"` y `"desconocido"` en `categoria_real` | Probar sin hardware la revisión de calidad de la foto y la detección de objetos desconocidos |
+| `GET /api/juego/fotos` y `GET /api/juego/fotos/{clase}/{archivo}` | Practicar en "¿Le ganas a la IA?" con 20 fotos del dataset por clase, sin usar la máquina |
 | `POST /api/voz/escuchar`, `POST /api/sim/voz`, evento `voz` | Botón de micrófono en el panel y prueba de la voz sin micrófono (Fase 9) |
 
 ## 9. Historial
@@ -459,6 +462,7 @@ Mientras el backend no exista, el panel puede trabajar con **datos de ejemplo**:
 | Versión | Fecha | Quién | Cambio |
 |---|---|---|---|
 | 1.0 | 2026-11-19 | Persona A (generado con Claude Code) | Versión inicial |
+| 1.6 | 2026-11-19 | Persona B (generado con Claude Code) | Práctica con fotos del dataset: `GET /api/juego/fotos` y `GET /api/juego/fotos/{clase}/{archivo}` (solo lectura, no tocan la máquina). |
 | 1.5 | 2026-11-19 | Persona A (generado con Claude Code) | Voz que habla (texto a voz de Windows): `voz_habla`, `voz_nombre`, `voz_volumen` y `voz_velocidad` en la configuración, `GET /api/voz/voces`, `estado.voz.habla` / `voz_sintetica` / `motivo_habla`, `POST /api/voz/decir`; diagnóstico del micrófono: `GET /api/voz/microfonos` y `POST /api/voz/nivel`. Página de prueba en `/prueba/voz`. **Avisar a la Persona B** (puede agregar en Configuración el interruptor "El sistema habla" y el selector de micrófono). |
 | 1.4 | 2026-11-19 | Persona A (generado con Claude Code) | Fase 9 adelantada en simulación (voz): `POST /api/voz/escuchar`, `POST /api/sim/voz`, evento WebSocket `voz`, `estado.voz` con `escuchando`/`motivo`/`microfono`, configuración `microfono` y `voz_segundos`, tecla **A** = hablar. **Avisar a la Persona B:** el panel puede agregar un botón 🎤 que llame a `POST /api/voz/escuchar` y mostrar el evento `voz`. |
 | 1.3 | 2026-11-19 | Persona A (generado con Claude Code) | Fase 5: campo `tiempos_etapas` en Clasificacion; el backend manda los 3 `CAL` al conectarse; alerta `CAL_NO_SINCRONIZADA`. **Avisar a la Persona B** (el firmware debe responder `CAL_OK` rápido justo después de `READY`). |
