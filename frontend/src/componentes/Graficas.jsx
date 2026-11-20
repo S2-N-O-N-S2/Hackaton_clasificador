@@ -45,7 +45,8 @@ export function Carrusel({ categoriaId, residuo = 'ninguno', pie }) {
         {/* Disco: arranca y frena suave, como la rampa del servo en el firmware. */}
         <g className="carrusel-disco" style={{ transform: `rotate(${rot}deg)` }}>
           {CATEGORIAS.map((c) => {
-            const [tx, ty] = punto(80, c.id * 120);
+            // Radio 63 = a la mitad del sector (34–92): el texto blanco queda siempre dentro del color.
+            const [tx, ty] = punto(63, c.id * 120);
             const apagado = id !== null && id !== c.id;
             return (
               <g key={c.id}>
