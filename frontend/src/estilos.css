@@ -105,25 +105,6 @@ input[type="checkbox"] { width: 1.3rem; height: 1.3rem; min-height: 0; accent-co
 .marca .atenuado { font-size: 0.85rem; }
 .encabezado-estado { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
 
-.pastilla {
-  display: inline-flex; align-items: baseline; gap: 0.4rem; padding: 0.3rem 0.8rem; border-radius: 6px;
-  background: var(--acento-claro); color: #08454B; border: 1.5px solid #9CCFC9; font-family: var(--f-letrero); font-stretch: 87.5%;
-  font-size: 1.15rem; font-weight: 700; transition: background var(--rapido), color var(--rapido);
-}
-.pastilla small { font-size: 0.85rem; font-weight: 500; color: #24575A; }
-.pastilla.estado-revision, .pastilla.estado-espera_adivinanza { background: var(--amarillo); border-color: #C99A00; color: var(--texto-aviso); }
-.pastilla.estado-revision small, .pastilla.estado-espera_adivinanza small { color: var(--texto-aviso); }
-.pastilla.estado-error, .pastilla.estado-bote_lleno { background: var(--rojo-osc); border-color: var(--rojo-osc); color: #fff; }
-.pastilla.estado-error small, .pastilla.estado-bote_lleno small { color: #FFE4E4; }
-.conexion { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.3rem 0.7rem; border-radius: 999px; font-weight: 700; font-size: 0.9rem; }
-.conexion-punto { width: 0.65rem; height: 0.65rem; border-radius: 50%; background: currentColor; flex: none; }
-.conexion-ok { background: var(--tinte-ok); color: var(--texto-ok); }
-.conexion-ok .conexion-punto { animation: pulso-vivo 2s ease-in-out infinite; }
-.conexion-aviso { background: var(--tinte-aviso); color: var(--texto-aviso); }
-.conexion-error { background: var(--tinte-error); color: var(--texto-error); }
-.conexion-espera { background: var(--linea-suave); color: var(--oscuro); }
-@keyframes pulso-vivo { 0%, 100% { box-shadow: 0 0 0 0 rgba(46, 158, 68, 0.55); } 50% { box-shadow: 0 0 0 5px rgba(46, 158, 68, 0); } }
-
 /* ---------- Campana de avisos ---------- */
 .campana { position: relative; }
 .campana-boton {
@@ -168,19 +149,6 @@ input[type="checkbox"] { width: 1.3rem; height: 1.3rem; min-height: 0; accent-co
 .campana-quitar:hover { background: var(--linea-suave); color: var(--tinta); }
 
 /* ---------- Navegación: pestañas tipo píldora ---------- */
-.navegacion {
-  display: flex; gap: 0.3rem; overflow-x: auto; padding: 0.5rem 1.2rem; background: var(--lamina);
-  border-bottom: 1.5px solid var(--linea); scrollbar-width: none; position: sticky; top: 0; z-index: 30;
-  scroll-behavior: smooth;
-}
-.navegacion::-webkit-scrollbar { display: none; }
-.navegacion a {
-  white-space: nowrap; padding: 0.5rem 0.9rem; text-decoration: none; color: var(--tinta-suave); border-radius: 999px;
-  font-family: var(--f-letrero); font-stretch: 87.5%; font-size: 1.05rem; font-weight: 600;
-  transition: background var(--rapido), color var(--rapido);
-}
-.navegacion a:hover { color: var(--tinta); background: var(--acento-claro); }
-.navegacion a.activa { color: #fff; background: var(--maquina); box-shadow: 0 2px 6px rgba(14, 124, 134, 0.3); }
 .contenido { padding: 1.1rem 1.4rem 4rem; max-width: 1400px; margin: 0 auto; }
 .entra-vista { animation: entrar-vista 0.28s ease-out; }
 @keyframes entrar-vista { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
@@ -626,22 +594,15 @@ legend { font-weight: 600; padding: 0 0.3rem; }
   .marca-logo { width: 2rem; height: 2rem; }
   .campana { order: 1; }
   .pastilla, .conexion, .encabezado .rotulo { order: 2; }
-  .pastilla { font-size: 0.98rem; padding: 0.22rem 0.55rem; }
-  .pastilla small { font-size: 0.75rem; }
-  .conexion { font-size: 0.78rem; padding: 0.25rem 0.55rem; }
   .conexion-ok .conexion-texto { display: none; }
-  .conexion-ok { padding: 0.45rem; }
-  .encabezado .rotulo { font-size: 0.7rem; }
   .campana-boton { width: 2.6rem; height: 2.6rem; }
   .campana-panel { position: fixed; left: 0.5rem; right: 0.5rem; top: 3.6rem; width: auto; }
 
   /* Pestañas: sombra en los bordes para indicar que hay más. */
   .navegacion {
-    padding: 0.45rem 0.6rem;
     -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 26px), transparent 100%);
     mask-image: linear-gradient(90deg, transparent 0, #000 14px, #000 calc(100% - 26px), transparent 100%);
   }
-  .navegacion a { padding: 0.5rem 0.8rem; font-size: 1rem; }
 
   .contenido { padding: 0.8rem 0.75rem 5rem; }
   .barra-urgente { margin: 0.6rem 0.75rem 0; font-size: 0.92rem; }
@@ -1171,4 +1132,165 @@ button.ficha[aria-pressed="true"]::before { content: "✓"; font-weight: 800; }
   .pestanas-panel, .paso-contenido, .practica-pregunta, .marcador-dato.racha.encendida, .puntos-avance li { animation: none !important; }
   .sello-bien svg path { stroke-dashoffset: 0; }
   .por-revelar { opacity: 1; transform: none; }
+}
+
+/* =============================================================================
+   Encabezado "tablero de la máquina": insignias de estado, conexión y SIMULADO, y navegación
+   a todo lo ancho con íconos. Mismo alto en todas las insignias (2.6rem) para que se lean como
+   una sola fila de instrumentos.
+   ============================================================================= */
+.encabezado-estado { gap: 0.55rem; }
+
+/* --- Estado de la máquina: pantalla oscura con luz y modo --- */
+.pastilla {
+  position: relative; display: inline-flex; align-items: center; gap: 0.55rem; height: 2.6rem; padding: 0 0.45rem 0 0.8rem;
+  border-radius: 12px; overflow: hidden; isolation: isolate;
+  background: linear-gradient(160deg, #17393D, #0C2427); color: #CFF7EE; border: 1px solid #2D5D61;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 4px 12px rgba(12, 36, 39, 0.25);
+  font-family: var(--f-letrero); font-stretch: 87.5%; font-size: 1.12rem; font-weight: 700; letter-spacing: 0.01em;
+  animation: insignia-entra 0.45s cubic-bezier(.2, .8, .3, 1.2);
+}
+/* Líneas de barrido, como una pantalla. */
+.pastilla::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0.35;
+  background: repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.05) 0 1px, transparent 1px 3px);
+}
+.pastilla-luz {
+  width: 0.7rem; height: 0.7rem; border-radius: 50%; flex: none; background: var(--luz, #34D399);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--luz, #34D399) 25%, transparent), 0 0 12px var(--luz, #34D399);
+}
+.pastilla-texto { text-shadow: 0 0 10px rgba(110, 231, 183, 0.35); white-space: nowrap; }
+.pastilla-modo {
+  display: inline-flex; align-items: center; height: 1.85rem; padding: 0 0.6rem; border-radius: 8px; font-size: 0.85rem;
+  font-family: var(--f-texto); font-weight: 700; white-space: nowrap; color: #08353A; background: #9FE7DA;
+}
+.pastilla-modo.modo-adivina { background: #FCD873; color: #3F2F00; }
+.pastilla.tipo-listo { --luz: #34D399; }
+.pastilla.tipo-listo .pastilla-luz { animation: respirar 2.4s ease-in-out infinite; }
+.pastilla.tipo-trabajando { --luz: #38BDF8; }
+.pastilla.tipo-trabajando .pastilla-luz { background: transparent; box-shadow: 0 0 10px rgba(56, 189, 248, 0.6); border: 2.5px solid #38BDF8; border-right-color: transparent; animation: girar 0.8s linear infinite; }
+.pastilla.tipo-trabajando::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(100deg, transparent 30%, rgba(56, 189, 248, 0.22) 50%, transparent 70%);
+  background-size: 250% 100%; animation: barrido 1.6s linear infinite;
+}
+.pastilla.tipo-persona { --luz: #F2B705; border-color: #8A6A00; }
+.pastilla.tipo-persona .pastilla-luz { animation: parpadeo 1.1s ease-in-out infinite; }
+.pastilla.tipo-falla { --luz: #F87171; background: linear-gradient(160deg, #4A1414, #2A0B0B); border-color: #7F1D1D; color: #FFE4E4; }
+.pastilla.tipo-falla .pastilla-luz { animation: parpadeo 0.6s steps(2) infinite; }
+.pastilla.tipo-falla .pastilla-texto { text-shadow: 0 0 10px rgba(248, 113, 113, 0.5); }
+@keyframes insignia-entra { from { opacity: 0; transform: translateY(-6px) scale(0.96); } to { opacity: 1; transform: none; } }
+@keyframes respirar { 50% { opacity: 0.55; transform: scale(0.85); } }
+@keyframes girar { to { transform: rotate(360deg); } }
+@keyframes parpadeo { 50% { opacity: 0.25; } }
+@keyframes barrido { from { background-position: 150% 0; } to { background-position: -100% 0; } }
+
+/* --- Conexión: barras de señal --- */
+.conexion {
+  display: inline-flex; align-items: center; gap: 0.5rem; height: 2.6rem; padding: 0 0.85rem 0 0.7rem; border-radius: 12px;
+  font-weight: 700; font-size: 0.92rem; border: 1px solid transparent; transition: background 0.3s ease, color 0.3s ease;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 2px 6px rgba(20, 50, 45, 0.08);
+}
+.senal { display: inline-flex; align-items: flex-end; gap: 2px; height: 1.05rem; }
+.senal i { display: block; width: 4px; height: calc(var(--n) * 25%); border-radius: 2px; background: currentColor; opacity: 0.22; }
+.senal i.encendida { opacity: 1; }
+.conexion-ok { background: linear-gradient(160deg, #E4F7EA, #CDEBD5); color: #146B2E; border-color: #9ED3AE; }
+.conexion-ok .senal i.encendida { animation: senal 1.8s ease-in-out infinite; animation-delay: calc(var(--n) * 0.15s); }
+.conexion-aviso { background: linear-gradient(160deg, #FFF3C9, #FBE7A3); color: #5C4400; border-color: #E5C65A; }
+.conexion-aviso .senal i.encendida { animation: parpadeo 1.2s ease-in-out infinite; }
+.conexion-error { background: linear-gradient(160deg, #FDE2E2, #F6CACA); color: #7A1414; border-color: #E9A3A3; }
+.conexion-error .senal { position: relative; }
+.conexion-error .senal::after { content: ""; position: absolute; left: -2px; right: -2px; top: 50%; height: 2px; background: currentColor; transform: rotate(-35deg); }
+.conexion-espera { background: var(--linea-suave); color: var(--oscuro); border-color: var(--linea); }
+.conexion-espera .senal i { animation: parpadeo 0.9s ease-in-out infinite; animation-delay: calc(var(--n) * 0.12s); }
+@keyframes senal { 0%, 100% { transform: scaleY(1); } 40% { transform: scaleY(0.55); } }
+.senal i { transform-origin: bottom; }
+
+/* --- SIMULADO / DATOS DE EJEMPLO: chip violeta con franjas que avanzan --- */
+.insignia-sim-caja { display: inline-flex; }
+.encabezado .rotulo-simulado {
+  position: relative; display: inline-flex; align-items: center; gap: 0.4rem; height: 2.6rem; padding: 0 0.85rem; border-radius: 12px;
+  font-size: 0.9rem; letter-spacing: 0.06em; overflow: hidden; isolation: isolate; border: 1px solid #4C1D95;
+  background: linear-gradient(160deg, #7C3AED, #5B21B6); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2), 0 4px 12px rgba(91, 33, 182, 0.3);
+}
+.encabezado .rotulo-simulado::before {
+  content: ""; position: absolute; inset: 0; z-index: -1; opacity: 0.25;
+  background: repeating-linear-gradient(-45deg, #fff 0 6px, transparent 6px 14px); background-size: 200% 100%;
+  animation: franjas-sim 6s linear infinite;
+}
+.encabezado .rotulo-simulado::after {
+  content: ""; width: 0.95rem; height: 0.95rem; flex: none; order: -1; border-radius: 3px; border: 2px solid currentColor;
+  box-shadow: inset 0 0 0 2px #6D28D9, inset 0 0 0 5px currentColor; opacity: 0.9;
+}
+@keyframes franjas-sim { to { background-position: 100% 0; } }
+
+/* --- Campana con el mismo alto y borde que el resto --- */
+.encabezado .campana-boton { width: 2.6rem; height: 2.6rem; border-radius: 12px; }
+
+/* --- Navegación: panel oscuro a todo lo ancho, pestañas iguales con ícono --- */
+.navegacion {
+  display: flex; gap: 0.3rem; overflow-x: auto; padding: 0.45rem 0.6rem; position: sticky; top: 0; z-index: 30;
+  background: linear-gradient(180deg, #1F3337, #172A2D); border-bottom: 1px solid #0C1C1E;
+  box-shadow: 0 6px 16px rgba(12, 28, 30, 0.18); scrollbar-width: none; scroll-behavior: smooth;
+}
+.navegacion::-webkit-scrollbar { display: none; }
+.navegacion a {
+  position: relative; flex: 1 1 0; min-width: max-content; display: flex; align-items: center; justify-content: center; gap: 0.45rem;
+  padding: 0.55rem 0.7rem; border-radius: 10px; text-decoration: none; white-space: nowrap; overflow: hidden; isolation: isolate;
+  color: #B9D3CF; font-family: var(--f-letrero); font-stretch: 87.5%; font-size: 1.02rem; font-weight: 600;
+  border: 1px solid transparent; transition: color 0.2s ease, background 0.25s ease, border-color 0.25s ease, transform 0.2s ease;
+  animation: nav-entra 0.45s cubic-bezier(.2, .8, .3, 1.1) both; animation-delay: calc(var(--i) * 35ms);
+}
+.nav-icono {
+  width: 1.2rem; height: 1.2rem; flex: none; fill: none; stroke: currentColor; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round;
+  transition: transform 0.25s cubic-bezier(.2, .8, .3, 1.6);
+}
+/* Línea de luz inferior con los colores de los botes: aparece al pasar el mouse. */
+.navegacion a::after {
+  content: ""; position: absolute; left: 14%; right: 14%; bottom: 3px; height: 3px; border-radius: 3px;
+  background: linear-gradient(90deg, var(--verde), var(--azul), var(--gris)); transform: scaleX(0); transition: transform 0.3s ease;
+}
+/* Brillo que cruza la pestaña al pasar el mouse. */
+.navegacion a::before {
+  content: ""; position: absolute; inset: 0; z-index: -1;
+  background: linear-gradient(100deg, transparent 35%, rgba(255, 255, 255, 0.12) 50%, transparent 65%); background-size: 250% 100%;
+  background-position: 150% 0;
+}
+.navegacion a:hover { color: #fff; background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.08); }
+.navegacion a:hover::after { transform: scaleX(1); }
+.navegacion a:hover::before { animation: barrido 0.8s ease-out; }
+.navegacion a:hover .nav-icono { transform: translateY(-2px) scale(1.12); }
+.navegacion a:active { transform: scale(0.97); }
+.navegacion a:focus-visible { outline: 2px solid #5EEAD4; outline-offset: -2px; }
+/* Pestaña activa: tecla iluminada con luz LED abajo. */
+.navegacion a.activa {
+  color: #fff; background: linear-gradient(160deg, #13A3A8, var(--maquina) 55%, var(--maquina-2));
+  border-color: #2CC3C0; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 0 18px rgba(19, 163, 168, 0.45);
+}
+.navegacion a.activa::after { transform: scaleX(1); left: 10%; right: 10%; background: #E6FFFB; box-shadow: 0 0 8px #5EEAD4; animation: led 2.6s ease-in-out infinite; }
+.navegacion a.activa::before { animation: barrido 3.5s ease-in-out infinite; }
+.navegacion a.activa .nav-icono { animation: icono-activo 0.5s cubic-bezier(.2, .8, .3, 1.6); }
+@keyframes nav-entra { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: none; } }
+@keyframes led { 50% { opacity: 0.55; } }
+@keyframes icono-activo { 0% { transform: scale(0.6) rotate(-15deg); } 100% { transform: none; } }
+
+/* Tabletas: solo cabe el ícono con el texto más chico. */
+@media (max-width: 1250px) {
+  .navegacion a { flex-direction: column; gap: 0.15rem; padding: 0.45rem 0.55rem 0.55rem; font-size: 0.86rem; }
+  .nav-icono { width: 1.3rem; height: 1.3rem; }
+}
+@media (max-width: 760px) {
+  .pastilla { height: 2.3rem; font-size: 0.98rem; padding: 0 0.35rem 0 0.6rem; gap: 0.4rem; }
+  .pastilla-modo { height: 1.6rem; font-size: 0.72rem; padding: 0 0.45rem; }
+  .conexion { height: 2.3rem; font-size: 0.78rem; padding: 0 0.6rem; }
+  .conexion-ok { padding: 0 0.6rem; }
+  .encabezado .rotulo-simulado { height: 2.3rem; font-size: 0.72rem; padding: 0 0.6rem; }
+  .encabezado .campana-boton { width: 2.3rem; height: 2.3rem; }
+  .insignia-sim-caja { order: 3; }
+  .encabezado .rotulo-simulado { order: 3; }
+  .navegacion { padding: 0.4rem 0.45rem; gap: 0.25rem; }
+  .navegacion a { flex: 0 0 auto; min-width: 4.9rem; font-size: 0.8rem; padding: 0.45rem 0.5rem 0.5rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pastilla, .pastilla-luz, .pastilla::after, .senal i, .encabezado .rotulo-simulado::before, .navegacion a, .navegacion a::before,
+  .navegacion a::after, .nav-icono { animation: none !important; }
 }
