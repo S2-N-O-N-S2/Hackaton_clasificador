@@ -326,3 +326,8 @@ def test_config_de_la_voz_que_habla(tmp_path):
 def test_endpoint_de_voces(cliente):
     d = cliente.get("/api/voz/voces").json()
     assert d["voces"] == [] and d["configurada"] == "Laura" and d["volumen"] == 150  # en pruebas está callada
+
+
+def test_listo_por_voz_toma_la_foto(cliente):
+    r = cliente.post("/api/sim/voz", json={"texto": "listo"}).json()
+    assert r["intencion"]["valor"] == "foto" and r["accion"] == "foto"

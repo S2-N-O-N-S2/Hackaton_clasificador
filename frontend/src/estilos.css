@@ -1669,3 +1669,14 @@ legend { font-family: var(--f-letrero); font-stretch: 87.5%; font-size: 1.02rem;
   .tabla.tabla-tarjetas tbody tr.fila-dudosa { background: #FBEFC4; }
   .tabla-desplazable:has(.tabla-tarjetas) { border: none; background: none; }
 }
+
+/* Botón «Tomar foto» (Inicio): arranca el ciclo sin sensor IR */
+.tomar-foto { margin: 1rem 0 0.5rem; }
+.boton-tomar-foto {
+  font: inherit; font-size: 1.25rem; font-weight: 800; cursor: pointer; border: 0; border-radius: 999px;
+  padding: 0.9rem 2.2rem; background: var(--maquina); color: #fff; box-shadow: var(--sombra-alta);
+  transition: transform var(--rapido), background var(--rapido);
+}
+.boton-tomar-foto:hover:not(:disabled) { background: var(--maquina-2); transform: translateY(-1px); }
+.boton-tomar-foto:focus-visible { outline: 3px solid var(--amarillo); outline-offset: 2px; }
+.boton-tomar-foto:disabled { opacity: 0.5; cursor: not-allowed; }

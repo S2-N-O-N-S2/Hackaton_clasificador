@@ -35,12 +35,19 @@ export default function Inicio() {
           <small>¿Le ganas a la IA?</small>
         </button>
       </div>
+      <div className="tomar-foto centrado">
+        <button type="button" className="boton-tomar-foto" disabled={ocupado || !puedeElegir}
+          onClick={() => ejecutar(() => api.tomarFoto(), { ok: 'Tomando la foto…' })}>
+          📷 Tomar foto
+        </button>
+        <p className="atenuado">Pon el residuo frente a la cámara y presiona aquí (o di «listo» con el botón Hablar).</p>
+      </div>
       {!puedeElegir && estado && (
         <p className="atenuado centrado">Hay un residuo en proceso: espera a que termine el ciclo.</p>
       )}
       {maquina?.modo && estado === 'ESPERA_OBJETO' && (
         <p className="centrado">
-          Coloca el residuo frente a la cámara.{' '}
+          Pon el residuo frente a la cámara y presiona «Tomar foto».{' '}
           <button type="button" className="boton-secundario" disabled={ocupado} onClick={() => elegir('menu')}>
             Volver al menú
           </button>

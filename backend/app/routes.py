@@ -128,6 +128,13 @@ def get_estado(request: Request) -> dict[str, Any]:
     return _ctx(request).orq.estado_dict()
 
 
+@router.post("/api/tomar-foto")
+async def post_tomar_foto(request: Request) -> dict[str, Any]:
+    """Arranca el ciclo como si el sensor IR hubiera visto un objeto (contrato v1.6). 409 si no se puede."""
+    await _ctx(request).orq.tomar_foto("panel")
+    return {"ok": True}
+
+
 @router.get("/api/modo")
 def get_modo(request: Request) -> dict[str, Any]:
     orq = _ctx(request).orq

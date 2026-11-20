@@ -18,7 +18,7 @@ const MS_BURBUJA = 7000;
 
 const ACCIONES = {
   revision_resuelta: 'Caso resuelto: el residuo va al bote',
-  modo_ia: 'Modo IA elegido', modo_adivina: 'Modo Adivina elegido', modo_menu: 'De vuelta al menú',
+  foto: 'Tomando la foto', modo_ia: 'Modo IA elegido', modo_adivina: 'Modo Adivina elegido', modo_menu: 'De vuelta al menú',
   respuesta_bote: 'Te mostré el bote',
   no_reconocido: 'Presiona de nuevo y repítelo',
   ignorado: 'No hay nada que hacer ahora',
@@ -42,7 +42,7 @@ function textoEntendido(intencion) {
     const c = categoria(intencion.valor);
     return `${intencion.objeto ? `${intencion.objeto} → ` : ''}${c.nombre} (bote ${c.color})`;
   }
-  if (intencion.tipo === 'modo') return { ia: 'Modo IA', adivina: 'Modo Adivina', menu: 'Menú' }[intencion.valor] || intencion.valor;
+  if (intencion.tipo === 'modo') return { ia: 'Modo IA', adivina: 'Modo Adivina', menu: 'Menú', foto: 'Tomar foto' }[intencion.valor] || intencion.valor;
   if (intencion.tipo === 'desconocido') return 'No reconocí el objeto';
   return 'No oí nada';
 }

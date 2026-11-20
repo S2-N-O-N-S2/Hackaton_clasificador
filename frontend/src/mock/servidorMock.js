@@ -878,6 +878,13 @@ async function atender(metodo, rutaCompleta, cuerpo) {
     throw new ErrorApi(404, 'Acción manual desconocida');
   }
 
+  if (metodo === 'POST' && ruta === '/api/tomar-foto') {
+    exigir(!ocupado, 409, 'Hay un residuo en proceso');
+    ultimaActividad = Date.now();
+    procesarResiduo(maquina.modo || db.config.valores.modo_por_defecto);
+    return { ok: true };
+  }
+
   // 7. Simulación
   if (metodo === 'POST' && ruta === '/api/sim/objeto') {
     exigir(!ocupado, 409, 'Hay un residuo en proceso');

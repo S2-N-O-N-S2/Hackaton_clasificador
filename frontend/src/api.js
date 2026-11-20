@@ -55,6 +55,7 @@ export const api = {
   // 3.2 Modo y menú
   modo: () => pedir('GET', '/api/modo'),
   elegirModo: (modo) => pedir('POST', '/api/modo', { modo }), // 'ia' | 'adivina' | 'menu'
+  tomarFoto: () => pedir('POST', '/api/tomar-foto', {}),     // igual que el sensor IR (contrato v1.6)
 
   // 3.3 Clasificaciones
   clasificaciones: ({ limit = 50, offset = 0, dudosos, simulado = 'incluir' } = {}) =>

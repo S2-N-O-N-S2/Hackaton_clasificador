@@ -239,3 +239,17 @@ def test_config_invalida_se_rechaza(cliente, cambio):
     c, _ = cliente
     assert c.put("/api/config", json=cambio).status_code in (400, 422)
     assert c.put("/api/config", content='{"umbral_general": NaN}', headers={"Content-Type": "application/json"}).status_code in (400, 422)
+
+
+def test_tomar_foto_desde_la_pagina_arranca_el_ciclo(cliente):
+    """Sin sensor IR: el botón «Tomar foto» hace lo mismo que OBJ."""
+    c, _ = cliente
+    assert c.post("/api/tomar-foto", json={}).status_code == 200
+    esperar(lambda: c.get("/api/clasificaciones").json()["total"] >= 1)
+    esperar(lambda: c.get("/api/estado").json()["estado"] in ("MENU", "REVISION"))
+
+
+def test_tomar_foto_con_ciclo_en_curso_responde_409(cliente):
+    c, _ = cliente
+    assert c.post("/api/tomar-foto", json={}).status_code == 200
+    assert c.post("/api/tomar-foto", json={}).status_code == 409

@@ -378,6 +378,17 @@ class Orquestador:
         self._hablar(tts.FRASES_MODO[modo], interrumpir=True)
         await self.difusor.emitir("modo", {"modo": modo})
 
+    async def tomar_foto(self, origen: str = "panel") -> None:
+        """Botón «Tomar foto» de la página (o "listo" por voz): hace lo mismo que el sensor IR al mandar OBJ.
+        Existe porque la máquina puede trabajar SIN sensor: la persona pone el residuo frente a la cámara y avisa."""
+        if self.ciclo_activo or self.estado not in (Estado.MENU, Estado.ESPERA_OBJETO):
+            raise EstadoInvalido(f"No se puede tomar una foto en {self.estado.value}")
+        if self._tarea_mostrar_bote and not self._tarea_mostrar_bote.done():
+            await asyncio.wait({self._tarea_mostrar_bote})  # el disco termina de mostrar el bote
+        self._bandeja_libre.clear()
+        self.db.registrar_evento("info", origen, "Foto pedida sin sensor IR")
+        self._iniciar_ciclo()
+
     async def entrar_operador(self) -> None:
         if self.ciclo_activo or self.estado != Estado.MENU:
             raise EstadoInvalido(f"No se puede entrar al menú de operador en {self.estado.value}")
@@ -454,6 +465,9 @@ class Orquestador:
             if intencion.valor == "menu" and self.estado == Estado.ESPERA_OBJETO:
                 await self.seleccionar_modo("menu")
                 return "modo_menu"
+            if intencion.valor == "foto" and not self.ciclo_activo:
+                await self.tomar_foto("voz")
+                return "foto"
             if intencion.valor in ("ia", "adivina") and self.estado == Estado.MENU:
                 await self.seleccionar_modo(intencion.valor)
                 return f"modo_{intencion.valor}"

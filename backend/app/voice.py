@@ -63,7 +63,7 @@ def normalizar_texto(texto: str) -> list[str]:
 @dataclass(frozen=True)
 class Intencion:
     tipo: str               # "modo" | "categoria" | "desconocido" | "vacio"
-    valor: Any = None       # modo ("ia" | "adivina" | "menu") o categoría (0, 1, 2)
+    valor: Any = None       # modo ("ia" | "adivina" | "menu" | "foto") o categoría (0, 1, 2)
     objeto: str | None = None  # frase reconocida, normalizada (ej. "cascara de platano")
     texto: str = ""         # todo lo que se entendió, normalizado
 
@@ -85,7 +85,7 @@ class Vocabulario:
             if valor not in (0, 1, 2):
                 raise ValueError(f"keywords.json: categoría inválida {valor} (debe ser 0, 1 o 2)")
         for valor in self.menu.values():
-            if valor not in ("ia", "adivina", "menu"):
+            if valor not in ("ia", "adivina", "menu", "foto"):
                 raise ValueError(f"keywords.json: modo inválido {valor!r}")
 
     @classmethod
