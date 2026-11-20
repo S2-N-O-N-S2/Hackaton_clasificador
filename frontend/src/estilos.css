@@ -425,7 +425,8 @@ input[type="checkbox"] { width: 1.3rem; height: 1.3rem; min-height: 0; accent-co
 .carrusel-sector.apagado { opacity: 0.28; }
 .carrusel-sector.impacto { animation: impacto 0.45s 0.55s ease-out; }
 @keyframes impacto { 40% { filter: brightness(1.35); } }
-.carrusel-texto { font-family: var(--f-letrero); font-size: 11.5px; font-weight: 700; fill: #fff; transition: fill 0.4s; }
+.carrusel-texto { font-family: var(--f-letrero); font-size: 10.5px; font-weight: 700; fill: #fff; transition: fill 0.4s;
+  paint-order: stroke; stroke: rgba(0, 0, 0, 0.18); stroke-width: 2px; }
 .carrusel-texto.apagado { fill: var(--tinta-suave); }
 .carrusel-centro { fill: var(--placa); stroke: var(--linea); stroke-width: 1.5; }
 .carrusel-centro-texto { font-family: var(--f-letrero); font-size: 11px; font-weight: 700; fill: var(--tinta-suave); }
