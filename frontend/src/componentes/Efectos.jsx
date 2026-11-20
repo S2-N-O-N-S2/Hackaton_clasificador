@@ -91,7 +91,9 @@ export function useRevelarAlScroll(contenedorRef, clave) {
   }, [contenedorRef, clave]);
 }
 
-const ICONOS = {
+export const ICONOS = {
+  inicio: <><path d="M3.5 11L12 4l8.5 7" /><path d="M6 9.5V20h12V9.5" /><path d="M10 20v-5h4v5" /></>,
+  envivo: <><circle cx="12" cy="12" r="2.2" /><path d="M8 8a5.6 5.6 0 0 0 0 8M16 8a5.6 5.6 0 0 1 0 8" /><path d="M5 5a9.9 9.9 0 0 0 0 14M19 5a9.9 9.9 0 0 1 0 14" /></>,
   duelo: <><circle cx="8" cy="8" r="3" /><path d="M3 20c0-3 2.2-5 5-5s5 2 5 5" /><rect x="14" y="5" width="7" height="7" rx="1.5" /><path d="M16 15h3M17.5 12v3M15 20h5" /></>,
   aprendizaje: <><path d="M3 18l5-5 4 3 8-9" /><path d="M15 7h5v5" /></>,
   estadisticas: <><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></>,
