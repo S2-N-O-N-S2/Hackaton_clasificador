@@ -14,3 +14,5 @@ HACKATHÓN TESCo 2026 · Reto 1. Clasificador en ciclo cerrado con carrusel gira
 | `frontend/` | Panel React (Vite) |
 | `cad/` | Especificaciones CAD y archivos exportados |
 | `docs/` | Memoria técnica, bitácora, recursos externos, resultados |
+
+hola
